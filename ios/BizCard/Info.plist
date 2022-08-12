@@ -36,7 +36,7 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -51,5 +51,22 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>TwCenClassMTStd-Regular.otf</string>
+		<string>TwCenMTStd-Bold.otf</string>
+		<string>TwCenMTStd-BoldCond.otf</string>
+		<string>TwCenMTStd-ExtraBold.otf</string>
+		<string>TwCenMTStd-ExtraBoldCond.otf</string>
+		<string>TwCenMTStd-Italic.otf</string>
+		<string>TwCenMTStd-Light.otf</string>
+		<string>TwCenMTStd-LightItalic.otf</string>
+		<string>TwCenMTStd-MediumCond.otf</string>
+		<string>TwCenMTStd-SemiMedium.otf</string>
+		<string>TwCenMTStd-UltraBold.otf</string>
+		<string>TwCenMTStd-UltraBoldCond.otf</string>
+		<string>TwCenMTStd-UltraBoldIt.otf</string>
+		<string>TwCenMTStd.otf</string>
+	</array>
 </dict>
 </plist>

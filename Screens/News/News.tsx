@@ -22,7 +22,9 @@ const News = (props: any) => {
       <Header
         title="Мэдээ"
         rightIcon="logout"
-        rightIconPress={() => Alert.alert('loglogoutout')}
+        rightIconPress={() =>
+          props.navigation.dispatch(StackActions.replace('Login'))
+        }
       />
       <FlatList
         data={NewsListData}

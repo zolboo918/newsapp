@@ -1,26 +1,102 @@
 import CheckBox from '@react-native-community/checkbox';
 import {StackActions} from '@react-navigation/native';
-import {Checkbox, Select} from 'native-base';
+import axios from 'axios';
+import {Checkbox, Select, Toast} from 'native-base';
 import React, {useState} from 'react';
-import {Image, StyleSheet, Text, TextInput, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Button from '../Components/Button/Button';
-import {COLORS} from '../constants';
+import {baseUrl, COLORS} from '../constants';
+import {fileUpload, sendRequest} from '../utils/Service';
+// import QRCode from 'react-native-qrcode-generator';
+import {isEmpty} from 'lodash';
+import RNFS from 'react-native-fs';
+import CameraRoll from '@react-native-community/cameraroll';
+import {toBase64} from '../utils/helper';
+import QRCode from 'react-native-qrcode-svg';
 
 const AgreementAndQR = (props: any) => {
-  const [isConfirmed, setIsConfirmed] = useState('no');
-  const [showQr, setShowQr] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [qrImage, setQrImage] = useState('');
+  const [qrsvgref, setqrsvgref] = useState<any>();
+
+  console.log('props.route.params :>> ', props.route.params);
   const handleButtonPress = () => {
-    if (isConfirmed == 'yes') {
-      setShowQr(true);
+    if (isConfirmed) {
+      setLoading(true);
+      const data = props.route.params;
+      const body = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        email: data.email,
+        companyName: data.companyId,
+        linkedInId: data.linkedInId,
+        password: data.password,
+        position: data.position.toUpperCase(),
+        sectorId: data.sectorId,
+        image: '',
+        note: data.note,
+        isPublic: data.isPublic,
+      };
+
+      sendRequest('/users/register', body).then(result => {
+        console.log('res :>> ', result);
+        if (!result.error) {
+          fileUpload(
+            data.image,
+            `http://192.168.1.18:4000/api/v1/users/${result.data.nameCardId}/photo`,
+          )
+            .then((res: any) => {
+              setLoading(false);
+              setQrImage(result.data.qr);
+            })
+            .catch((e: any) => {
+              Alert.alert('error', JSON.stringify(e));
+              setLoading(false);
+            });
+        } else {
+          setLoading(false);
+        }
+      });
+    } else {
+      setError(true);
     }
   };
+
+  const saveQr = async () => {
+    qrsvgref.toDataURL((data: any) => {
+      console.log('data :>> ', data);
+      let filePath = RNFS.CachesDirectoryPath + `/nameCardQr.png`;
+      RNFS.writeFile(filePath, data, 'base64')
+        .then(success => {
+          return CameraRoll.save(filePath);
+        })
+        .then(() => {
+          Toast.show({title: 'Зураг ажмжилттай татагдлаа'});
+          // ToastAndroid.show('QRCode saved to gallery', ToastAndroid.LONG);
+        });
+    });
+  };
+
   const loginButtonPress = () => {
     props.navigation.navigate('Login');
   };
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>BIZCARD</Text>
-      {!showQr ? (
+      {isEmpty(qrImage) && !loading ? (
         <View>
           <View style={styles.textContainer}>
             <Text style={styles.title}>Үйлчилгээний нөхцөл</Text>
@@ -41,25 +117,34 @@ const AgreementAndQR = (props: any) => {
               deserunt mollit anim id est laborum."
             </Text>
           </View>
-          <View style={styles.checkBoxContainer}>
-            <Checkbox
-              borderColor="#fff"
-              value={'yes'}
-              colorScheme={'#fff'}
-              accessibilityLabel="checkbox"
-              onChange={isSelected => {
-                isSelected ? setIsConfirmed('yes') : setIsConfirmed('no');
+          <TouchableOpacity
+            style={styles.checkBoxContainer}
+            onPress={() => {
+              setIsConfirmed(!isConfirmed);
+              setError(false);
+            }}>
+            <CheckBox
+              value={isConfirmed}
+              style={styles.checkBox}
+              tintColors={
+                !error
+                  ? {false: COLORS.textColor, true: COLORS.textColor}
+                  : {false: '#ff6666', true: '#ff6666'}
+              }
+              onValueChange={val => {
+                setIsConfirmed(val);
+                setError(false);
               }}
             />
             <Text style={styles.checkBoxTitle}>Зөвшөөрч байна</Text>
-          </View>
+          </TouchableOpacity>
           <View style={styles.bottombuttonContainer}>
             <Button
               icon="chevron-left"
               style={styles.backButton}
               iconStyle={styles.backButtonIcon}
               titleStyle={styles.buttonText}
-              onPress={handleButtonPress}
+              onPress={() => props.navigation.goBack()}
             />
             <Button
               title="Бүртгүүлэх"
@@ -69,18 +154,22 @@ const AgreementAndQR = (props: any) => {
             />
           </View>
         </View>
-      ) : (
+      ) : qrImage && !loading ? (
         <View>
           <Text style={styles.qrText}>Таны QR код</Text>
-          <Image
-            source={require('../assets/images/QR.png')}
-            style={styles.QRImg}
-          />
+          <View style={styles.QRImg}>
+            <QRCode
+              value={qrImage}
+              size={250}
+              getRef={(r: any) => setqrsvgref(r)}
+            />
+          </View>
           <View style={{}}>
             <Button
               title="Хадгалах"
               style={{marginTop: 20}}
               titleStyle={styles.buttonText}
+              onPress={saveQr}
             />
             <Button
               title="Нэвтрэх"
@@ -89,6 +178,10 @@ const AgreementAndQR = (props: any) => {
               onPress={loginButtonPress}
             />
           </View>
+        </View>
+      ) : (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size={'large'} color={COLORS.textColor} />
         </View>
       )}
     </View>
@@ -132,11 +225,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
   },
-  checkBox: {
-    backgroundColor: '#fff',
-    height: 27,
-    width: 27,
-  },
+  checkBox: {},
   checkBoxTitle: {
     color: '#D9D9D9',
     fontSize: 14,
@@ -173,5 +262,10 @@ const styles = StyleSheet.create({
     width: 250,
     alignSelf: 'center',
     marginVertical: 40,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

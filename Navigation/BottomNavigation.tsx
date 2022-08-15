@@ -3,11 +3,11 @@ import React from 'react';
 import {StyleSheet} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../constants';
-import AddNameCard from '../Screens/AddNameCard';
+import AddNameCard from '../Screens/NameCard/AddNameCard';
 import Events from '../Screens/Events';
 import NameCards from '../Screens/NameCard/NameCards';
 import News from '../Screens/News/News';
-import Profile from '../Screens/Profile';
+import NameCardDetail from '../Screens/NameCard/NameCardDetail';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -74,7 +74,8 @@ function BottomTabs() {
       />
       <Tab.Screen
         name="Profile"
-        component={Profile}
+        component={NameCardDetail}
+        initialParams={{id: 1}}
         options={{
           tabBarIcon: ({color}) => (
             <MaterialCommunityIcons

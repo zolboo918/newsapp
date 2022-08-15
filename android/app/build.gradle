@@ -139,6 +139,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
+        vectorDrawables.useSupportLibrary = true
         versionName "1.0"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
@@ -257,6 +258,8 @@ android {
 }
 
 dependencies {
+    implementation project(':@react-native-community_cameraroll')
+    implementation project(':react-native-fs')
     implementation project(':react-native-webview')
     implementation fileTree(dir: "libs", include: ["*.jar"])
 

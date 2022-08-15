@@ -1,3 +1,4 @@
+import {StackActions, useNavigation} from '@react-navigation/native';
 import {isEmpty} from 'lodash';
 import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
@@ -6,8 +7,12 @@ import {COLORS} from '../../constants';
 
 const NameCardListItem = (props: any) => {
   const {item} = props;
+  const navigation = useNavigation();
+  const handleItemPress = () => {
+    navigation.dispatch(StackActions.push('NameCardDetail', {id: item.id}));
+  };
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={handleItemPress}>
       <Image source={{uri: item.nameCardPicture}} style={styles.image} />
       <View style={styles.infoSection}>
         <View style={styles.names}>
@@ -26,7 +31,7 @@ const NameCardListItem = (props: any) => {
           <></>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

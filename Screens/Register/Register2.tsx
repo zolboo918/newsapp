@@ -1,61 +1,87 @@
 import {StackActions} from '@react-navigation/native';
+import axios from 'axios';
+import {isEmpty} from 'lodash';
 import {Select} from 'native-base';
-import React from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 import Button from '../../Components/Button/Button';
-import {COLORS} from '../../constants';
+import Picker from '../../Components/Picker/Picker';
+import {baseUrl, COLORS} from '../../constants';
 
 const Register2 = (props: any) => {
-  const handleButtonPress = () => {
-    props.navigation.dispatch(StackActions.push('Register3'));
+  const [companyName, setCompanyName] = useState('');
+  const [position, setPosition] = useState('');
+  const [sectorId, setSectorId] = useState('');
+  const [sectorData, setSectorData] = useState([]);
+
+  const continuePress = () => {
+    props.navigation.dispatch(
+      StackActions.push('Register3', {
+        ...props.route.params,
+        companyName,
+        position,
+        sectorId,
+      }),
+    );
   };
+
+  const onPressSector = () => {
+    if (isEmpty(sectorData)) {
+      axios
+        .get(`${baseUrl}/companyCategories`)
+        .then(res => {
+          let arr: any = [];
+          res.data.data.forEach((el: any) => {
+            arr.push({label: el.displayName, value: el._id});
+          });
+          setSectorData(arr);
+        })
+        .catch(e => console.log('e', e));
+    }
+  };
+  console.log('setSectorId :>> ', sectorId);
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>BIZCARD</Text>
       <Text style={styles.title}>Ажлын мэдээлэл</Text>
       <View style={styles.inputsContainer}>
         <TextInput
+          value={companyName}
           placeholder="Байгууллага"
           placeholderTextColor={COLORS.textColor}
           style={styles.input}
+          onChangeText={(val: any) => setCompanyName(val)}
         />
         <TextInput
+          value={position}
           placeholder="Албан тушаал"
           placeholderTextColor={COLORS.textColor}
           style={styles.input}
+          onChangeText={(val: any) => setPosition(val)}
         />
-        <Select
-          selectedValue={''}
-          minWidth="200"
-          accessibilityLabel="Салбар"
+        <Picker
+          value={sectorId}
+          items={sectorData}
           placeholder="Салбар"
-          mt={2.5}
-          placeholderTextColor={COLORS.textColor}
-          fontSize={14}
-          borderRadius={10}
-          borderColor={COLORS.textColor}
-          paddingLeft={2}
-          height={10}
-          onValueChange={itemValue => {}}>
-          <Select.Item label="UX Research" value="ux" />
-          <Select.Item label="Web Development" value="web" />
-          <Select.Item label="Cross Platform Development" value="cross" />
-          <Select.Item label="UI Designing" value="ui" />
-          <Select.Item label="Backend Development" value="backend" />
-        </Select>
+          onPress={onPressSector}
+          onValueChange={(val: any) => {
+            console.log('val :>> ', val);
+            setSectorId(val);
+          }}
+        />
         <View style={styles.bottombuttonContainer}>
           <Button
             icon="chevron-left"
             style={styles.backButton}
             iconStyle={styles.backButtonIcon}
             titleStyle={styles.buttonText}
-            onPress={handleButtonPress}
+            onPress={() => props.navigation.goBack()}
           />
           <Button
             title="Үргэлжлүүлэх 2/3"
             style={styles.registerButton}
             titleStyle={styles.buttonText}
-            onPress={handleButtonPress}
+            onPress={continuePress}
           />
         </View>
       </View>

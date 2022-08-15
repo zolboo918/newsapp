@@ -1,6 +1,8 @@
 import {StackActions, useNavigation} from '@react-navigation/native';
 import axios from 'axios';
+import {Toast} from 'native-base';
 import React, {useState} from 'react';
+import {baseUrl} from '../constants';
 
 const defaultValue = {
   isLoggedIn: false,
@@ -30,36 +32,35 @@ export const UserStore = (props: any) => {
     setToken(null);
   };
 
-  const login = (email: any, password: any) => {
+  const login = (userName: any, password: any) => {
     // setLoading(true);
-    // axios
-    //   .post('https://bookappapi.herokuapp.com/api/v1/users/login', {
-    //     email,
-    //     password,
-    //   })
-    //   .then(res => {
-    //     setToken(res.data.token);
-    setIsLoggedIn(true);
-    //   setUserInfo(res.data.user);
-    //   setLoading(false);
-    // })
-    // .catch(err => {
-    //   setError(
-    //     err.response.data.error.message
-    //       ? err.response.data.error.message
-    //       : err,
-    //   );
-    //   setIsLoggedIn(false);
-    //   setLoading(false);
-    // Toast.show({
-    //   text1: 'Алдаа гарлаа',
-    //   text2: err
-    //     ? err.response.data.error.message
-    //     : 'Та интернэт холболтоо шалгана уу',
-    //   type: 'error',
-    //   position: 'top',
-    // });
-    // });
+    axios
+      .post(`${baseUrl}/users/login`, {
+        userName,
+        password,
+      })
+      .then(res => {
+        console.log('res', res.data);
+        setToken(res.data.token);
+        setIsLoggedIn(true);
+        setUserInfo(res.data.user);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(
+          err.response.data.error.message
+            ? err.response.data.error.message
+            : err,
+        );
+        setIsLoggedIn(false);
+        setLoading(false);
+        Toast.show({
+          title: 'Алдаа гарлаа',
+          description: err
+            ? err.response.data.error.message
+            : 'Та интернэт холболтоо шалгана уу',
+        });
+      });
   };
   const register = (userInfo: any) => {
     setLoading(true);
@@ -86,7 +87,7 @@ export const UserStore = (props: any) => {
           setIsLoggedIn(false);
           setLoading(false);
         });
-    } catch (error) {
+    } catch (error: any) {
       console.log('error->', error.message);
     }
   };

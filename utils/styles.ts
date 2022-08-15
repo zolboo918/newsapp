@@ -1,0 +1,123 @@
+import {Dimensions, StyleSheet} from 'react-native';
+import {COLORS} from '../constants';
+import {getWidth, setHeight, setWidth} from './Dimension';
+
+export const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalView: {
+    marginHorizontal: 20,
+    width: Dimensions.get('screen').width - 40,
+    backgroundColor: 'green',
+    borderRadius: 10,
+    paddingTop: 40,
+    alignItems: 'center',
+  },
+  button: {
+    borderRadius: 30,
+    width: 116,
+    height: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.textColor,
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 17,
+  },
+  modalTitle: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 20,
+    marginTop: 30,
+  },
+  modalText: {
+    // color: ,
+    fontSize: 16,
+    fontWeight: 'normal',
+    marginVertical: 5,
+    textAlign: 'center',
+  },
+  dialogButtonBackground: {
+    backgroundColor: '#fff',
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    width: '100%',
+    marginTop: 30,
+    paddingVertical: 40,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    flexDirection: 'row',
+  },
+
+  buttonBackground: {
+    backgroundColor: '#fff',
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    width: '100%',
+    marginTop: 30,
+    paddingVertical: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  loader: {
+    height: setHeight(40),
+    marginHorizontal: 20,
+    width: getWidth() - 40,
+    backgroundColor: 'green',
+    borderRadius: 10,
+    paddingTop: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  // input alert
+  inputContainer: {
+    width: '100%',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: setHeight(1.5),
+  },
+  labelContainer: {
+    alignSelf: 'flex-start',
+    position: 'absolute',
+    top: -setHeight(0.7),
+    left: setWidth(13),
+    zIndex: 1,
+    backgroundColor: 'green',
+    paddingHorizontal: setWidth(5),
+    paddingVertical: setHeight(0.3),
+    borderRadius: 10,
+  },
+  label: {
+    color: COLORS.textColor,
+    fontSize: setHeight(1.6),
+  },
+  input: {
+    // borderWidth: 1,
+    // borderColor: "#a0a0a0",
+    marginTop: setHeight(1),
+    width: '80%',
+    borderRadius: 10,
+    backgroundColor: '#fff',
+  },
+});

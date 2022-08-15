@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -15,14 +15,34 @@ import {StackActions} from '@react-navigation/native';
 import Button from '../Components/Button/Button';
 import {useContext} from 'react';
 import UserContext from '../Context/userContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const textColor = '#8a939e';
 
 const Login = (props: any) => {
+  const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('12341234');
+  const [remember, setRemember] = useState(false);
+
   const {login} = useContext(UserContext);
+
+  useEffect(() => {
+    AsyncStorage.getItem('rememberUserName').then(res => {
+      if (res) {
+        setUserName(res);
+        setRemember(true);
+      }
+    });
+  }, []);
+
   const handleLoginButton = () => {
     // props.navigation.dispatch(StackActions.push('News'));
-    login('', '');
+    if (remember) {
+      AsyncStorage.setItem('rememberUserName', userName);
+    } else {
+      AsyncStorage.removeItem('rememberUserName');
+    }
+    login(userName, password);
   };
 
   const handleRegisterButton = () => {
@@ -42,28 +62,37 @@ const Login = (props: any) => {
       <View style={styles.inputContainer}>
         <Icon name="user-o" style={styles.inputIcon} />
         <TextInput
+          value={userName}
           placeholder="Нэвтрэх нэр"
           style={styles.input}
           placeholderTextColor="#8a939e"
+          onChangeText={val => setUserName(val)}
         />
       </View>
       <View style={styles.inputContainer2}>
         <FeatherIcon name="lock" style={styles.inputIcon} />
         <TextInput
+          value={password}
+          secureTextEntry
           placeholder="Нууц үг"
           style={styles.input}
           placeholderTextColor="#8a939e"
+          onChangeText={val => setPassword(val)}
         />
       </View>
 
-      <View style={styles.checkboxContainer}>
+      <TouchableOpacity
+        style={styles.checkboxContainer}
+        onPress={() => setRemember(!remember)}>
         <CheckBox
+          value={remember}
           style={[styles.checkbox]}
           tintColor={textColor}
           tintColors={{true: textColor, false: textColor}}
+          onValueChange={val => setRemember(val)}
         />
         <Text style={styles.checkboxLabel}>Намайг сануул</Text>
-      </View>
+      </TouchableOpacity>
       <Button title="Нэвтрэх" onPress={handleLoginButton} />
       <TouchableOpacity>
         <Image

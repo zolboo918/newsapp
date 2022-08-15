@@ -12,6 +12,9 @@ import BottomTabs from './BottomNavigation';
 import AddNews from '../Screens/News/AddNews';
 import NewsDetail from '../Screens/News/NewsDetail';
 import NameCardSearch from '../Screens/NameCard/NameCardSearch';
+import NameCardDetail from '../Screens/NameCard/NameCardDetail';
+import AddNameCardManual from '../Screens/NameCard/AddNameCardManual';
+import AddNameCardQr from '../Screens/NameCard/AddNameCardQr';
 
 const Stack = createNativeStackNavigator();
 
@@ -72,6 +75,21 @@ function StackNavigation() {
           <Stack.Screen
             name="NameCardSearch"
             component={NameCardSearch}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="NameCardDetail"
+            component={NameCardDetail}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="AddNameCardManual"
+            component={AddNameCardManual}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="AddNameCardQr"
+            component={AddNameCardQr}
             options={{headerShown: false}}
           />
         </>

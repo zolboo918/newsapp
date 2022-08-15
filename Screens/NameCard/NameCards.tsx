@@ -31,7 +31,7 @@ const NameCards = (props: any) => {
           </View>
           <AntDesignIcon name="search1" style={styles.searchIcon} />
         </TouchableOpacity>
-        <View style={{marginTop: 20}}>
+        <View style={{marginTop: 20, height: '85%'}}>
           <FlatList
             data={NameCardData}
             numColumns={2}

@@ -19,24 +19,20 @@ const Alert = (props: any) => {
         <Icon
           name={iconName ? iconName : 'close-circle-outline'}
           size={80}
-          color={'#000'}
+          color={'#fff'}
         />
       ) : (
         <></>
       )}
-      <Text style={[styles.modalTitle, {color: COLORS.DEFAULT_COLOR}]}>
-        {messageTitle}
-      </Text>
+      <Text style={[styles.modalTitle, {color: '#fff'}]}>{messageTitle}</Text>
 
-      <Text style={[styles.modalText, {color: '#000'}]}>{message}</Text>
+      <Text style={[styles.modalText, {color: '#fff'}]}>{message}</Text>
 
-      <View style={styles.buttonBackground}>
-        <TouchableOpacity
-          style={[styles.button, {backgroundColor: COLORS.textColor}]}
-          onPress={hide}>
-          <Text style={styles.textStyle}>Хаах</Text>
-        </TouchableOpacity>
-      </View>
+      {/* <View style={styles.buttonBackground}> */}
+      <TouchableOpacity style={[styles.button]} onPress={hide}>
+        <Text style={styles.textStyle}>Хаах</Text>
+      </TouchableOpacity>
+      {/* </View> */}
     </View>
     // </View>
   );

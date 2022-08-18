@@ -220,3 +220,10 @@ export const NameCardSearchData = [
     existMyList: '0',
   },
 ];
+
+export const positions = [
+  {
+    label: 'DIRECTOR',
+    value: 'DIRECTOR',
+  },
+];

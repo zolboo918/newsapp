@@ -3,6 +3,7 @@ import axios from 'axios';
 import {Toast} from 'native-base';
 import React, {useState} from 'react';
 import {baseUrl} from '../constants';
+import {getRequest} from '../utils/Service';
 
 const defaultValue = {
   isLoggedIn: false,
@@ -22,28 +23,38 @@ export const UserStore = (props: any) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
+  const [nameCardIndo, setNameCardIndo] = useState();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const navigation = useNavigation();
 
   const logOut = () => {
     setIsLoggedIn(false);
     setToken(null);
   };
 
+  // const nameCardInfo = (userId: any) => {
+  //   getRequest('/nameCards/user/' + userId).then(res => {
+  //     if (!res?.error) {
+  //       setNameCardIndo(res.data);
+  //     }
+  //   });
+  // };
+
   const login = (userName: any, password: any) => {
-    // setLoading(true);
+    setLoading(true);
     axios
       .post(`${baseUrl}/users/login`, {
         userName,
         password,
       })
       .then(res => {
-        console.log('res', res.data);
         setToken(res.data.token);
         setIsLoggedIn(true);
-        setUserInfo(res.data.user);
+        setUserInfo({
+          ...res.data.user,
+          nameCardId: res.data.nameCardId,
+          nameCardImage: res.data.photo,
+        });
         setLoading(false);
       })
       .catch(err => {

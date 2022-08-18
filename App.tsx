@@ -5,6 +5,7 @@ import StackNavigation from './Navigation/StackNavigation';
 import {UserStore} from './Context/userContext';
 import {LogBox, StatusBar} from 'react-native';
 import {COLORS} from './constants';
+import {CustomAlert} from './utils/CustomAlert';
 
 const App = () => {
   LogBox.ignoreAllLogs();
@@ -17,6 +18,7 @@ const App = () => {
             barStyle={'light-content'}
             backgroundColor={COLORS.DEFAULT_COLOR}
           />
+          <CustomAlert />
         </UserStore>
       </NavigationContainer>
     </NativeBaseProvider>

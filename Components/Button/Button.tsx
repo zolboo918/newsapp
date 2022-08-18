@@ -2,6 +2,7 @@ import {isEmpty} from 'lodash';
 import {ChevronLeftIcon} from 'native-base';
 import React from 'react';
 import {
+  ActivityIndicator,
   StyleProp,
   StyleSheet,
   Text,
@@ -12,10 +13,17 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../../constants';
 
 const Button = (props: any) => {
-  const {title, icon, style, titleStyle, iconStyle, onPress} = props;
+  const {title, icon, style, loading, titleStyle, iconStyle, onPress} = props;
   return (
-    <TouchableOpacity style={[styles.buttonContainer, style]} onPress={onPress}>
-      {title && <Text style={[styles.buttonText, titleStyle]}>{title}</Text>}
+    <TouchableOpacity
+      style={[styles.buttonContainer, style]}
+      onPress={onPress}
+      disabled={loading}>
+      {title && typeof loading == 'boolean' && loading ? (
+        <ActivityIndicator color={COLORS.textColor} size="large" />
+      ) : (
+        <Text style={[styles.buttonText, titleStyle]}>{title}</Text>
+      )}
       {icon && <Icon name={icon} style={[styles.icon, iconStyle]} />}
     </TouchableOpacity>
   );

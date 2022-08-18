@@ -7,6 +7,7 @@ import {StyleSheet, Text, TextInput, View} from 'react-native';
 import Button from '../../Components/Button/Button';
 import Picker from '../../Components/Picker/Picker';
 import {baseUrl, COLORS} from '../../constants';
+import {getRequest} from '../../utils/Service';
 
 const Register2 = (props: any) => {
   const [companyName, setCompanyName] = useState('');
@@ -27,19 +28,16 @@ const Register2 = (props: any) => {
 
   const onPressSector = () => {
     if (isEmpty(sectorData)) {
-      axios
-        .get(`${baseUrl}/companyCategories`)
-        .then(res => {
-          let arr: any = [];
-          res.data.data.forEach((el: any) => {
-            arr.push({label: el.displayName, value: el._id});
-          });
-          setSectorData(arr);
-        })
-        .catch(e => console.log('e', e));
+      getRequest('/companyCategories').then(res => {
+        let arr: any = [];
+        res.data.forEach((el: any) => {
+          arr.push({label: el.displayName, value: el._id});
+        });
+        setSectorData(arr);
+      });
     }
   };
-  console.log('setSectorId :>> ', sectorId);
+
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>BIZCARD</Text>
@@ -63,11 +61,9 @@ const Register2 = (props: any) => {
           value={sectorId}
           items={sectorData}
           placeholder="Салбар"
+          style={{marginTop: 5}}
           onPress={onPressSector}
-          onValueChange={(val: any) => {
-            console.log('val :>> ', val);
-            setSectorId(val);
-          }}
+          onValueChange={(val: any) => setSectorId(val)}
         />
         <View style={styles.bottombuttonContainer}>
           <Button

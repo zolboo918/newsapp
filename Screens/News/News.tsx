@@ -1,14 +1,45 @@
-import {Fab, Icon} from 'native-base';
-import React, {useEffect, useState} from 'react';
-import {Alert, FlatList, StyleSheet, Text, View} from 'react-native';
+import {Fab} from 'native-base';
+import React, {useContext, useEffect, useState} from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from 'react-native';
+import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import EmptyData from '../../Components/EmptyData/EmptyData';
 import Header from '../../Components/Header/Header';
 import NewsListItem from '../../Components/ListItems/NewsListItem';
-import {NewsListData} from '../../data/Data';
-import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import {COLORS} from '../../constants';
-import {StackActions} from '@react-navigation/native';
+import UserContext from '../../Context/userContext';
+import {getRequest} from '../../utils/Service';
 
 const News = (props: any) => {
+  const [newsData, setNewsData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const {logOut} = useContext(UserContext);
+
+  useEffect(() => {
+    getNews();
+  }, []);
+
+  const getNews = () => {
+    setLoading(true);
+    getRequest(`/news`)
+      .then((res: any) => {
+        setLoading(false);
+        if (!res.error) {
+          setNewsData(res.data);
+        }
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  };
+
   const onPressFab = () => {
     props.navigation.navigate('AddNews');
   };
@@ -17,22 +48,32 @@ const News = (props: any) => {
     props.navigation.navigate('NewsDetail', item);
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getNews();
+    setRefreshing(false);
+  };
+
   return (
     <View style={styles.container}>
-      <Header
-        title="Мэдээ"
-        rightIcon="logout"
-        rightIconPress={() =>
-          props.navigation.dispatch(StackActions.replace('Login'))
-        }
-      />
-      <FlatList
-        data={NewsListData}
-        keyExtractor={(item: any, index: any) => index}
-        renderItem={({item, index}: any) => (
-          <NewsListItem item={item} onPress={() => onPressNews(item)} />
-        )}
-      />
+      <Header title="Мэдээ" rightIcon="logout" rightIconPress={logOut} />
+      {loading ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <ActivityIndicator size={'large'} color={COLORS.textColor} />
+        </View>
+      ) : (
+        <FlatList
+          ListEmptyComponent={<EmptyData />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          data={newsData}
+          keyExtractor={(item: any, index: any) => index}
+          renderItem={({item, index}: any) => (
+            <NewsListItem item={item} onPress={() => onPressNews(item)} />
+          )}
+        />
+      )}
       <Fab
         style={styles.fab}
         renderInPortal={false}

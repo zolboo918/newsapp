@@ -21,7 +21,7 @@ import {fileUpload, sendRequest} from '../utils/Service';
 import {isEmpty} from 'lodash';
 import RNFS from 'react-native-fs';
 import CameraRoll from '@react-native-community/cameraroll';
-import {toBase64} from '../utils/helper';
+import {showUnSuccessMessage, toBase64} from '../utils/helper';
 import QRCode from 'react-native-qrcode-svg';
 
 const AgreementAndQR = (props: any) => {
@@ -31,7 +31,6 @@ const AgreementAndQR = (props: any) => {
   const [qrImage, setQrImage] = useState('');
   const [qrsvgref, setqrsvgref] = useState<any>();
 
-  console.log('props.route.params :>> ', props.route.params);
   const handleButtonPress = () => {
     if (isConfirmed) {
       setLoading(true);
@@ -42,6 +41,7 @@ const AgreementAndQR = (props: any) => {
         phone: data.phone,
         email: data.email,
         companyName: data.companyId,
+        companyId: '',
         linkedInId: data.linkedInId,
         password: data.password,
         position: data.position.toUpperCase(),
@@ -52,7 +52,6 @@ const AgreementAndQR = (props: any) => {
       };
 
       sendRequest('/users/register', body).then(result => {
-        console.log('res :>> ', result);
         if (!result.error) {
           fileUpload(
             data.image,
@@ -63,7 +62,7 @@ const AgreementAndQR = (props: any) => {
               setQrImage(result.data.qr);
             })
             .catch((e: any) => {
-              Alert.alert('error', JSON.stringify(e));
+              showUnSuccessMessage(JSON.stringify(e));
               setLoading(false);
             });
         } else {
@@ -77,7 +76,6 @@ const AgreementAndQR = (props: any) => {
 
   const saveQr = async () => {
     qrsvgref.toDataURL((data: any) => {
-      console.log('data :>> ', data);
       let filePath = RNFS.CachesDirectoryPath + `/nameCardQr.png`;
       RNFS.writeFile(filePath, data, 'base64')
         .then(success => {
@@ -85,7 +83,6 @@ const AgreementAndQR = (props: any) => {
         })
         .then(() => {
           Toast.show({title: 'Зураг ажмжилттай татагдлаа'});
-          // ToastAndroid.show('QRCode saved to gallery', ToastAndroid.LONG);
         });
     });
   };

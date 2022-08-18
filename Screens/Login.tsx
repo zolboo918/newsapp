@@ -16,15 +16,16 @@ import Button from '../Components/Button/Button';
 import {useContext} from 'react';
 import UserContext from '../Context/userContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {CustomAlert} from '../utils/CustomAlert';
 
 const textColor = '#8a939e';
 
 const Login = (props: any) => {
-  const [userName, setUserName] = useState('');
-  const [password, setPassword] = useState('12341234');
+  const [userName, setUserName] = useState('zolboo412@gmail.com');
+  const [password, setPassword] = useState('123456');
   const [remember, setRemember] = useState(false);
 
-  const {login} = useContext(UserContext);
+  const {loading, login} = useContext(UserContext);
 
   useEffect(() => {
     AsyncStorage.getItem('rememberUserName').then(res => {
@@ -36,7 +37,6 @@ const Login = (props: any) => {
   }, []);
 
   const handleLoginButton = () => {
-    // props.navigation.dispatch(StackActions.push('News'));
     if (remember) {
       AsyncStorage.setItem('rememberUserName', userName);
     } else {
@@ -93,7 +93,7 @@ const Login = (props: any) => {
         />
         <Text style={styles.checkboxLabel}>Намайг сануул</Text>
       </TouchableOpacity>
-      <Button title="Нэвтрэх" onPress={handleLoginButton} />
+      <Button title="Нэвтрэх" loading={loading} onPress={handleLoginButton} />
       <TouchableOpacity>
         <Image
           source={require('../assets/images/LinkedIn_icon.png')}

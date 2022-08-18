@@ -3,21 +3,77 @@ import {isEmpty} from 'lodash';
 import {Toast} from 'native-base';
 import {Alert} from 'react-native';
 import {baseUrl} from '../constants';
+import {CustomAlert} from './CustomAlert';
+import {showUnSuccessMessage} from './helper';
 
-export const sendRequest = (url: any, body: any) => {
+export const getRequest = (url: any) => {
   return axios
-    .post(`${baseUrl}${url}`, body)
+    .get(`${baseUrl}${url}`)
     .then((res: any) => {
-      console.log('res :>> ', res);
       if (res.data.success) {
         return res.data;
       } else if (!res.data.success) {
-        Alert.alert('error', res.data.error.message);
+        showUnSuccessMessage(res.data.error.message);
         return {error: res.data.error.message};
       }
     })
     .catch(err => {
-      Alert.alert('error', JSON.stringify(err));
+      showUnSuccessMessage(JSON.stringify(err));
+      return {error: err};
+    });
+};
+
+export const sendRequest = (url: any, body?: any) => {
+  return axios
+    .post(`${baseUrl}${url}`, body)
+    .then((res: any) => {
+      if (res.data.success) {
+        return res.data;
+      } else if (!res.data.success) {
+        // if ((res.data.error.code = 11000)) {
+        //   showUnSuccessMessage('Өмнө бүртгэгдсэн байна');
+        // } else {
+        showUnSuccessMessage(res.data.error.message);
+        // }
+
+        return {error: res.data.error.message};
+      }
+    })
+    .catch(err => {
+      showUnSuccessMessage(JSON.stringify(err));
+    });
+};
+
+export const putRequest = (url: any, body?: any) => {
+  return axios
+    .put(`${baseUrl}${url}`, body)
+    .then((res: any) => {
+      if (res.data.success) {
+        return res.data;
+      } else if (!res.data.success) {
+        showUnSuccessMessage(res.data.error.message);
+        return {error: res.data.error.message};
+      }
+    })
+    .catch(err => {
+      showUnSuccessMessage(JSON.stringify(err));
+    });
+};
+
+export const deleteRequest = (url: any) => {
+  return axios
+    .delete(`${baseUrl}${url}`)
+    .then((res: any) => {
+      if (res.data.success) {
+        return res.data;
+      } else if (!res.data.success) {
+        showUnSuccessMessage(res.data.error.message);
+        return {error: res.data.error.message};
+      }
+    })
+    .catch(err => {
+      showUnSuccessMessage(JSON.stringify(err));
+      return {error: err};
     });
 };
 
@@ -36,7 +92,7 @@ export const fileUpload = (file: any, path: any) => {
     xhr.onerror = e => {
       Toast.show({
         title: 'Дахин оролдоно уу',
-        description: e.toString(),
+        description: JSON.stringify(e),
       });
     };
     xhr.onload = e => {
@@ -49,7 +105,7 @@ export const fileUpload = (file: any, path: any) => {
       } else {
         Toast.show({
           title: 'Дахин оролдоно уу',
-          description: e.toString(),
+          description: JSON.stringify(e),
         });
         reject({error: e});
       }

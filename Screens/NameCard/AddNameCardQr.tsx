@@ -1,9 +1,15 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import Header from '../../Components/Header/Header';
 import Button from '../../Components/Button/Button';
+import QRCodeScanner from 'react-native-qrcode-scanner';
+import {RNCamera} from 'react-native-camera';
 
 const AddNameCardQr = (props: any) => {
+  const onSuccess = (e: any) => {
+    console.log('e', e);
+  };
+
   return (
     <View style={styles.container}>
       <Header
@@ -13,7 +19,15 @@ const AddNameCardQr = (props: any) => {
       />
       <View style={styles.wrapper}>
         <Text style={styles.title}>QR код уншуулна уу</Text>
-        <View style={styles.qrContainer}></View>
+        <View style={styles.qrContainer}>
+          <QRCodeScanner
+            // cameraContainerStyle={{height: 360, width: 360}}
+            cameraStyle={styles.cameraStyle}
+            // containerStyle={{height: 360, width: 360}}
+            onRead={onSuccess}
+            flashMode={RNCamera.Constants.FlashMode.torch}
+          />
+        </View>
       </View>
     </View>
   );
@@ -40,8 +54,12 @@ const styles = StyleSheet.create({
     width: 360,
     borderRadius: 10,
     alignSelf: 'center',
-    borderWidth: 1,
-    borderColor: '#8A939E',
     marginTop: '10%',
+  },
+  cameraStyle: {
+    marginTop: '15%',
+    marginLeft: '10%',
+    width: '80%',
+    height: '20%',
   },
 });

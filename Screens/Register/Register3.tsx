@@ -40,7 +40,9 @@ const Register3 = (props: any) => {
         setFileData(file);
         setImage(file.uri);
       })
-      .catch(e => console.log(e));
+      .catch(e =>
+        Toast.show({title: 'Алдаа гарлаа', description: JSON.stringify(e)}),
+      );
   };
 
   return (

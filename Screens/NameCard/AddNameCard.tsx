@@ -1,11 +1,14 @@
 import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React from 'react';
+import React, {useContext} from 'react';
 import Header from '../../Components/Header/Header';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import UserContext from '../../Context/userContext';
 
 const AddNameCard = (props: any) => {
+  const {logOut} = useContext(UserContext);
+
   const manual = () => {
     props.navigation.navigate('AddNameCardManual');
   };
@@ -17,7 +20,7 @@ const AddNameCard = (props: any) => {
       <Header
         title="Нэрийн хуудас"
         rightIcon="logout"
-        rightIconPress={() => Alert.alert('loglogoutout')}
+        rightIconPress={logOut}
       />
       <View style={styles.wrapper}>
         <TouchableOpacity style={styles.photoContainer} onPress={manual}>

@@ -1,7 +1,7 @@
-import {Select} from 'native-base';
-import React from 'react';
+import {useIsFocused} from '@react-navigation/native';
+import {identity, includes, isEmpty} from 'lodash';
+import React, {useContext, useEffect, useState} from 'react';
 import {
-  Alert,
   Dimensions,
   FlatList,
   StyleSheet,
@@ -13,10 +13,172 @@ import {
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import Header from '../../Components/Header/Header';
 import NameCardListItem from '../../Components/ListItems/NameCardListItem';
+import Picker from '../../Components/Picker/Picker';
 import {COLORS} from '../../constants';
-import {NameCardData, NameCardSearchData} from '../../data/Data';
+import UserContext from '../../Context/userContext';
+import {positions} from '../../data/Data';
+import {getRequest} from '../../utils/Service';
+
+let data: any;
 
 const NameCardSearch = (props: any) => {
+  const [nameCardsData, setNameCardsData] = useState([]);
+  const [searchValue, setSearchValue] = useState('');
+
+  const [sectorId, setSectorId] = useState('');
+  const [sectorData, setSectorData] = useState([]);
+  const [company, setCompany] = useState('');
+  const [companyData, setCompanyData] = useState([]);
+  const [position, setPosition] = useState('');
+  const [positionData, setPositionData] = useState<any>([]);
+
+  const {userInfo} = useContext<any>(UserContext);
+
+  useEffect(() => {
+    getData().then(({nameCards, nameCardsMap}: any) => {
+      let arr: any = [];
+      let check = false;
+      if (isEmpty(nameCardsMap)) {
+        nameCards.forEach((nameCard: any, index: any) => {
+          nameCard.existMyList = '0';
+          arr.push(nameCard);
+        });
+      } else {
+        nameCards.forEach((nameCard: any, i: any) => {
+          nameCardsMap.forEach((map: any, index: any) => {
+            if (!check) {
+              if (nameCard._id == map.targetId) {
+                nameCard.existMyList = '1';
+                if (!arr.includes(nameCard)) arr.push(nameCard);
+                check = true;
+              } else {
+                nameCard.existMyList = '0';
+                if (!arr.includes(nameCard)) arr.push(nameCard);
+                check = false;
+              }
+            }
+          });
+          check = false;
+        });
+      }
+      setNameCardsData(arr);
+    });
+  }, []);
+
+  console.log('nameCardsData :>> ', nameCardsData);
+
+  const getData = async () => {
+    const nameCards = await getRequest('/nameCards');
+    if (!nameCards?.error) {
+      data = nameCards.data;
+    }
+
+    const nameCardMap = await getRequest(
+      '/nameCardsMap/' + userInfo.nameCardId,
+    );
+    if (!nameCardMap?.error) {
+    }
+    return {nameCards: nameCards.data, nameCardsMap: nameCardMap.data};
+  };
+
+  const onPressSector = () => {
+    if (isEmpty(sectorData)) {
+      getRequest('/companyCategories').then(res => {
+        let arr: any = [];
+        res.data.forEach((el: any) => {
+          arr.push({label: el.displayName, value: el._id});
+        });
+        setSectorData(arr);
+      });
+    }
+  };
+
+  const onPressCompany = () => {
+    if (isEmpty(companyData)) {
+      getRequest('/company').then(res => {
+        let arr: any = [];
+        res.data.forEach((el: any) => {
+          arr.push({label: el.name, value: el._id});
+        });
+        setCompanyData(arr);
+      });
+    }
+  };
+
+  const onPressPosition = () => {
+    if (isEmpty(positionData)) {
+      setPositionData(positions);
+    }
+  };
+
+  const clearFilter = () => {
+    setCompany('');
+    setSectorId('');
+    setPosition('');
+    setSearchValue('');
+    setNameCardsData(data);
+  };
+
+  const search = () => {
+    let filtered: any = [];
+    data.forEach((el: any) => {
+      if (
+        el.firstName.toLowerCase().includes(searchValue.toLocaleLowerCase()) ||
+        el.lastName.toLowerCase().includes(searchValue.toLowerCase()) ||
+        el.lastName.toLowerCase().includes(searchValue.toLowerCase()) ||
+        el.email.toLowerCase().includes(searchValue.toLowerCase()) ||
+        el.phone.toLowerCase().includes(searchValue.toLowerCase()) ||
+        el.position.toLowerCase().includes(searchValue.toLowerCase())
+      ) {
+        filtered.push(el);
+      }
+    });
+    setNameCardsData(filtered);
+  };
+
+  const onChangeText = (val: any) => {
+    if (val == '') {
+      setNameCardsData(data);
+      setSearchValue(val);
+    } else setSearchValue(val);
+  };
+
+  const onValueChange = (val: any, type: any) => {
+    let arr: any = [];
+    switch (type) {
+      case 'sector':
+        data.forEach((el: any) => {
+          if (el.sectorId == val) {
+            arr.push(el);
+          }
+        });
+        setSectorId(val);
+        setNameCardsData(arr);
+        break;
+      case 'company':
+        data.forEach((el: any) => {
+          if (el?.companyId == val) {
+            arr.push(el);
+          }
+        });
+        setCompany(val);
+        setNameCardsData(arr);
+        break;
+      case 'position':
+        data.forEach((el: any) => {
+          if (el?.position == val) {
+            arr.push(el);
+          }
+        });
+        setPosition(val);
+        setNameCardsData(arr);
+        break;
+
+      default:
+        break;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Header title="Нэрийн хуудас" />
@@ -27,102 +189,81 @@ const NameCardSearch = (props: any) => {
             style={styles.backIcon}
             onPress={() => props.navigation.goBack()}
           />
-          <TextInput style={styles.input} placeholder="Бүх талбараас хайх" />
-          <TouchableOpacity style={styles.close} onPress={() => {}}>
+          <TextInput
+            value={searchValue}
+            style={styles.input}
+            placeholder="Бүх талбараас хайх"
+            onEndEditing={search}
+            onChangeText={onChangeText}
+          />
+          <TouchableOpacity style={styles.close} onPress={clearFilter}>
             <Text>X</Text>
           </TouchableOpacity>
-          <AntDesignIcon name="search1" style={styles.searchIcon} />
+          <TouchableOpacity onPress={search}>
+            <AntDesignIcon name="search1" style={styles.searchIcon} />
+          </TouchableOpacity>
         </View>
-        <Text style={styles.total}>Нийт 5421 нэрийн хуудас байна.</Text>
+        <Text style={styles.total}>
+          Нийт {nameCardsData.length} нэрийн хуудас байна.
+        </Text>
         <View style={styles.filterSection}>
-          <Select
-            selectedValue={''}
-            minWidth="32%"
-            accessibilityLabel="Салбар"
+          <Picker
+            value={sectorId}
+            items={sectorData}
             placeholder="Салбар"
-            mt={2}
-            placeholderTextColor={COLORS.textColor}
-            fontSize={14}
-            backgroundColor="#474D55"
-            borderWidth={0}
-            borderRadius={10}
-            paddingLeft={1}
+            style={styles.pickerContainer}
             dropdownIcon={
               <AntDesignIcon
                 name="down"
                 style={{color: COLORS.textColor, marginRight: 5}}
               />
             }
-            height={10}
-            onValueChange={itemValue => {}}>
-            <Select.Item label="UX Research" value="ux" />
-            <Select.Item label="Web Development" value="web" />
-            <Select.Item label="Cross Platform Development" value="cross" />
-            <Select.Item label="UI Designing" value="ui" />
-            <Select.Item label="Backend Development" value="backend" />
-          </Select>
-          <Select
-            selectedValue={''}
-            minWidth="32%"
-            accessibilityLabel="Байгууллага"
+            onPress={onPressSector}
+            onValueChange={(val: any) => onValueChange(val, 'sector')}
+          />
+          <Picker
+            value={company}
+            items={companyData}
             placeholder="Байгууллага"
-            mt={2}
-            backgroundColor="#474D55"
-            borderWidth={0}
-            placeholderTextColor={COLORS.textColor}
-            fontSize={13}
-            borderRadius={10}
-            borderColor={COLORS.textColor}
-            paddingLeft={1}
-            paddingRight={1}
-            height={10}
+            style={styles.pickerContainer}
             dropdownIcon={
               <AntDesignIcon
                 name="down"
                 style={{color: COLORS.textColor, marginRight: 5}}
               />
             }
-            onValueChange={itemValue => {}}>
-            <Select.Item label="UX Research" value="ux" />
-            <Select.Item label="Web Development" value="web" />
-            <Select.Item label="Cross Platform Development" value="cross" />
-            <Select.Item label="UI Designing" value="ui" />
-            <Select.Item label="Backend Development" value="backend" />
-          </Select>
-          <Select
-            selectedValue={''}
-            minWidth="32%"
-            accessibilityLabel="Албан тушаал"
+            onPress={onPressCompany}
+            onValueChange={(val: any) => onValueChange(val, 'company')}
+          />
+          <Picker
+            value={position}
+            items={positionData}
             placeholder="Албан тушаал"
-            mt={2}
-            backgroundColor="#474D55"
-            borderWidth={0}
-            placeholderTextColor={COLORS.textColor}
-            fontSize={12}
+            style={styles.pickerContainer2}
             dropdownIcon={
               <AntDesignIcon
                 name="down"
                 style={{color: COLORS.textColor, marginRight: 5}}
               />
             }
-            borderRadius={10}
-            borderColor={COLORS.textColor}
-            paddingLeft={2}
-            height={10}
-            onValueChange={itemValue => {}}>
-            <Select.Item label="UX Research" value="ux" />
-            <Select.Item label="Web Development" value="web" />
-            <Select.Item label="Cross Platform Development" value="cross" />
-            <Select.Item label="UI Designing" value="ui" />
-            <Select.Item label="Backend Development" value="backend" />
-          </Select>
+            onPress={onPressPosition}
+            onValueChange={(val: any) => onValueChange(val, 'position')}
+          />
         </View>
         <View style={styles.line} />
         <FlatList
           style={styles.list}
-          data={NameCardSearchData}
+          data={nameCardsData}
           numColumns={2}
-          renderItem={({item, index}: any) => <NameCardListItem item={item} />}
+          keyExtractor={(item: any, index: any) => index}
+          renderItem={({item, index}: any) => (
+            <NameCardListItem
+              item={item}
+              index={index}
+              data={nameCardsData}
+              setData={setNameCardsData}
+            />
+          )}
         />
       </View>
     </View>
@@ -189,5 +330,23 @@ const styles = StyleSheet.create({
   list: {
     marginTop: 20,
     height: '66.8%',
+  },
+  pickerContainer: {
+    marginTop: 2,
+    minWidth: '32%',
+    backgroundColor: '#474D55',
+    borderWidth: 0,
+    fontSize: 13,
+    paddingLeft: 1,
+    paddingRight: 1,
+  },
+  pickerContainer2: {
+    marginTop: 2,
+    minWidth: '32%',
+    backgroundColor: '#474D55',
+    borderWidth: 0,
+    fontSize: 12,
+    paddingLeft: 2,
+    paddingRight: 1,
   },
 });

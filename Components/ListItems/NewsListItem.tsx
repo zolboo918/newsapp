@@ -1,21 +1,41 @@
+import {isEmpty} from 'lodash';
 import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {baseUrl, imageUrl} from '../../constants';
 
 const NewsListItem = (props: any) => {
   const {item, onPress} = props;
+  const date = new Date(item.createdDate);
+
   return (
     <View style={styles.container}>
       <View style={styles.userSection}>
-        <Image source={{uri: item.userLogo}} style={styles.userLogo} />
+        <Image
+          source={
+            !isEmpty(item.userLogo)
+              ? {uri: imageUrl + 'uploads/' + item.photo}
+              : require('../../assets/images/userIcon.png')
+          }
+          style={styles.userLogo}
+        />
         <View style={styles.userTexts}>
-          <Text style={styles.userName}>{item.user}</Text>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.userName}>{item.userId.firstName}</Text>
+            <Text style={styles.userName}> {item.userId.lastName}</Text>
+          </View>
           <Text style={styles.userCompany}>{item.userCompany}</Text>
         </View>
       </View>
       <TouchableOpacity onPress={onPress}>
-        <Image source={{uri: item.newsImage}} style={styles.newsImage} />
-        <Text style={styles.newsTitle}>{item.newsTitle}</Text>
-        <Text style={styles.newsDate}>{item.newsDate}</Text>
+        <Image
+          source={{uri: imageUrl + 'uploads/' + item.photo}}
+          style={styles.newsImage}
+        />
+        <Text style={styles.newsTitle}>{item.title}</Text>
+        <Text style={styles.newsDate}>
+          {date.getFullYear()}.{date.getMonth() + 1}.{date.getDate()}{' '}
+          {date.getHours()}:{date.getMinutes()}
+        </Text>
       </TouchableOpacity>
     </View>
   );

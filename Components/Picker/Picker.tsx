@@ -11,6 +11,7 @@ const Picker = (props: any) => {
     items,
     showAdd,
     showSearch,
+    dropdownIcon,
     onPress,
     onAddPress,
     onValueChange,
@@ -28,9 +29,13 @@ const Picker = (props: any) => {
         placeholderTextColor={style?.color ? style.color : COLORS.textColor}
         fontSize={style?.fontSize ? style.fontSize : 14}
         borderRadius={style?.borderRadius ? style.borderRadius : 10}
+        backgroundColor={style?.backgroundColor}
+        borderWidth={style?.borderWidth}
+        paddingRight={style?.paddingRight}
         borderColor={style?.borderColor ? style.borderColor : COLORS.textColor}
         paddingLeft={style?.paddingLeft ? style.paddingLeft : 2}
         height={style?.height ? style.height : 10}
+        dropdownIcon={dropdownIcon}
         onValueChange={onValueChange}>
         {/* {showSearch ? (
           <Select.Item
@@ -48,7 +53,7 @@ const Picker = (props: any) => {
             label={el.label}
             value={el.value}
             borderBottomWidth={1}
-            borderBottomColor={COLORS.textColor}
+            borderBottomColor={'#e1e1e1'}
             color={COLORS.textColor}
           />
         ))}
@@ -71,6 +76,7 @@ export default Picker;
 
 const styles = StyleSheet.create({
   addButton: {
+    marginTop: 20,
     borderWidth: 1,
     borderRadius: 10,
     width: '70%',

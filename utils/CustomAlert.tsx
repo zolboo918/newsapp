@@ -25,7 +25,6 @@ export class CustomAlert extends Component<any, StateType> {
     message: string,
     messageTitle?: string,
     type?: string,
-    color?: string,
     iconName?: string,
     handler?: Function,
     renderBody?: any,
@@ -34,7 +33,6 @@ export class CustomAlert extends Component<any, StateType> {
       message,
       messageTitle,
       type,
-      color,
       iconName,
       handler,
       renderBody,
@@ -75,7 +73,6 @@ export class CustomAlert extends Component<any, StateType> {
     message: string,
     messageTitle: string,
     type?: string,
-    color?: string,
     iconName?: string,
     handler?: any,
     renderBody?: any,
@@ -87,7 +84,6 @@ export class CustomAlert extends Component<any, StateType> {
           <Alert
             message={message}
             messageTitle={messageTitle}
-            color={color}
             iconName={iconName}
           />
         );
@@ -97,7 +93,6 @@ export class CustomAlert extends Component<any, StateType> {
           <Dialog
             message={message}
             messageTitle={messageTitle}
-            color={color}
             iconName={iconName}
             handler={handler}
           />
@@ -112,7 +107,6 @@ export class CustomAlert extends Component<any, StateType> {
           <Alert
             message={messageTitle}
             messageTitle={message}
-            color={color}
             iconName={iconName}
           />
         );

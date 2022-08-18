@@ -8,6 +8,7 @@ import Events from '../Screens/Events';
 import NameCards from '../Screens/NameCard/NameCards';
 import News from '../Screens/News/News';
 import NameCardDetail from '../Screens/NameCard/NameCardDetail';
+import Working from '../Screens/Working';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -34,8 +35,8 @@ function BottomTabs() {
         }}
       />
       <Tab.Screen
-        name="Events"
-        component={Events}
+        name="Working"
+        component={Working}
         options={{
           tabBarIcon: ({color}) => (
             <MaterialCommunityIcons

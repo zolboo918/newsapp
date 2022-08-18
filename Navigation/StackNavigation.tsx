@@ -15,13 +15,15 @@ import NameCardSearch from '../Screens/NameCard/NameCardSearch';
 import NameCardDetail from '../Screens/NameCard/NameCardDetail';
 import AddNameCardManual from '../Screens/NameCard/AddNameCardManual';
 import AddNameCardQr from '../Screens/NameCard/AddNameCardQr';
+import NameCardEdit from '../Screens/NameCard/NameCardEdit';
+import AddCompany from '../Screens/AddCompany';
 
 const Stack = createNativeStackNavigator();
 
 function StackNavigation() {
   const {isLoggedIn} = useContext(UserContext);
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="Login">
       {!isLoggedIn ? (
         <>
           <Stack.Screen
@@ -80,6 +82,16 @@ function StackNavigation() {
           <Stack.Screen
             name="NameCardDetail"
             component={NameCardDetail}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="NameCardEdit"
+            component={NameCardEdit}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="AddCompany"
+            component={AddCompany}
             options={{headerShown: false}}
           />
           <Stack.Screen

@@ -1,11 +1,66 @@
 import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Header from '../../Components/Header/Header';
-import {COLORS} from '../../constants';
+import {baseUrl, COLORS, imageUrl} from '../../constants';
 import Button from '../../Components/Button/Button';
+import UserContext from '../../Context/userContext';
+import {getRequest} from '../../utils/Service';
+import QRCode from 'react-native-qrcode-svg';
+import {isEmpty} from 'lodash';
 
 const NameCardDetail = (props: any) => {
   const id = props.route.params.id;
+  const [data, setData] = useState<any>();
+  const [sector, setSector] = useState<any>();
+  const [company, setCompany] = useState('');
+  const {userInfo} = useContext<any>(UserContext);
+  useEffect(() => {
+    if (id == 1) {
+      getRequest('/nameCards/user/' + userInfo._id).then(res => {
+        if (!res.error) {
+          setData(res.data);
+          getSector(res.data?.sectorId);
+        }
+      });
+      getSector(userInfo.sectorId);
+    } else {
+      getRequest('/nameCards/' + id).then(res => {
+        if (!res.error) {
+          setData(res.data);
+          getSector(res.data?.sectorId);
+        }
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isEmpty(data)) getCompany(data?.companyId);
+  }, [data]);
+
+  const getSector = (id: any) => {
+    getRequest(`/companyCategories/${id}`).then(res => {
+      if (!res.error)
+        setSector({id: res.data_id, displayName: res.data.displayName});
+    });
+  };
+
+  const getCompany = (id: any) => {
+    if (data?.companyId) {
+      getRequest(`/company/${data?.companyId}`).then(res => {
+        if (!res.error) setCompany(res.data.name);
+      });
+    }
+  };
+
+  const buttonPress = () => {
+    if (id == '1') {
+      props.navigation.navigate('NameCardEdit', {
+        item: {...data, sector},
+      });
+    } else {
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Header
@@ -16,47 +71,50 @@ const NameCardDetail = (props: any) => {
       <ScrollView style={styles.wrapper}>
         <Image
           source={{
-            uri: 'https://pbs.twimg.com/media/E6zYQTlUYAEYp0d?format=jpg&name=4096x4096',
+            uri: imageUrl + 'uploads/' + data?.image,
           }}
           resizeMode="cover"
           style={styles.image}
         />
         <View style={styles.textContainer}>
           <Text style={styles.text}>Нэр:</Text>
-          <Text style={styles.text2}>Цогтоо Ган-Эрдэнэ</Text>
+          <View style={{flexDirection: 'row', width: '100%'}}>
+            <Text style={styles.text3}>{data?.firstName} </Text>
+            <Text style={styles.text3}>{data?.lastName}</Text>
+          </View>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Байгууллага:</Text>
-          <Text style={styles.text2}>“Ай Ви И Эл” ХХК</Text>
+          <Text style={styles.text2}>{company}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Албан тушаал:</Text>
-          <Text style={styles.text2}>Director</Text>
+          <Text style={styles.text2}>{data?.position}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Салбар:</Text>
-          <Text style={styles.text2}>Мэдээллийн технологи</Text>
+          <Text style={styles.text2}>{sector?.displayName}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Утас:</Text>
-          <Text style={styles.text2}>99133211</Text>
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>Утас 2:</Text>
-          <Text style={styles.text2}>113315</Text>
+          <Text style={styles.text2}>{data?.phone}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Мэйл:</Text>
-          <Text style={styles.text2}>ganerdene@email.com</Text>
+          <Text style={styles.text2}>{data?.email}</Text>
         </View>
-        <Image
-          source={require('../../assets/images/QR.png')}
-          style={styles.qr}
-        />
+        <View style={styles.textContainer}>
+          <Text style={styles.text}>Танилцуулга:</Text>
+          <Text style={styles.text2}>{data?.note}</Text>
+        </View>
+        <View style={styles.qr}>
+          <QRCode value={data?.qr} size={130} />
+        </View>
         <Button
-          title="Хүсэлт илгээх"
+          title={id == '1' ? 'Засах' : 'Хүсэлт илгээх'}
           style={styles.button}
           titleStyle={styles.buttonText}
+          onPress={buttonPress}
         />
       </ScrollView>
     </View>
@@ -94,10 +152,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     width: '60%',
   },
+  text3: {
+    color: COLORS.textColor,
+    fontSize: 16,
+  },
   qr: {
     height: 150,
     width: 150,
     marginTop: 40,
+    padding: 10,
+    backgroundColor: '#fff',
   },
   button: {
     width: '70%',

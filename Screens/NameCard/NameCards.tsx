@@ -1,7 +1,9 @@
-import React from 'react';
+import {useIsFocused} from '@react-navigation/native';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   Alert,
   FlatList,
+  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
@@ -9,11 +11,39 @@ import {
   View,
 } from 'react-native';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import EmptyData from '../../Components/EmptyData/EmptyData';
 import Header from '../../Components/Header/Header';
 import NameCardListItem from '../../Components/ListItems/NameCardListItem';
+import UserContext from '../../Context/userContext';
 import {NameCardData} from '../../data/Data';
+import {getRequest} from '../../utils/Service';
 
 const NameCards = (props: any) => {
+  const [refreshing, setRefreshing] = useState(false);
+  const [nameCardsData, setNameCardsData] = useState<any>([]);
+
+  const {userInfo, logOut} = useContext<any>(UserContext);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    getData();
+  }, [isFocused]);
+
+  const getData = async () => {
+    const res = await getRequest(
+      '/nameCardsMap/' + userInfo.nameCardId + '/data',
+    );
+    if (!res.error) {
+      setNameCardsData(res.data);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getData();
+    setRefreshing(false);
+  };
+
   const onPressSearch = () => {
     props.navigation.navigate('NameCardSearch');
   };
@@ -22,7 +52,7 @@ const NameCards = (props: any) => {
       <Header
         title="Нэрийн хуудас"
         rightIcon="logout"
-        rightIconPress={() => Alert.alert('loglogoutout')}
+        rightIconPress={logOut}
       />
       <View style={styles.wrapper}>
         <TouchableOpacity style={styles.searchSection} onPress={onPressSearch}>
@@ -33,10 +63,14 @@ const NameCards = (props: any) => {
         </TouchableOpacity>
         <View style={{marginTop: 20, height: '85%'}}>
           <FlatList
-            data={NameCardData}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            ListEmptyComponent={<EmptyData />}
+            data={nameCardsData}
             numColumns={2}
             renderItem={({item, index}: any) => (
-              <NameCardListItem item={item} />
+              <NameCardListItem item={item.targetId} />
             )}
           />
         </View>

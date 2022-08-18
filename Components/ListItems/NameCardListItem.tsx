@@ -1,30 +1,75 @@
 import {StackActions, useNavigation} from '@react-navigation/native';
 import {isEmpty} from 'lodash';
-import React from 'react';
+import React, {useContext} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
-import {COLORS} from '../../constants';
+import {COLORS, imageUrl} from '../../constants';
+import UserContext from '../../Context/userContext';
+import {showSuccessMessage} from '../../utils/helper';
+import {deleteRequest, sendRequest} from '../../utils/Service';
 
 const NameCardListItem = (props: any) => {
-  const {item} = props;
+  const {item, index, data, setData} = props;
   const navigation = useNavigation();
+  const {userInfo} = useContext<any>(UserContext);
+
   const handleItemPress = () => {
-    navigation.dispatch(StackActions.push('NameCardDetail', {id: item.id}));
+    navigation.dispatch(StackActions.push('NameCardDetail', {id: item._id}));
   };
+
+  const addCard = () => {
+    const body = {
+      sourceId: userInfo.nameCardId,
+      targetId: item._id,
+    };
+    sendRequest('/nameCardsMap', body).then(res => {
+      if (!res.error) {
+        const newItem = {
+          ...item,
+          existMyList: '1',
+        };
+        data[index] = newItem;
+        const newData = [...data];
+        setData(newData);
+        showSuccessMessage();
+      }
+    });
+  };
+
+  const removeCard = () => {
+    deleteRequest('/nameCardsMap/' + item._id).then(res => {
+      if (!res.error) {
+        const newItem = {
+          ...item,
+          existMyList: '0',
+        };
+        data[index] = newItem;
+        const newData = [...data];
+        setData(newData);
+        showSuccessMessage();
+      }
+    });
+  };
+
   return (
     <TouchableOpacity style={styles.container} onPress={handleItemPress}>
-      <Image source={{uri: item.nameCardPicture}} style={styles.image} />
+      <Image
+        source={{uri: imageUrl + 'uploads/' + item.image}}
+        style={styles.image}
+      />
       <View style={styles.infoSection}>
         <View style={styles.names}>
           <Text style={styles.name}>{item.firstName}</Text>
           <Text style={styles.name}> {item.lastName}</Text>
         </View>
-        <Text style={styles.position}>{item.lastName}</Text>
-        <Text style={styles.position}>{item.company}</Text>
+        <Text style={styles.position}>{item.position}</Text>
+        <Text style={styles.position}>{item?.companyId?.name}</Text>
         {!isEmpty(item.existMyList) && item.existMyList == '0' ? (
-          <AntDesignIcon name="plussquareo" style={styles.addIcon} />
+          <TouchableOpacity onPress={addCard}>
+            <AntDesignIcon name="plussquareo" style={styles.addIcon} />
+          </TouchableOpacity>
         ) : !isEmpty(item.existMyList) && item.existMyList == '1' ? (
-          <TouchableOpacity>
+          <TouchableOpacity onPress={removeCard}>
             <Text style={styles.removeIcon}>X</Text>
           </TouchableOpacity>
         ) : (

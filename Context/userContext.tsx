@@ -3,6 +3,8 @@ import axios from 'axios';
 import {Toast} from 'native-base';
 import React, {useState} from 'react';
 import {baseUrl} from '../constants';
+import {CustomAlert} from '../utils/CustomAlert';
+import {showDialogMessage, showUnSuccessMessage} from '../utils/helper';
 import {getRequest} from '../utils/Service';
 
 const defaultValue = {
@@ -23,13 +25,15 @@ export const UserStore = (props: any) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
-  const [nameCardIndo, setNameCardIndo] = useState();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const logOut = () => {
-    setIsLoggedIn(false);
-    setToken(null);
+    showDialogMessage('Та гарахдаа итгэлтэй байна уу?', () => {
+      setIsLoggedIn(false);
+      setToken(null);
+      setUserInfo(null);
+    });
   };
 
   // const nameCardInfo = (userId: any) => {
@@ -48,14 +52,24 @@ export const UserStore = (props: any) => {
         password,
       })
       .then(res => {
-        setToken(res.data.token);
-        setIsLoggedIn(true);
-        setUserInfo({
-          ...res.data.user,
-          nameCardId: res.data.nameCardId,
-          nameCardImage: res.data.photo,
-        });
-        setLoading(false);
+        if (res.data.success) {
+          setToken(res.data.token);
+          setIsLoggedIn(true);
+          setUserInfo({
+            ...res.data.user,
+            nameCardId: res.data.nameCardId,
+            nameCardImage: res.data.photo,
+          });
+          setLoading(false);
+        } else {
+          const errMsg = res.data.error.message;
+          setError(errMsg);
+          setIsLoggedIn(false);
+          setLoading(false);
+          showUnSuccessMessage(
+            errMsg ? errMsg : 'Та интернэт холболтоо шалгана уу',
+          );
+        }
       })
       .catch(err => {
         setError(

@@ -39,8 +39,8 @@ const AgreementAndQR = (props: any) => {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
-        email: data.email,
-        companyName: data.companyId,
+        email: data.email.toLowerCase(),
+        companyName: data.companyName,
         companyId: '',
         linkedInId: data.linkedInId,
         password: data.password,
@@ -92,7 +92,7 @@ const AgreementAndQR = (props: any) => {
   };
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>BIZCARD</Text>
+      <Text style={styles.headerTitle}>Bizcard</Text>
       {isEmpty(qrImage) && !loading ? (
         <View>
           <View style={styles.textContainer}>
@@ -120,7 +120,7 @@ const AgreementAndQR = (props: any) => {
               setIsConfirmed(!isConfirmed);
               setError(false);
             }}>
-            <CheckBox
+            {/* <CheckBox
               value={isConfirmed}
               style={styles.checkBox}
               tintColors={
@@ -132,6 +132,13 @@ const AgreementAndQR = (props: any) => {
                 setIsConfirmed(val);
                 setError(false);
               }}
+            /> */}
+            <Checkbox
+              accessibilityLabel="agreement"
+              value={isConfirmed ? 'true' : 'false'}
+              style={[styles.checkbox]}
+              tintColor={COLORS.textColor}
+              onChange={val => setIsConfirmed(val)}
             />
             <Text style={styles.checkBoxTitle}>Зөвшөөрч байна</Text>
           </TouchableOpacity>
@@ -196,7 +203,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     alignSelf: 'center',
     color: '#f2f2f2',
-    fontFamily: 'TwCenMTStd',
+    fontWeight: 'bold',
     fontSize: 64,
     marginTop: 65,
   },
@@ -222,7 +229,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
   },
-  checkBox: {},
+  checkbox: {
+    marginRight: 10,
+    margin: 0,
+  },
   checkBoxTitle: {
     color: '#D9D9D9',
     fontSize: 14,

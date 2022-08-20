@@ -1,7 +1,7 @@
 import CheckBox from '@react-native-community/checkbox';
 import {StackActions} from '@react-navigation/native';
 import {isEmpty} from 'lodash';
-import {Toast} from 'native-base';
+import {Checkbox, Toast} from 'native-base';
 import React, {useState} from 'react';
 import {
   Image,
@@ -15,6 +15,8 @@ import {launchCamera} from 'react-native-image-picker';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import Button from '../../Components/Button/Button';
 import {COLORS} from '../../constants';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {takePhoto} from '../../utils/helper';
 
 const Register3 = (props: any) => {
   const [image, setImage] = useState<any>();
@@ -34,68 +36,84 @@ const Register3 = (props: any) => {
   };
 
   const openCamera = () => {
-    launchCamera({mediaType: 'photo'})
-      .then((res: any): any => {
-        const file = res.assets[0];
-        setFileData(file);
-        setImage(file.uri);
-      })
-      .catch(e =>
-        Toast.show({title: 'Алдаа гарлаа', description: JSON.stringify(e)}),
-      );
+    takePhoto().then(res => {
+      if (!res?.error) {
+        setFileData(res);
+        setImage(res.path);
+      }
+    });
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.headerTitle}>BIZCARD</Text>
-      <Text style={styles.title}>Нэрийн хуудасны мэдээлэл</Text>
-      <Text style={styles.titlePhoto}>Нэрийн хуудасны зураг</Text>
-      {image ? (
-        <Image
-          resizeMode="cover"
-          source={{uri: image}}
-          style={styles.photoContainer}
+    <KeyboardAwareScrollView bounces={false} style={{flex: 1}}>
+      <View style={styles.container}>
+        <Text style={styles.headerTitle}>Bizcard</Text>
+        <Text style={styles.title}>Нэрийн хуудасны мэдээлэл</Text>
+        <Text style={styles.titlePhoto}>Нэрийн хуудасны зураг</Text>
+        {image ? (
+          <Image
+            resizeMode="cover"
+            source={{uri: image}}
+            style={styles.photoContainer}
+          />
+        ) : (
+          <TouchableOpacity style={styles.photoContainer} onPress={openCamera}>
+            <FeatherIcon name="camera" style={styles.photoIcon} />
+          </TouchableOpacity>
+        )}
+        <TextInput
+          value={intro}
+          placeholder="Өөрийн тухай товчхон..."
+          multiline
+          placeholderTextColor={COLORS.textColor}
+          style={styles.input}
+          onChangeText={(val: any) => setIntro(val)}
         />
-      ) : (
-        <TouchableOpacity style={styles.photoContainer} onPress={openCamera}>
-          <FeatherIcon name="camera" style={styles.photoIcon} />
+        <TouchableOpacity
+          style={styles.checkBoxContainer}
+          onPress={() => setIsPublic(!isPublic)}>
+          {/* <CheckBox
+            boxType="square"
+            onCheckColor={COLORS.textColor}
+            onFillColor={COLORS.textColor}
+            tintColor={COLORS.textColor}
+            onTintColor={COLORS.textColor}
+            value={isPublic}
+            style={styles.checkBox}
+            tintColors={{false: COLORS.textColor, true: COLORS.textColor}}
+            onValueChange={val => setIsPublic(val)}
+          /> */}
+          <Checkbox
+            // boxType="square"
+            color={'yellow.100'}
+            backgroundColor={'green'}
+            value={isPublic ? '1' : '0'}
+            style={[styles.checkbox]}
+            tintColor={COLORS.textColor}
+            outlineColor="green"
+            onChange={val => setIsPublic(val)}
+            // tintColors={{true: textColor, false: textColor}}
+            // onValueChange={val => setRemember(val)}
+          />
+          <Text style={styles.checkBoxTitle}>Нийтэд нээлттэй эсэх</Text>
         </TouchableOpacity>
-      )}
-      <TextInput
-        value={intro}
-        placeholder="Өөрийн тухай товчхон..."
-        multiline
-        placeholderTextColor={COLORS.textColor}
-        style={styles.input}
-        onChangeText={(val: any) => setIntro(val)}
-      />
-      <TouchableOpacity
-        style={styles.checkBoxContainer}
-        onPress={() => setIsPublic(!isPublic)}>
-        <CheckBox
-          value={isPublic}
-          style={styles.checkBox}
-          tintColors={{false: COLORS.textColor, true: COLORS.textColor}}
-          onValueChange={val => setIsPublic(val)}
-        />
-        <Text style={styles.checkBoxTitle}>Нийтэд нээлттэй эсэх</Text>
-      </TouchableOpacity>
-      <View style={styles.bottombuttonContainer}>
-        <Button
-          icon="chevron-left"
-          style={styles.backButton}
-          iconStyle={styles.backButtonIcon}
-          titleStyle={styles.buttonText}
-          onPress={() => props.navigation.goBack()}
-        />
-        <Button
-          title="Хадгалах"
-          style={styles.registerButton}
-          titleStyle={styles.buttonText}
-          onPress={handleButtonPress}
-        />
+        <View style={styles.bottombuttonContainer}>
+          <Button
+            icon="chevron-left"
+            style={styles.backButton}
+            iconStyle={styles.backButtonIcon}
+            titleStyle={styles.buttonText}
+            onPress={() => props.navigation.goBack()}
+          />
+          <Button
+            title="Хадгалах"
+            style={styles.registerButton}
+            titleStyle={styles.buttonText}
+            onPress={handleButtonPress}
+          />
+        </View>
       </View>
-    </View>
+    </KeyboardAwareScrollView>
   );
 };
 
@@ -110,9 +128,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     alignSelf: 'center',
     color: '#f2f2f2',
-    fontFamily: 'TwCenMTStd',
+    fontWeight: 'bold',
     fontSize: 64,
     marginTop: 55,
+  },
+  checkbox: {
+    marginRight: 10,
+    margin: 0,
   },
   title: {
     color: COLORS.textColor,
@@ -164,6 +186,7 @@ const styles = StyleSheet.create({
   bottombuttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 20,
   },
   backButton: {
     width: 55,

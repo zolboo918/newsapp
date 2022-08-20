@@ -21,8 +21,14 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import UserContext from '../../Context/userContext';
 import {fileUpload, sendRequest} from '../../utils/Service';
 import {CustomAlert} from '../../utils/CustomAlert';
-import {showSuccessMessage, showUnSuccessMessage} from '../../utils/helper';
+import {
+  choosePhoto,
+  showSuccessMessage,
+  showUnSuccessMessage,
+  takePhoto,
+} from '../../utils/helper';
 import {Toast} from 'native-base';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const AddNews = (props: any) => {
   const [title, setTitle] = useState('');
@@ -42,6 +48,7 @@ const AddNews = (props: any) => {
       body,
       photo: '',
       videoLink,
+      nameCardId: userInfo.nameCardId,
     };
     setLoading(true);
     sendRequest('/news', requestBody).then(res => {
@@ -64,29 +71,21 @@ const AddNews = (props: any) => {
   };
 
   const openCamera = () => {
-    launchCamera({mediaType: 'photo'})
-      .then((res: any): any => {
-        const file = res.assets[0];
-        setFileData(file);
-        setModalShow(false);
-      })
-      .catch(e => {
-        setModalShow(false);
-        Toast.show({title: 'Алдаа гарлаа', description: JSON.stringify(e)});
-      });
+    takePhoto().then(res => {
+      setModalShow(false);
+      if (!res?.error) {
+        setFileData(res);
+      }
+    });
   };
 
   const openGallery = () => {
-    launchImageLibrary({mediaType: 'photo'})
-      .then((res: any): any => {
-        const file = res.assets[0];
-        setFileData(file);
-        setModalShow(false);
-      })
-      .catch(e => {
-        setModalShow(false);
-        Toast.show({title: 'Алдаа гарлаа', description: JSON.stringify(e)});
-      });
+    choosePhoto().then(res => {
+      setModalShow(false);
+      if (!res?.error) {
+        setFileData(res);
+      }
+    });
   };
 
   return (
@@ -96,7 +95,7 @@ const AddNews = (props: any) => {
         leftIcon="left"
         leftIconPress={() => props.navigation.goBack()}
       />
-      <ScrollView style={styles.wrapper}>
+      <KeyboardAwareScrollView style={styles.wrapper}>
         <Text style={styles.titlePhoto}>Мэдээний гарчиг</Text>
         <TextInput
           value={title}
@@ -104,11 +103,11 @@ const AddNews = (props: any) => {
           onChangeText={val => setTitle(val)}
         />
         <Text style={styles.titlePhoto}>Мэдээний зураг</Text>
-        {fileData?.uri ? (
+        {fileData?.path ? (
           <TouchableOpacity onPress={() => setModalShow(true)}>
             <Image
               style={styles.photoContainer}
-              source={{uri: fileData?.uri}}
+              source={{uri: fileData?.path}}
             />
           </TouchableOpacity>
         ) : (
@@ -138,7 +137,7 @@ const AddNews = (props: any) => {
           titleStyle={styles.buttonText}
           onPress={handleButtonPress}
         />
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <Modal visible={modalShow} transparent animationType="fade">
         <TouchableWithoutFeedback onPress={() => setModalShow(false)}>
           <View style={styles.modalContainer}>
@@ -181,7 +180,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 130,
+    height: 230,
     marginTop: 10,
   },
   photoIcon: {

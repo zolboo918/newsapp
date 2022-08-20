@@ -23,7 +23,7 @@ const NewsListItem = (props: any) => {
             <Text style={styles.userName}>{item.userId.firstName}</Text>
             <Text style={styles.userName}> {item.userId.lastName}</Text>
           </View>
-          <Text style={styles.userCompany}>{item.userCompany}</Text>
+          <Text style={styles.userCompany}>{item.userId.companyName}</Text>
         </View>
       </View>
       <TouchableOpacity onPress={onPress}>

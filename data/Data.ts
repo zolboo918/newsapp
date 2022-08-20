@@ -227,3 +227,37 @@ export const positions = [
     value: 'DIRECTOR',
   },
 ];
+
+export const SlideData = [
+  {
+    key: 1,
+    title: '',
+    text: '',
+    image: require('../assets/images/slide0.png'),
+    backgroundColor: '#59b2ab',
+  },
+  {
+    key: 2,
+    text: 'Өөрийн нэрийн хуудсыг цахимаар\nашиглаарай',
+    image: require('../assets/images/slide1.png'),
+    backgroundColor: '#59b2ab',
+  },
+  {
+    key: 3,
+    text: 'Түншүүдийнхээ нэрийн хуудсыг\nбүртгэж цаас хэмнээрэй',
+    image: require('../assets/images/slide2.png'),
+    backgroundColor: '#febe29',
+  },
+  {
+    key: 4,
+    text: 'Мэдээллийг цаг алдалгүй авна',
+    image: require('../assets/images/slide3.png'),
+    backgroundColor: '#22bcb5',
+  },
+  {
+    key: 5,
+    text: 'Нэрийн хуудасны QR кодоор\nтүнштэйгээ холбогдоорой',
+    image: require('../assets/images/slide4.png'),
+    backgroundColor: '#22bcb5',
+  },
+];

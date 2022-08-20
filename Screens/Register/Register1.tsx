@@ -1,7 +1,6 @@
 import {StackActions} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
 } from 'react-native';
 import Button from '../../Components/Button/Button';
 import {COLORS} from '../../constants';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const Register1 = (props: any) => {
   const [firstName, setFirstName] = useState('');
@@ -44,78 +44,81 @@ const Register1 = (props: any) => {
   };
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>BIZCARD</Text>
+      <Text style={styles.headerTitle}>Bizcard</Text>
       <Text style={styles.title}>Ерөнхий мэдээлэл</Text>
-      <ScrollView style={styles.inputsContainer}>
-        <TextInput
-          placeholder="Овог"
-          value={lastName}
-          placeholderTextColor={COLORS.textColor}
-          style={styles.input}
-          onChangeText={(text: string) => setLastName(text)}
-        />
-        <TextInput
-          placeholder="Нэр"
-          value={firstName}
-          placeholderTextColor={COLORS.textColor}
-          style={styles.input}
-          onChangeText={(text: string) => setFirstName(text)}
-        />
-        <TextInput
-          placeholder="Утас"
-          value={phone}
-          keyboardType="decimal-pad"
-          placeholderTextColor={COLORS.textColor}
-          style={styles.input}
-          onChangeText={(text: string) => setPhone(text)}
-        />
-        <TextInput
-          placeholder="Мэйл"
-          value={email}
-          keyboardType="email-address"
-          placeholderTextColor={COLORS.textColor}
-          style={styles.input}
-          onChangeText={(text: string) => setEmail(text)}
-        />
-        <TextInput
-          placeholder="Нууц үг"
-          value={password}
-          secureTextEntry
-          placeholderTextColor={COLORS.textColor}
-          style={styles.input}
-          onChangeText={(text: string) => {
-            setError('');
-            setPassword(text);
-          }}
-        />
-        {error && <Text style={{color: '#ff6666'}}>{error}</Text>}
-        <TextInput
-          placeholder="Нууц үг давт"
-          value={password2}
-          secureTextEntry
-          placeholderTextColor={COLORS.textColor}
-          style={styles.input}
-          onChangeText={(text: string) => {
-            setError2('');
-            setPassword2(text);
-          }}
-        />
-        {error2 && <Text style={{color: '#ff6666'}}>{error2}</Text>}
-        <View style={styles.bottombuttonContainer}>
-          <Button
-            icon="chevron-left"
-            style={styles.backButton}
-            iconStyle={styles.backButtonIcon}
-            titleStyle={styles.buttonText}
-            onPress={() => props.navigation.goBack()}
+      <ScrollView style={styles.inputsContainer} bounces={false}>
+        <KeyboardAwareScrollView>
+          <TextInput
+            placeholder="Овог"
+            value={lastName}
+            placeholderTextColor={COLORS.textColor}
+            style={styles.input}
+            onChangeText={(text: string) => setLastName(text)}
           />
-          <Button
-            title="Үргэлжлүүлэх 1/3"
-            style={styles.registerButton}
-            titleStyle={styles.buttonText}
-            onPress={handleButtonPress}
+          <TextInput
+            placeholder="Нэр"
+            value={firstName}
+            placeholderTextColor={COLORS.textColor}
+            style={styles.input}
+            onChangeText={(text: string) => setFirstName(text)}
           />
-        </View>
+          <TextInput
+            placeholder="Утас"
+            value={phone}
+            keyboardType="decimal-pad"
+            placeholderTextColor={COLORS.textColor}
+            style={styles.input}
+            onChangeText={(text: string) => setPhone(text)}
+          />
+          <TextInput
+            placeholder="Мэйл"
+            value={email}
+            keyboardType="email-address"
+            placeholderTextColor={COLORS.textColor}
+            style={styles.input}
+            onChangeText={(text: string) => setEmail(text)}
+          />
+          <TextInput
+            placeholder="Нууц үг"
+            value={password}
+            textContentType="oneTimeCode"
+            secureTextEntry
+            placeholderTextColor={COLORS.textColor}
+            style={styles.input}
+            onChangeText={(text: string) => {
+              setError('');
+              setPassword(text);
+            }}
+          />
+          {error && <Text style={{color: '#ff6666'}}>{error}</Text>}
+          <TextInput
+            placeholder="Нууц үг давт"
+            value={password2}
+            secureTextEntry
+            placeholderTextColor={COLORS.textColor}
+            style={styles.input}
+            onChangeText={(text: string) => {
+              setError2('');
+              setPassword2(text);
+            }}
+          />
+          {error2 && <Text style={{color: '#ff6666'}}>{error2}</Text>}
+          <View style={styles.bottombuttonContainer}>
+            <Button
+              icon="chevron-left"
+              style={styles.backButton}
+              iconStyle={styles.backButtonIcon}
+              titleStyle={styles.buttonText}
+              onPress={() => props.navigation.goBack()}
+            />
+            <Button
+              title="Үргэлжлүүлэх 1/3"
+              style={styles.registerButton}
+              titleStyle={styles.buttonText}
+              onPress={handleButtonPress}
+            />
+          </View>
+        </KeyboardAwareScrollView>
       </ScrollView>
     </View>
   );
@@ -132,7 +135,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     alignSelf: 'center',
     color: '#f2f2f2',
-    fontFamily: 'TwCenMTStd',
+    // fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 64,
     marginTop: 65,
   },
@@ -149,11 +153,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderWidth: 1,
     borderRadius: 10,
+    borderTopStartRadius: 10,
+    borderTopEndRadius: 10,
     borderColor: COLORS.textColor,
     paddingHorizontal: 10,
     height: 40,
     fontSize: 14,
     color: COLORS.textColor,
+    backgroundColor: COLORS.DEFAULT_COLOR,
   },
   bottombuttonContainer: {
     flexDirection: 'row',

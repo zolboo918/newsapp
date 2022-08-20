@@ -79,9 +79,10 @@ export const deleteRequest = (url: any) => {
 
 export const fileUpload = (file: any, path: any) => {
   const formData = new FormData();
+  file.fileName = 'photo.jpg';
   formData.append('file', {
-    uri: file.uri,
-    type: file.type,
+    uri: file.path,
+    type: file.mime,
     name: file.fileName,
   });
   return new Promise(function (resolve, reject) {

@@ -17,96 +17,108 @@ import AddNameCardManual from '../Screens/NameCard/AddNameCardManual';
 import AddNameCardQr from '../Screens/NameCard/AddNameCardQr';
 import NameCardEdit from '../Screens/NameCard/NameCardEdit';
 import AddCompany from '../Screens/AddCompany';
+import FriendRequest from '../Screens/FriendRequest';
+import {SafeAreaView, View} from 'react-native';
+import {COLORS} from '../constants';
 
 const Stack = createNativeStackNavigator();
 
 function StackNavigation() {
   const {isLoggedIn} = useContext(UserContext);
   return (
-    <Stack.Navigator initialRouteName="Login">
-      {!isLoggedIn ? (
-        <>
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Register1"
-            component={Register1}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Register2"
-            component={Register2}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Register3"
-            component={Register3}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="AgreementAndQR"
-            component={AgreementAndQR}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="ForgetPassword"
-            component={ForgetPassword}
-            options={{headerShown: false}}
-          />
-        </>
-      ) : (
-        <>
-          <Stack.Screen
-            name="BottomTab"
-            component={BottomTabs}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="AddNews"
-            component={AddNews}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="NewsDetail"
-            component={NewsDetail}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="NameCardSearch"
-            component={NameCardSearch}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="NameCardDetail"
-            component={NameCardDetail}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="NameCardEdit"
-            component={NameCardEdit}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="AddCompany"
-            component={AddCompany}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="AddNameCardManual"
-            component={AddNameCardManual}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="AddNameCardQr"
-            component={AddNameCardQr}
-            options={{headerShown: false}}
-          />
-        </>
-      )}
-    </Stack.Navigator>
+    <View style={{flex: 1, backgroundColor: COLORS.DEFAULT_COLOR}}>
+      <SafeAreaView style={{flex: 1}}>
+        <Stack.Navigator initialRouteName="Login">
+          {!isLoggedIn ? (
+            <>
+              <Stack.Screen
+                name="Login"
+                component={Login}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Register1"
+                component={Register1}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Register2"
+                component={Register2}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Register3"
+                component={Register3}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AgreementAndQR"
+                component={AgreementAndQR}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="ForgetPassword"
+                component={ForgetPassword}
+                options={{headerShown: false}}
+              />
+            </>
+          ) : (
+            <>
+              <Stack.Screen
+                name="BottomTab"
+                component={BottomTabs}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AddNews"
+                component={AddNews}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="NewsDetail"
+                component={NewsDetail}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="NameCardSearch"
+                component={NameCardSearch}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="NameCardDetail"
+                component={NameCardDetail}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="NameCardEdit"
+                component={NameCardEdit}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AddCompany"
+                component={AddCompany}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="FriendRequest"
+                component={FriendRequest}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AddNameCardManual"
+                component={AddNameCardManual}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AddNameCardQr"
+                component={AddNameCardQr}
+                options={{headerShown: false}}
+              />
+            </>
+          )}
+        </Stack.Navigator>
+      </SafeAreaView>
+    </View>
   );
 }
 

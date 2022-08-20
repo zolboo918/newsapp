@@ -1,6 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
 import {isEmpty} from 'lodash';
-import {Toast} from 'native-base';
 import React, {useState} from 'react';
 import {
   Image,
@@ -13,7 +12,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+// import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import MapView, {Marker} from 'react-native-maps';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import FeatherIcon from 'react-native-vector-icons/Feather';
@@ -22,8 +21,12 @@ import Button from '../Components/Button/Button';
 import Header from '../Components/Header/Header';
 import Picker from '../Components/Picker/Picker';
 import {baseUrl, COLORS} from '../constants';
-import {CustomAlert} from '../utils/CustomAlert';
-import {showSuccessMessage, showUnSuccessMessage} from '../utils/helper';
+import {
+  choosePhoto,
+  showSuccessMessage,
+  showUnSuccessMessage,
+  takePhoto,
+} from '../utils/helper';
 import {fileUpload, getRequest, sendRequest} from '../utils/Service';
 
 const AddCompany = (props: any) => {
@@ -102,29 +105,21 @@ const AddCompany = (props: any) => {
   };
 
   const openCamera = () => {
-    launchCamera({mediaType: 'photo'})
-      .then((res: any): any => {
-        const file = res.assets[0];
-        setFileData(file);
-        setModalShow(false);
-      })
-      .catch(e => {
-        setModalShow(false);
-        Toast.show({title: 'Алдаа гарлаа', description: JSON.stringify(e)});
-      });
+    takePhoto().then(res => {
+      setModalShow(false);
+      if (!res?.error) {
+        setFileData(res);
+      }
+    });
   };
 
   const openGallery = () => {
-    launchImageLibrary({mediaType: 'photo'})
-      .then((res: any): any => {
-        const file = res.assets[0];
-        setFileData(file);
-        setModalShow(false);
-      })
-      .catch(e => {
-        setModalShow(false);
-        Toast.show({title: 'Алдаа гарлаа', description: JSON.stringify(e)});
-      });
+    choosePhoto().then(res => {
+      setModalShow(false);
+      if (!res?.error) {
+        setFileData(res);
+      }
+    });
   };
 
   return (
@@ -143,11 +138,11 @@ const AddCompany = (props: any) => {
           onChangeText={(text: string) => setName(text)}
         />
         <Text style={styles.titlePhoto}>Лого</Text>
-        {fileData?.uri ? (
+        {fileData?.path ? (
           <TouchableOpacity onPress={() => setModalShow(true)}>
             <Image
               style={styles.photoContainer}
-              source={{uri: fileData?.uri}}
+              source={{uri: fileData?.path}}
             />
           </TouchableOpacity>
         ) : (
@@ -297,7 +292,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     alignSelf: 'center',
     color: '#f2f2f2',
-    fontFamily: 'TwCenMTStd',
+    fontWeight: 'bold',
     fontSize: 64,
     marginTop: 65,
   },

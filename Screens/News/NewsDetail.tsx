@@ -1,10 +1,13 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Image, Platform, ScrollView} from 'react-native';
 import {Alert, StyleSheet, Text, View} from 'react-native';
 import WebView from 'react-native-webview';
 import Header from '../../Components/Header/Header';
 import {imageUrl} from '../../constants';
 import YouTube from 'react-native-youtube';
+import UserContext from '../../Context/userContext';
+import {deleteRequest} from '../../utils/Service';
+import {showDialogMessage, showSuccessMessage} from '../../utils/helper';
 
 const NewsDetail = (props: any) => {
   const data = props.route.params;
@@ -15,11 +18,28 @@ const NewsDetail = (props: any) => {
     videoLink.length,
   );
 
+  const {userInfo} = useContext<any>(UserContext);
+
+  const deleteNews = () => {
+    showDialogMessage('Та итгэлтэй байна уу?', () => {
+      deleteRequest('/news/' + data._id).then(res => {
+        if (!res?.error) {
+          props.navigation.goBack();
+          showSuccessMessage();
+        }
+      });
+    });
+  };
+
   return (
     <View style={styles.container}>
       <Header
         title="Дэлгэрэнгүй"
         leftIcon="left"
+        rightIcon={data.nameCardId == userInfo.nameCardId ? 'delete' : ''}
+        rightIconPress={
+          data.nameCardId == userInfo.nameCardId ? deleteNews : () => {}
+        }
         leftIconPress={() => props.navigation.goBack()}
       />
       <Image
@@ -34,12 +54,14 @@ const NewsDetail = (props: any) => {
         </Text>
         <Text style={styles.news}>{data.body}</Text>
         <View style={styles.youtube}>
-          <YouTube
-            apiKey="AIzaSyBspyEjdjNnJCiLpl3DDDyZTYw_sqB1XIg"
-            videoId={videoId} // The YouTube video ID
-            play={true} // control playback of video with true/false
-            style={{alignSelf: 'stretch', height: 300}}
-          />
+          {videoId && (
+            <YouTube
+              apiKey="AIzaSyBspyEjdjNnJCiLpl3DDDyZTYw_sqB1XIg"
+              videoId={videoId} // The YouTube video ID
+              play={true} // control playback of video with true/false
+              style={{alignSelf: 'stretch', height: 300}}
+            />
+          )}
         </View>
       </ScrollView>
     </View>

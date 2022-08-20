@@ -21,7 +21,7 @@ import {isEmpty} from 'lodash';
 import axios from 'axios';
 import {getRequest, putRequest, sendRequest} from '../../utils/Service';
 import {Toast} from 'native-base';
-import {showSuccessMessage} from '../../utils/helper';
+import {choosePhoto, showSuccessMessage, takePhoto} from '../../utils/helper';
 import UserContext from '../../Context/userContext';
 
 const NameCardEdit = (props: any) => {
@@ -90,29 +90,21 @@ const NameCardEdit = (props: any) => {
   };
 
   const openCamera = () => {
-    launchCamera({mediaType: 'photo'})
-      .then((res: any): any => {
-        const file = res.assets[0];
-        setFileData(file);
-        setModalShow(false);
-      })
-      .catch(e => {
-        setModalShow(false);
-        Toast.show({title: 'Алдаа гарлаа', description: JSON.stringify(e)});
-      });
+    takePhoto().then(res => {
+      setModalShow(false);
+      if (!res?.error) {
+        setFileData(res);
+      }
+    });
   };
 
   const openGallery = () => {
-    launchImageLibrary({mediaType: 'photo'})
-      .then((res: any): any => {
-        const file = res.assets[0];
-        setFileData(file);
-        setModalShow(false);
-      })
-      .catch(e => {
-        setModalShow(false);
-        Toast.show({title: 'Алдаа гарлаа', description: JSON.stringify(e)});
-      });
+    choosePhoto().then(res => {
+      setModalShow(false);
+      if (!res?.error) {
+        setFileData(res);
+      }
+    });
   };
 
   return (
@@ -124,13 +116,21 @@ const NameCardEdit = (props: any) => {
       />
       <ScrollView style={styles.inputsContainer}>
         <TouchableOpacity onPress={() => setModalShow(true)}>
-          <Image
-            source={{
-              uri: imageUrl + 'uploads/' + item.image,
-            }}
-            resizeMode="cover"
-            style={styles.image}
-          />
+          {!fileData?.path ? (
+            <Image
+              source={{
+                uri: imageUrl + 'uploads/' + item.image,
+              }}
+              resizeMode="cover"
+              style={styles.image}
+            />
+          ) : (
+            <Image
+              source={{uri: fileData?.path}}
+              resizeMode="cover"
+              style={styles.image}
+            />
+          )}
         </TouchableOpacity>
         <Text style={styles.label}>Овог</Text>
         <TextInput

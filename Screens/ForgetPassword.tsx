@@ -1,33 +1,81 @@
 import {StackActions} from '@react-navigation/native';
+import {isEmpty} from 'lodash';
+import {Toast} from 'native-base';
 import React, {useState} from 'react';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 import Button from '../Components/Button/Button';
 import {COLORS} from '../constants';
+import {showSuccessMessage, validateEmail} from '../utils/helper';
+import {sendRequest} from '../utils/Service';
 
 const ForgetPassword = (props: any) => {
   const [currentScreen, setCurrentScreen] = useState(0);
+  const [email, setEmail] = useState('');
+  const [token, setToken] = useState('');
+  const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
+  const [error, setError] = useState('');
+  const [error2, setError2] = useState('');
+
   const handleButtonPress1 = () => {
-    setCurrentScreen(1);
+    if (isEmpty(email)) {
+      Toast.show({title: 'Алдаа', description: 'И-Мэйл хаяг оруулна уу'});
+    } else if (!validateEmail(email)) {
+      Toast.show({title: 'Алдаа', description: 'И-Мэйл хаяг буруу байна.'});
+    } else {
+      sendRequest('/users/forgot-password', {email: email.toLowerCase()}).then(
+        res => {
+          if (res.success) {
+            setCurrentScreen(1);
+            showSuccessMessage('Мэйл хаягт явуулсан кодыг оруулна уу');
+          }
+        },
+      );
+    }
   };
   const handleButtonPress2 = () => {
-    setCurrentScreen(2);
+    const body = {
+      token,
+      email: email.toLowerCase(),
+    };
+    sendRequest('/users/check-token', body).then(res => {
+      if (!res?.error) {
+        setCurrentScreen(2);
+      }
+    });
   };
 
   const handleButtonPress3 = () => {
     // setCurrentScreen(2);
-    props.navigation.goBack();
+    if (password.length < 6 && password != password2) {
+      setError('Нууц үг оруулна уу.');
+      setError2('Нууц үг оруулна уу.');
+    } else if (password.length < 6) {
+      setError('Нууц үгийн урт 6-аас дээш байна.');
+    } else if (password != password2) {
+      setError2('Нууц үг тохирохгүй байна.');
+    } else {
+      sendRequest('/users/reset-password', {password, token}).then(res => {
+        if (res.success) {
+          props.navigation.navigate('Login');
+          showSuccessMessage('Нууц үг амжилттай шинэчлэгдлээ');
+        }
+      });
+    }
   };
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>BIZCARD</Text>
+      <Text style={styles.headerTitle}>Bizcard</Text>
       {currentScreen == 0 ? (
         <View>
           <Text style={styles.title}>Бүртгэлтэй И-Мэйл хаягаа оруулна уу.</Text>
           <View style={styles.inputsContainer}>
             <TextInput
+              value={email}
               placeholder="И-Мэйл"
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
+              onChangeText={val => setEmail(val)}
             />
             <View style={styles.bottombuttonContainer}>
               <Button
@@ -35,7 +83,7 @@ const ForgetPassword = (props: any) => {
                 style={styles.backButton}
                 iconStyle={styles.backButtonIcon}
                 titleStyle={styles.buttonText}
-                onPress={handleButtonPress1}
+                onPress={() => props.navigation.goBack()}
               />
               <Button
                 title="Үргэлжлүүлэх"
@@ -51,11 +99,16 @@ const ForgetPassword = (props: any) => {
           <Text style={styles.title}>
             И-мэйл хаягт явуулсан нэг удаагийн кодыг оруулна уу
           </Text>
+          <Text style={styles.subtitle}>
+            * Хэрэв таны мэйлийн inbox-т байхгүй бол spam хэсэгт шалгаарай.
+          </Text>
           <View style={styles.inputsContainer}>
             <TextInput
+              value={token}
               placeholder="Код"
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
+              onChangeText={val => setToken(val)}
             />
             <View style={styles.bottombuttonContainer}>
               <Button
@@ -63,7 +116,7 @@ const ForgetPassword = (props: any) => {
                 style={styles.backButton}
                 iconStyle={styles.backButtonIcon}
                 titleStyle={styles.buttonText}
-                onPress={handleButtonPress2}
+                onPress={() => setCurrentScreen(0)}
               />
               <Button
                 title="Үргэлжлүүлэх"
@@ -79,22 +132,30 @@ const ForgetPassword = (props: any) => {
           <Text style={styles.title}>Шинэ нууц үгээ оруулна уу</Text>
           <View style={styles.inputsContainer}>
             <TextInput
+              value={password}
               placeholder="Нууц үг"
+              secureTextEntry
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
+              onChangeText={val => setPassword(val)}
             />
+            {error && <Text style={{color: '#ff6666'}}>{error}</Text>}
             <TextInput
+              value={password2}
               placeholder="Нууц үг давт"
+              secureTextEntry
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
+              onChangeText={val => setPassword2(val)}
             />
+            {error2 && <Text style={{color: '#ff6666'}}>{error2}</Text>}
             <View style={styles.bottombuttonContainer}>
               <Button
                 icon="chevron-left"
                 style={styles.backButton}
                 iconStyle={styles.backButtonIcon}
                 titleStyle={styles.buttonText}
-                onPress={handleButtonPress3}
+                onPress={() => setCurrentScreen(1)}
               />
               <Button
                 title="Хадгалах"
@@ -121,7 +182,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     alignSelf: 'center',
     color: '#f2f2f2',
-    fontFamily: 'TwCenMTStd',
+    fontWeight: 'bold',
     fontSize: 64,
     marginTop: 65,
   },
@@ -130,6 +191,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 60,
     fontWeight: 'bold',
+  },
+  subtitle: {
+    color: COLORS.textColor,
+    fontSize: 12,
+    marginTop: 10,
   },
   inputsContainer: {
     marginTop: 60,

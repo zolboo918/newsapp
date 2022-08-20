@@ -1,6 +1,6 @@
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {Platform, StyleSheet} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../constants';
 import AddNameCard from '../Screens/NameCard/AddNameCard';
@@ -28,7 +28,6 @@ function BottomTabs() {
             <MaterialCommunityIcons
               name="bullhorn-variant-outline"
               color={color}
-              size={26}
               style={styles.events}
             />
           ),
@@ -42,7 +41,7 @@ function BottomTabs() {
             <MaterialCommunityIcons
               name="calendar-blank-outline"
               color={color}
-              style={styles.icons}
+              style={styles.calendatIcon}
             />
           ),
         }}
@@ -82,7 +81,7 @@ function BottomTabs() {
             <MaterialCommunityIcons
               name="account-outline"
               color={color}
-              style={styles.icons}
+              style={styles.userIcon}
             />
           ),
         }}
@@ -97,21 +96,40 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.DEFAULT_COLOR,
     height: 80,
     justifyContent: 'center',
+    paddingTop: Platform.OS == 'ios' ? 32 : 0,
   },
   events: {
     transform: [{rotateZ: '-45deg'}],
-    fontSize: 30,
+    fontSize: 29,
     height: 30,
     width: 30,
+    marginTop: 0,
+    marginLeft: 5,
   },
   icons: {
-    fontSize: 30,
-    height: 30,
-    width: 30,
+    marginTop: -2,
+    fontSize: 32,
+    height: 32,
+    width: 32,
+  },
+  calendatIcon: {
+    marginTop: -3,
+    fontSize: 33,
+    height: 33,
+    width: 33,
   },
   addIcon: {
-    fontSize: 40,
-    height: 40,
-    width: 40,
+    marginTop: -10,
+    alignSelf: 'center',
+    fontSize: 50,
+    height: 50,
+    width: 50,
+  },
+  userIcon: {
+    marginTop: -2,
+    alignSelf: 'center',
+    fontSize: 36,
+    height: 36,
+    width: 36,
   },
 });

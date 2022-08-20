@@ -1,9 +1,11 @@
+import {useIsFocused} from '@react-navigation/native';
 import {Fab} from 'native-base';
 import React, {useContext, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
+  StatusBar,
   StyleSheet,
   View,
 } from 'react-native';
@@ -20,25 +22,49 @@ const News = (props: any) => {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const {logOut} = useContext(UserContext);
+  const {userInfo, logOut} = useContext<any>(UserContext);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    getNews();
-  }, []);
+    if (isFocused && userInfo) {
+      getNews();
+    }
+  }, [userInfo, isFocused]);
 
   const getNews = () => {
     setLoading(true);
-    getRequest(`/news`)
-      .then((res: any) => {
+    let arr: any = [];
+    getRequest(`/news`).then((news: any) => {
+      getRequest(`/nameCardsMap`).then((map: any) => {
         setLoading(false);
-        if (!res.error) {
-          setNewsData(res.data);
+        if (!news.error && !news.error) {
+          setLoading(false);
+          let check = false;
+          news.data.forEach((newsItem: any) => {
+            map.data.forEach((mapItem: any) => {
+              if (
+                !check &&
+                newsItem.nameCardId == mapItem.sourceId &&
+                userInfo.nameCardId == mapItem.targetId
+              ) {
+                arr.push(newsItem);
+                check = true;
+              }
+            });
+            if (newsItem.nameCardId == userInfo.nameCardId) {
+              arr.push(newsItem);
+            }
+            check = false;
+          });
+          setNewsData(arr);
+        } else {
+          setLoading(false);
         }
-      })
-      .catch(() => {
-        setLoading(false);
       });
+    });
   };
+
+  console.log('newsData', newsData);
 
   const onPressFab = () => {
     props.navigation.navigate('AddNews');

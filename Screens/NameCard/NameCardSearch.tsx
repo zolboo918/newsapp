@@ -2,6 +2,7 @@ import {useIsFocused} from '@react-navigation/native';
 import {identity, includes, isEmpty} from 'lodash';
 import React, {useContext, useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   StyleSheet,
@@ -23,7 +24,9 @@ let data: any;
 
 const NameCardSearch = (props: any) => {
   const [nameCardsData, setNameCardsData] = useState([]);
+  const [nameCardMapData, setNameCardMapData] = useState([]);
   const [searchValue, setSearchValue] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const [sectorId, setSectorId] = useState('');
   const [sectorData, setSectorData] = useState([]);
@@ -38,9 +41,10 @@ const NameCardSearch = (props: any) => {
     getData().then(({nameCards, nameCardsMap}: any) => {
       let arr: any = [];
       let check = false;
+      let doubleCheck = false;
       if (isEmpty(nameCardsMap)) {
         nameCards.forEach((nameCard: any, index: any) => {
-          nameCard.existMyList = '0';
+          nameCard = {...nameCard, isFriend: '0'};
           arr.push(nameCard);
         });
       } else {
@@ -48,26 +52,35 @@ const NameCardSearch = (props: any) => {
           nameCardsMap.forEach((map: any, index: any) => {
             if (!check) {
               if (nameCard._id == map.targetId) {
-                nameCard.existMyList = '1';
-                if (!arr.includes(nameCard)) arr.push(nameCard);
+                nameCard = {...nameCard, isFriend: map.isFriend};
+                if (!check && !doubleCheck) {
+                  arr.push(nameCard);
+                } else {
+                  arr[arr.length - 1] = nameCard;
+                }
                 check = true;
               } else {
-                nameCard.existMyList = '0';
-                if (!arr.includes(nameCard)) arr.push(nameCard);
+                nameCard = {...nameCard, isFriend: '0'};
+                if (!arr.some((elm: any) => elm._id == nameCard._id))
+                  arr.push(nameCard);
+                doubleCheck = true;
                 check = false;
               }
             }
           });
           check = false;
+          doubleCheck = false;
         });
       }
-      setNameCardsData(arr);
+      const a = arr.filter(
+        (elm: any) => elm._id != userInfo.nameCardId && elm.isPublic,
+      );
+      setNameCardsData(a);
     });
   }, []);
 
-  console.log('nameCardsData :>> ', nameCardsData);
-
   const getData = async () => {
+    setLoading(true);
     const nameCards = await getRequest('/nameCards');
     if (!nameCards?.error) {
       data = nameCards.data;
@@ -76,8 +89,11 @@ const NameCardSearch = (props: any) => {
     const nameCardMap = await getRequest(
       '/nameCardsMap/' + userInfo.nameCardId,
     );
+
     if (!nameCardMap?.error) {
+      setNameCardMapData(nameCardMap.data);
     }
+    setLoading(false);
     return {nameCards: nameCards.data, nameCardsMap: nameCardMap.data};
   };
 
@@ -157,7 +173,7 @@ const NameCardSearch = (props: any) => {
         break;
       case 'company':
         data.forEach((el: any) => {
-          if (el?.companyId == val) {
+          if (el?.companyId?._id == val) {
             arr.push(el);
           }
         });
@@ -193,6 +209,7 @@ const NameCardSearch = (props: any) => {
             value={searchValue}
             style={styles.input}
             placeholder="Бүх талбараас хайх"
+            placeholderTextColor={COLORS.textColor}
             onEndEditing={search}
             onChangeText={onChangeText}
           />
@@ -206,6 +223,7 @@ const NameCardSearch = (props: any) => {
         <Text style={styles.total}>
           Нийт {nameCardsData.length} нэрийн хуудас байна.
         </Text>
+
         <View style={styles.filterSection}>
           <Picker
             value={sectorId}
@@ -250,21 +268,29 @@ const NameCardSearch = (props: any) => {
             onValueChange={(val: any) => onValueChange(val, 'position')}
           />
         </View>
+
         <View style={styles.line} />
-        <FlatList
-          style={styles.list}
-          data={nameCardsData}
-          numColumns={2}
-          keyExtractor={(item: any, index: any) => index}
-          renderItem={({item, index}: any) => (
-            <NameCardListItem
-              item={item}
-              index={index}
-              data={nameCardsData}
-              setData={setNameCardsData}
-            />
-          )}
-        />
+        {loading ? (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator color={COLORS.textColor} size="large" />
+          </View>
+        ) : (
+          <FlatList
+            style={styles.list}
+            data={nameCardsData}
+            numColumns={2}
+            keyExtractor={(item: any, index: any) => index}
+            renderItem={({item, index}: any) => (
+              <NameCardListItem
+                item={item}
+                index={index}
+                data={nameCardsData}
+                nameCardMapData={nameCardMapData}
+                setData={setNameCardsData}
+              />
+            )}
+          />
+        )}
       </View>
     </View>
   );
@@ -279,6 +305,11 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     paddingHorizontal: 20,
+  },
+  loaderContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '70%',
   },
   searchSection: {
     flexDirection: 'row',
@@ -298,6 +329,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 10,
     paddingHorizontal: 10,
+    color: COLORS.textColor,
   },
   searchIcon: {
     color: '#fff',

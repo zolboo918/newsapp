@@ -8,6 +8,7 @@ import Button from '../../Components/Button/Button';
 import Picker from '../../Components/Picker/Picker';
 import {baseUrl, COLORS} from '../../constants';
 import {getRequest} from '../../utils/Service';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const Register2 = (props: any) => {
   const [companyName, setCompanyName] = useState('');
@@ -40,9 +41,9 @@ const Register2 = (props: any) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>BIZCARD</Text>
+      <Text style={styles.headerTitle}>Bizcard</Text>
       <Text style={styles.title}>Ажлын мэдээлэл</Text>
-      <View style={styles.inputsContainer}>
+      <KeyboardAwareScrollView style={styles.inputsContainer}>
         <TextInput
           value={companyName}
           placeholder="Байгууллага"
@@ -50,6 +51,10 @@ const Register2 = (props: any) => {
           style={styles.input}
           onChangeText={(val: any) => setCompanyName(val)}
         />
+        <Text style={styles.tip}>
+          * Бүртгэл хийгдсэний дараа хувийн мэдээлэл хэсэгт байгууллагын
+          мэдээллийг бүрэн оруулна уу
+        </Text>
         <TextInput
           value={position}
           placeholder="Албан тушаал"
@@ -80,7 +85,7 @@ const Register2 = (props: any) => {
             onPress={continuePress}
           />
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </View>
   );
 };
@@ -96,7 +101,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     alignSelf: 'center',
     color: '#f2f2f2',
-    fontFamily: 'TwCenMTStd',
+    fontWeight: 'bold',
     fontSize: 64,
     marginTop: 65,
   },
@@ -108,6 +113,11 @@ const styles = StyleSheet.create({
   },
   inputsContainer: {
     marginTop: 20,
+  },
+  tip: {
+    color: COLORS.textColor,
+    fontSize: 12,
+    marginTop: 5,
   },
   input: {
     marginTop: 20,

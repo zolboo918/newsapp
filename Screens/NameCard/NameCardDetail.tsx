@@ -4,17 +4,38 @@ import Header from '../../Components/Header/Header';
 import {baseUrl, COLORS, imageUrl} from '../../constants';
 import Button from '../../Components/Button/Button';
 import UserContext from '../../Context/userContext';
-import {getRequest} from '../../utils/Service';
+import {deleteRequest, getRequest, sendRequest} from '../../utils/Service';
 import QRCode from 'react-native-qrcode-svg';
 import {isEmpty} from 'lodash';
+import {showSuccessMessage} from '../../utils/helper';
+import {useIsFocused} from '@react-navigation/native';
 
 const NameCardDetail = (props: any) => {
-  const id = props.route.params.id;
+  const {id, manual} = props.route.params;
   const [data, setData] = useState<any>();
   const [sector, setSector] = useState<any>();
   const [company, setCompany] = useState('');
+  const [isFriend, setIsFriend] = useState<any>();
+
   const {userInfo} = useContext<any>(UserContext);
+
+  const isFocused = useIsFocused();
+
   useEffect(() => {
+    if (isFocused) getAllData();
+  }, [isFocused]);
+
+  useEffect(() => {
+    if (isFocused) {
+      if (!isEmpty(data) && typeof data.companyId == 'string') {
+        getCompany(data?.companyId);
+      } else {
+        setCompany(data?.companyId?.name);
+      }
+    }
+  }, [data, isFocused]);
+
+  const getAllData = () => {
     if (id == 1) {
       getRequest('/nameCards/user/' + userInfo._id).then(res => {
         if (!res.error) {
@@ -23,19 +44,31 @@ const NameCardDetail = (props: any) => {
         }
       });
       getSector(userInfo.sectorId);
-    } else {
-      getRequest('/nameCards/' + id).then(res => {
+    } else if (manual) {
+      getRequest('/nameCardManual/' + id).then(res => {
         if (!res.error) {
           setData(res.data);
           getSector(res.data?.sectorId);
         }
       });
-    }
-  }, []);
+    } else {
+      getRequest('/nameCards/' + id).then(res => {
+        if (!res.error) {
+          setData(res.data);
 
-  useEffect(() => {
-    if (!isEmpty(data)) getCompany(data?.companyId);
-  }, [data]);
+          sendRequest('/nameCardsMap/checkIsFriend', {
+            sourceId: userInfo.nameCardId,
+            targetId: res.data._id,
+          }).then(ress => {
+            if (!ress?.error) {
+              setIsFriend(ress.data[0]);
+            }
+          });
+          getSector(res.data?.sectorId);
+        }
+      });
+    }
+  };
 
   const getSector = (id: any) => {
     getRequest(`/companyCategories/${id}`).then(res => {
@@ -57,7 +90,30 @@ const NameCardDetail = (props: any) => {
       props.navigation.navigate('NameCardEdit', {
         item: {...data, sector},
       });
+    } else if (manual) {
+      deleteRequest('/nameCardManual/' + data?._id).then(res => {
+        if (!res?.error) {
+          props.navigation.goBack();
+          showSuccessMessage();
+        }
+      });
+    } else if (isFriend?.isFriend == '1') {
+      deleteRequest('/nameCardsMap/' + isFriend._id).then(res => {
+        if (!res.error) {
+          getAllData();
+          showSuccessMessage();
+        }
+      });
     } else {
+      const body = {
+        sourceId: userInfo.nameCardId,
+        targetId: data._id,
+      };
+      sendRequest('/nameCardsMap', body).then(res => {
+        if (!res?.error) {
+          showSuccessMessage();
+        }
+      });
     }
   };
 
@@ -85,7 +141,9 @@ const NameCardDetail = (props: any) => {
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Байгууллага:</Text>
-          <Text style={styles.text2}>{company}</Text>
+          <Text style={styles.text2}>
+            {data?.companyName ? data?.companyName : company}
+          </Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Албан тушаал:</Text>
@@ -111,7 +169,13 @@ const NameCardDetail = (props: any) => {
           <QRCode value={data?.qr} size={130} />
         </View>
         <Button
-          title={id == '1' ? 'Засах' : 'Хүсэлт илгээх'}
+          title={
+            id == '1'
+              ? 'Засах'
+              : manual || isFriend?.isFriend == '1'
+              ? 'Устгах'
+              : 'Хүсэлт илгээх'
+          }
           style={styles.button}
           titleStyle={styles.buttonText}
           onPress={buttonPress}

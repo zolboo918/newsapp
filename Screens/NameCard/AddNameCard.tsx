@@ -5,6 +5,7 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import UserContext from '../../Context/userContext';
+import {COLORS} from '../../constants';
 
 const AddNameCard = (props: any) => {
   const {logOut} = useContext(UserContext);
@@ -25,9 +26,11 @@ const AddNameCard = (props: any) => {
       <View style={styles.wrapper}>
         <TouchableOpacity style={styles.photoContainer} onPress={manual}>
           <FeatherIcon name="camera" style={styles.photoIcon} />
+          <Text style={styles.text}>Гараар нэмэх</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.photoContainer} onPress={qr}>
           <FontAwesome name="qrcode" style={styles.photoIcon} />
+          <Text style={styles.text}>QR уншуулах</Text>
         </TouchableOpacity>
         <AntDesign
           name="down"
@@ -59,15 +62,20 @@ const styles = StyleSheet.create({
   photoContainer: {
     borderColor: '#1F252B',
     borderWidth: 1,
-    height: 85,
-    width: 85,
+    height: 100,
+    width: 100,
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
   },
   photoIcon: {
-    fontSize: 24,
+    fontSize: 30,
     color: '#fff',
+  },
+  text: {
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 5,
   },
   downIcon: {
     position: 'absolute',

@@ -1,13 +1,25 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {isEmpty} from 'lodash';
 import React from 'react';
-import Header from '../../Components/Header/Header';
-import Button from '../../Components/Button/Button';
-import QRCodeScanner from 'react-native-qrcode-scanner';
+import {StyleSheet, Text, View} from 'react-native';
 import {RNCamera} from 'react-native-camera';
+import QRCodeScanner from 'react-native-qrcode-scanner';
+import Header from '../../Components/Header/Header';
+import {showUnSuccessMessage} from '../../utils/helper';
+import {getRequest} from '../../utils/Service';
 
 const AddNameCardQr = (props: any) => {
   const onSuccess = (e: any) => {
-    console.log('e', e);
+    if (e.data) {
+      getRequest('/nameCards/qr/' + e.data).then(res => {
+        if (!res?.error) {
+          if (isEmpty(res.data)) {
+            showUnSuccessMessage('Буруу QR байна');
+          } else {
+            props.navigation.navigate('NameCardDetail', {id: res.data[0]._id});
+          }
+        }
+      });
+    }
   };
 
   return (
@@ -15,15 +27,15 @@ const AddNameCardQr = (props: any) => {
       <Header
         title="Нэрийн хуудас нэмэх"
         leftIcon="left"
-        rightIconPress={() => props.navigation.goBack()}
+        leftIconPress={() => props.navigation.goBack()}
       />
       <View style={styles.wrapper}>
         <Text style={styles.title}>QR код уншуулна уу</Text>
         <View style={styles.qrContainer}>
           <QRCodeScanner
-            // cameraContainerStyle={{height: 360, width: 360}}
+            reactivate={true}
+            reactivateTimeout={5000}
             cameraStyle={styles.cameraStyle}
-            // containerStyle={{height: 360, width: 360}}
             onRead={onSuccess}
             flashMode={RNCamera.Constants.FlashMode.torch}
           />

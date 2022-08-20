@@ -25,7 +25,7 @@ const Picker = (props: any) => {
         accessibilityLabel={placeholder}
         placeholder={placeholder}
         color={COLORS.textColor}
-        mt={style?.marginTop ? style.marginTop : 2.5}
+        mt={style?.marginTop ? style.marginTop : 5}
         placeholderTextColor={style?.color ? style.color : COLORS.textColor}
         fontSize={style?.fontSize ? style.fontSize : 14}
         borderRadius={style?.borderRadius ? style.borderRadius : 10}

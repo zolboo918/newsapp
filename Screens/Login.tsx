@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {
   Image,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -17,13 +18,19 @@ import {useContext} from 'react';
 import UserContext from '../Context/userContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CustomAlert} from '../utils/CustomAlert';
+import {Checkbox} from 'native-base';
 
 const textColor = '#8a939e';
 
 const Login = (props: any) => {
-  const [userName, setUserName] = useState('zolboo412@gmail.com');
-  const [password, setPassword] = useState('123456');
+  // const [userName, setUserName] = useState('zolboo412@gmail.com');
+  // const [userName, setUserName] = useState('hutga@shuvug.com');
+  // const [userName, setUserName] = useState('tsetseg@urgamal.com');
+  // const [password, setPassword] = useState('12341234');
+  const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
+  const [userNameEdited, setUserNameEdited] = useState(false);
 
   const {loading, login} = useContext(UserContext);
 
@@ -37,12 +44,12 @@ const Login = (props: any) => {
   }, []);
 
   const handleLoginButton = () => {
-    if (remember) {
-      AsyncStorage.setItem('rememberUserName', userName);
-    } else {
+    if (!remember) {
       AsyncStorage.removeItem('rememberUserName');
+    } else {
+      AsyncStorage.setItem('rememberUserName', userName);
     }
-    login(userName, password);
+    login(userName.toLowerCase(), password);
   };
 
   const handleRegisterButton = () => {
@@ -51,6 +58,15 @@ const Login = (props: any) => {
 
   const handleForgetPasswordButton = () => {
     props.navigation.dispatch(StackActions.push('ForgetPassword'));
+  };
+
+  const onValueChangeUserName = (val: any) => {
+    setUserName(val);
+    setUserNameEdited(true);
+    if (remember) {
+      setRemember(false);
+      AsyncStorage.removeItem('rememberUserName');
+    }
   };
 
   return (
@@ -66,7 +82,7 @@ const Login = (props: any) => {
           placeholder="Нэвтрэх нэр"
           style={styles.input}
           placeholderTextColor="#8a939e"
-          onChangeText={val => setUserName(val)}
+          onChangeText={onValueChangeUserName}
         />
       </View>
       <View style={styles.inputContainer2}>
@@ -84,12 +100,17 @@ const Login = (props: any) => {
       <TouchableOpacity
         style={styles.checkboxContainer}
         onPress={() => setRemember(!remember)}>
-        <CheckBox
-          value={remember}
+        <Checkbox
+          accessibilityLabel="remember"
+          // defaultIsChecked={remember}
+          value="remember"
+          isChecked={remember}
           style={[styles.checkbox]}
           tintColor={textColor}
-          tintColors={{true: textColor, false: textColor}}
-          onValueChange={val => setRemember(val)}
+          onChange={val => {
+            setRemember(val);
+            AsyncStorage.removeItem('rememberUserName');
+          }}
         />
         <Text style={styles.checkboxLabel}>Намайг сануул</Text>
       </TouchableOpacity>
@@ -107,7 +128,7 @@ const Login = (props: any) => {
         <TouchableOpacity
           onPress={handleForgetPasswordButton}
           style={styles.forgetPassword}>
-          <Text style={styles.checkboxLabel}>Нэвтрэх нэр, нууц үг мартсан</Text>
+          <Text style={styles.checkboxLabel}>Нууц үг мартсан</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -144,6 +165,8 @@ const styles = StyleSheet.create({
     borderBottomColor: textColor,
     width: '100%',
     paddingLeft: 40,
+    height: 40,
+    // paddingBottom: Platform.OS == 'ios' ? 12 : 6,
   },
   inputIcon: {
     color: textColor,
@@ -157,7 +180,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  checkbox: {},
+  checkbox: {
+    marginRight: 10,
+    margin: 0,
+  },
   checkboxLabel: {
     color: textColor,
   },

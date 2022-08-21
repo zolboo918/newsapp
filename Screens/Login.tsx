@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
+  BackHandler,
   Image,
   Platform,
   StyleSheet,
@@ -19,6 +20,8 @@ import UserContext from '../Context/userContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CustomAlert} from '../utils/CustomAlert';
 import {Checkbox} from 'native-base';
+import {isEmpty} from 'lodash';
+import {showUnSuccessMessage} from '../utils/helper';
 
 const textColor = '#8a939e';
 
@@ -49,7 +52,11 @@ const Login = (props: any) => {
     } else {
       AsyncStorage.setItem('rememberUserName', userName);
     }
-    login(userName.toLowerCase(), password);
+    if (isEmpty(userName) || isEmpty(password)) {
+      showUnSuccessMessage('Нэвтрэх нэр, нууц үг оруулна уу');
+    } else {
+      login(userName.toLowerCase().trim(), password);
+    }
   };
 
   const handleRegisterButton = () => {
@@ -72,6 +79,7 @@ const Login = (props: any) => {
   return (
     <View style={styles.container}>
       <Image
+        resizeMode="contain"
         source={require('../assets/images/biz_card_icon.png')}
         style={styles.logo}
       />
@@ -102,11 +110,12 @@ const Login = (props: any) => {
         onPress={() => setRemember(!remember)}>
         <Checkbox
           accessibilityLabel="remember"
-          // defaultIsChecked={remember}
           value="remember"
           isChecked={remember}
           style={[styles.checkbox]}
-          tintColor={textColor}
+          tintColor={COLORS.textColor}
+          backgroundColor={COLORS.DEFAULT_COLOR}
+          colorScheme={'white'}
           onChange={val => {
             setRemember(val);
             AsyncStorage.removeItem('rememberUserName');
@@ -115,8 +124,9 @@ const Login = (props: any) => {
         <Text style={styles.checkboxLabel}>Намайг сануул</Text>
       </TouchableOpacity>
       <Button title="Нэвтрэх" loading={loading} onPress={handleLoginButton} />
-      <TouchableOpacity>
+      <TouchableOpacity style={styles.linkedinContainer}>
         <Image
+          resizeMode="contain"
           source={require('../assets/images/LinkedIn_icon.png')}
           style={styles.linkedinLogo}
         />
@@ -140,22 +150,23 @@ export default Login;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height: '100%',
     backgroundColor: COLORS.DEFAULT_COLOR,
     paddingHorizontal: 30,
   },
   logo: {
-    height: 140,
+    height: '22%',
     width: 140,
     alignSelf: 'center',
-    marginTop: 100,
+    marginTop: '20%',
   },
   inputContainer: {
-    marginTop: 40,
+    marginTop: '12%',
     flexDirection: 'row',
     width: '100%',
   },
   inputContainer2: {
-    marginTop: 20,
+    marginTop: '6%',
     flexDirection: 'row',
     width: '100%',
   },
@@ -176,7 +187,7 @@ const styles = StyleSheet.create({
     bottom: 15,
   },
   checkboxContainer: {
-    marginTop: 30,
+    marginTop: '9%',
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -187,18 +198,23 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     color: textColor,
   },
-  linkedinLogo: {
-    height: 63,
-    width: 63,
+  linkedinContainer: {
+    width: 64,
+    height: '8%',
     alignSelf: 'center',
-    marginTop: 30,
+    marginTop: '10%',
+  },
+  linkedinLogo: {
+    height: '100%',
+    width: '100%',
+    alignSelf: 'center',
     borderRadius: 15,
   },
   footer: {
     alignItems: 'center',
-    marginTop: 30,
+    marginTop: '7%',
   },
   forgetPassword: {
-    marginTop: 30,
+    marginTop: '5%',
   },
 });

@@ -39,6 +39,7 @@ const NameCardEdit = (props: any) => {
   const [companyData, setCompanyData] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const [companySearchValue, setCompanySearchValue] = useState('');
 
   const {userInfo} = useContext<any>(UserContext);
 
@@ -105,6 +106,20 @@ const NameCardEdit = (props: any) => {
         setFileData(res);
       }
     });
+  };
+
+  const onChangeSearchValue = (val: string) => {
+    // setCompanySearchValue(val);
+  };
+
+  const onEndSearchValue = (val: any) => {
+    let arr: any = [];
+    companyData.forEach((el: any) => {
+      if (el.label.toLowerCase().includes(val.toLowerCase())) {
+        arr.push(el);
+      }
+    });
+    setCompanyData(arr);
   };
 
   return (
@@ -181,9 +196,14 @@ const NameCardEdit = (props: any) => {
           items={companyData}
           placeholder={company ? company : 'Байгууллага'}
           showAdd={true}
+          showSearch={true}
+          selectedItem={company}
           onAddPress={addCompany}
           style={{marginTop: 1}}
           onPress={onPressCompany}
+          onChangeSearchValue={onChangeSearchValue}
+          onEndSearchValue={onEndSearchValue}
+          setCompanySearchValue={setCompanySearchValue}
           onValueChange={(val: any) => setCompany(val)}
         />
         <Text style={styles.label}>Албан тушаал</Text>

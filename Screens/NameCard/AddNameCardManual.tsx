@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Button from '../../Components/Button/Button';
 import Header from '../../Components/Header/Header';
 import Picker from '../../Components/Picker/Picker';
-import {COLORS} from '../../constants';
+import {baseUrl, COLORS} from '../../constants';
 import UserContext from '../../Context/userContext';
 import {getHeight} from '../../utils/Dimension';
 import {
@@ -63,10 +63,7 @@ const AddNameCardManual = (props: any) => {
     setLoading(true);
     sendRequest('/nameCardManual', body).then(res => {
       if (!res?.error) {
-        fileUpload(
-          fileData,
-          `http://192.168.1.18:4000/api/v1/nameCardManual/${res.data._id}/photo`,
-        )
+        fileUpload(fileData, `${baseUrl}/nameCardManual/${res.data._id}/photo`)
           .then((res: any) => {
             setLoading(false);
             navigation.goBack();

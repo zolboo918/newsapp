@@ -11,8 +11,9 @@ const Working = (props: any) => {
   return (
     <View style={styles.background}>
       <Image
+        resizeMode="contain"
         source={require('../assets/images/working.png')}
-        style={{height: 280, width: 260}}
+        style={{height: '35%', width: 260}}
       />
       <Text style={styles.text}>ЭНЭ ХУУДАС ХӨГЖҮҮЛЭГДЭЖ БАЙНА</Text>
       <Button

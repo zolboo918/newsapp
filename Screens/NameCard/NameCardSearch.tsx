@@ -214,7 +214,7 @@ const NameCardSearch = (props: any) => {
             onChangeText={onChangeText}
           />
           <TouchableOpacity style={styles.close} onPress={clearFilter}>
-            <Text>X</Text>
+            <Text style={{color: COLORS.textColor}}>X</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={search}>
             <AntDesignIcon name="search1" style={styles.searchIcon} />
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: '3%',
   },
   backIcon: {
     textAlign: 'left',
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   total: {
-    marginTop: 20,
+    marginTop: '4%',
     color: '#a5a5a5',
     fontSize: 16,
   },
@@ -357,10 +357,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: Dimensions.get('screen').width,
     marginLeft: -20,
-    marginTop: 20,
+    marginTop: '5%',
   },
   list: {
-    marginTop: 20,
+    marginTop: '5%',
     height: '66.8%',
   },
   pickerContainer: {

@@ -14,7 +14,7 @@ const Header = (props: any) => {
           style={styles.icon}
         />
       ) : (
-        <View />
+        <View style={{width: 20}} />
       )}
       <Text style={styles.title}>{title}</Text>
       {!isEmpty(rightIcon) ? (

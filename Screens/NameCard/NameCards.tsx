@@ -90,7 +90,7 @@ const NameCards = (props: any) => {
       <View style={styles.wrapper}>
         <TouchableOpacity style={styles.searchSection} onPress={onPressSearch}>
           <View style={styles.input}>
-            <Text>Хайх</Text>
+            <Text style={{color: '#a5a5a5'}}>Хайх</Text>
           </View>
           <AntDesignIcon name="search1" style={styles.searchIcon} />
         </TouchableOpacity>

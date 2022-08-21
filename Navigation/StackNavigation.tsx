@@ -18,7 +18,7 @@ import AddNameCardQr from '../Screens/NameCard/AddNameCardQr';
 import NameCardEdit from '../Screens/NameCard/NameCardEdit';
 import AddCompany from '../Screens/AddCompany';
 import FriendRequest from '../Screens/FriendRequest';
-import {SafeAreaView, View} from 'react-native';
+import {SafeAreaView, StatusBar, View} from 'react-native';
 import {COLORS} from '../constants';
 
 const Stack = createNativeStackNavigator();
@@ -26,7 +26,13 @@ const Stack = createNativeStackNavigator();
 function StackNavigation() {
   const {isLoggedIn} = useContext(UserContext);
   return (
-    <View style={{flex: 1, backgroundColor: COLORS.DEFAULT_COLOR}}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: COLORS.DEFAULT_COLOR,
+        paddingBottom: 0,
+        marginBottom: StatusBar.currentHeight ? 0 : -20,
+      }}>
       <SafeAreaView style={{flex: 1}}>
         <Stack.Navigator initialRouteName="Login">
           {!isLoggedIn ? (

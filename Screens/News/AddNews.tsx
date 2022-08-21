@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import Button from '../../Components/Button/Button';
 import Header from '../../Components/Header/Header';
-import {COLORS} from '../../constants';
+import {baseUrl, COLORS} from '../../constants';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -53,10 +53,7 @@ const AddNews = (props: any) => {
     setLoading(true);
     sendRequest('/news', requestBody).then(res => {
       if (!res.error) {
-        fileUpload(
-          fileData,
-          `http://192.168.1.18:4000/api/v1/news/${res.data._id}/photo`,
-        )
+        fileUpload(fileData, `${baseUrl}/news/${res.data._id}/photo`)
           .then((ress: any) => {
             setLoading(false);
             showSuccessMessage();
@@ -213,6 +210,7 @@ const styles = StyleSheet.create({
     width: '80%',
     height: 60,
     alignSelf: 'center',
+    marginBottom: 20,
   },
   buttonText: {
     fontSize: 16,

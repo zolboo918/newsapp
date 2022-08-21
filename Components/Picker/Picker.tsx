@@ -1,6 +1,6 @@
-import {Select} from 'native-base';
-import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {FormControl, Input, Select} from 'native-base';
+import React, {useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 import {COLORS} from '../../constants';
 
 const Picker = (props: any) => {
@@ -10,17 +10,25 @@ const Picker = (props: any) => {
     style,
     items,
     showAdd,
+    selectedItem,
     showSearch,
     dropdownIcon,
+    onChangeSearchValue,
+    onEndSearchValue,
+    setCompanySearchValue,
     onPress,
     onAddPress,
     onValueChange,
   } = props;
+
+  const [searchValue, setSearchValue] = useState('');
+
   return (
     <View>
       <Select
         onOpen={onPress}
         selectedValue={value}
+        _selectedItem={selectedItem}
         minWidth={style?.minWidth ? style.minWidth : '200'}
         accessibilityLabel={placeholder}
         placeholder={placeholder}
@@ -36,17 +44,28 @@ const Picker = (props: any) => {
         paddingLeft={style?.paddingLeft ? style.paddingLeft : 2}
         height={style?.height ? style.height : 10}
         dropdownIcon={dropdownIcon}
-        onValueChange={onValueChange}>
-        {/* {showSearch ? (
-          <Select.Item
-            label="+"
-            value=""
-            onPress={onShowAddPress}
-            style={styles.addButton}
-          />
-        ) : (
-          <></>
-        )} */}
+        onValueChange={onValueChange}
+        _actionSheetBody={{
+          ListHeaderComponent: showSearch && (
+            <FormControl px={2} mb={0}>
+              <Input
+                py={0}
+                borderRadius={8}
+                height={8}
+                fontSize={14}
+                _focus={{
+                  backgroundColor: '#fff',
+                  borderColor: COLORS.DEFAULT_COLOR,
+                }}
+                value={searchValue}
+                placeholder="Хайх"
+                type="text"
+                onEndEditing={() => onEndSearchValue(searchValue)}
+                onChangeText={val => setSearchValue(val)}
+              />
+            </FormControl>
+          ),
+        }}>
         {items?.map((el: any, index: any) => (
           <Select.Item
             key={index}
@@ -60,7 +79,8 @@ const Picker = (props: any) => {
         {showAdd ? (
           <Select.Item
             label="+"
-            value=""
+            paddingTop={0}
+            value="0"
             onPress={onAddPress}
             style={styles.addButton}
           />
@@ -80,8 +100,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     width: '70%',
+    height: 40,
     alignItems: 'center',
     alignSelf: 'center',
-    borderColor: '#e1e1e1',
+    borderColor: COLORS.textColor,
+    justifyContent: 'center',
+    paddingTop: 0,
+    paddingBottom: 0,
+    // backgroundColor: '#d7d7d7',
   },
 });

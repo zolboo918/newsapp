@@ -44,6 +44,21 @@ const Register2 = (props: any) => {
       <Text style={styles.headerTitle}>Bizcard</Text>
       <Text style={styles.title}>Ажлын мэдээлэл</Text>
       <KeyboardAwareScrollView style={styles.inputsContainer}>
+        <Picker
+          value={sectorId}
+          items={sectorData}
+          placeholder="Салбар"
+          style={{marginTop: 5}}
+          onPress={onPressSector}
+          onValueChange={(val: any) => setSectorId(val)}
+        />
+        <TextInput
+          value={position}
+          placeholder="Албан тушаал"
+          placeholderTextColor={COLORS.textColor}
+          style={styles.input}
+          onChangeText={(val: any) => setPosition(val)}
+        />
         <TextInput
           value={companyName}
           placeholder="Байгууллага"
@@ -55,21 +70,6 @@ const Register2 = (props: any) => {
           * Бүртгэл хийгдсэний дараа хувийн мэдээлэл хэсэгт байгууллагын
           мэдээллийг бүрэн оруулна уу
         </Text>
-        <TextInput
-          value={position}
-          placeholder="Албан тушаал"
-          placeholderTextColor={COLORS.textColor}
-          style={styles.input}
-          onChangeText={(val: any) => setPosition(val)}
-        />
-        <Picker
-          value={sectorId}
-          items={sectorData}
-          placeholder="Салбар"
-          style={{marginTop: 5}}
-          onPress={onPressSector}
-          onValueChange={(val: any) => setSectorId(val)}
-        />
         <View style={styles.bottombuttonContainer}>
           <Button
             icon="chevron-left"
@@ -103,12 +103,12 @@ const styles = StyleSheet.create({
     color: '#f2f2f2',
     fontWeight: 'bold',
     fontSize: 64,
-    marginTop: 65,
+    marginTop: '15%',
   },
   title: {
     color: COLORS.textColor,
-    fontSize: 24,
-    marginTop: 60,
+    fontSize: 22,
+    marginTop: '17%',
     fontWeight: 'bold',
   },
   inputsContainer: {
@@ -134,15 +134,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   backButton: {
-    width: 55,
-    height: 55,
+    width: 50,
+    height: 50,
   },
   backButtonIcon: {
-    fontSize: 40,
+    fontSize: 35,
   },
   registerButton: {
     width: '78%',
-    height: 55,
+    height: 50,
   },
   buttonText: {
     fontSize: 16,

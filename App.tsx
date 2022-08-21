@@ -18,12 +18,12 @@ import AppIntroSlider from 'react-native-app-intro-slider';
 import {SlideData} from './data/Data';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SplashScreen from 'react-native-splash-screen';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const App = () => {
   const [showed, setShowed] = useState(true);
 
   useEffect(() => {
-    SplashScreen.hide();
     AsyncStorage.getItem('slideshow').then(res => {
       if (res && res == '1') {
         setShowed(true);
@@ -31,6 +31,9 @@ const App = () => {
         setShowed(false);
       }
     });
+    setTimeout(() => {
+      SplashScreen.hide();
+    }, 1500);
   }, []);
 
   LogBox.ignoreAllLogs();
@@ -54,20 +57,22 @@ const App = () => {
   };
 
   return showed ? (
-    <NativeBaseProvider>
-      <NavigationContainer>
-        <UserStore>
-          <StackNavigation />
-          <View style={{height: Platform.OS == 'ios' ? 20 : 0}}>
-            <StatusBar
-              barStyle={'light-content'}
-              backgroundColor={COLORS.DEFAULT_COLOR}
-            />
-          </View>
-          <CustomAlert />
-        </UserStore>
-      </NavigationContainer>
-    </NativeBaseProvider>
+    <View style={{backgroundColor: COLORS.DEFAULT_COLOR, flex: 1}}>
+      <NativeBaseProvider>
+        <NavigationContainer>
+          <UserStore>
+            <StackNavigation />
+            <View style={{height: Platform.OS == 'ios' ? 20 : 0}}>
+              <StatusBar
+                barStyle={'light-content'}
+                backgroundColor={COLORS.DEFAULT_COLOR}
+              />
+            </View>
+            <CustomAlert />
+          </UserStore>
+        </NavigationContainer>
+      </NativeBaseProvider>
+    </View>
   ) : (
     <AppIntroSlider
       renderItem={_renderItem}
@@ -78,7 +83,17 @@ const App = () => {
       showPrevButton
       prevLabel="Өмнөх"
       showNextButton
-      nextLabel="Дараагийх"
+      // nextLabel="Дараагийх"
+      renderNextButton={() => (
+        <View style={styles.renderNextButton}>
+          <AntDesign name="right" style={{color: COLORS.DEFAULT_COLOR}} />
+        </View>
+      )}
+      renderDoneButton={() => (
+        <View style={styles.renderNextButton}>
+          <AntDesign name="right" style={{color: COLORS.DEFAULT_COLOR}} />
+        </View>
+      )}
       doneLabel="Дуусгах"
     />
   );
@@ -113,17 +128,26 @@ const styles = StyleSheet.create({
     bottom: '20%',
   },
   dotStyle: {
-    height: 20,
-    width: 20,
+    height: 10,
+    width: 10,
     borderRadius: 20,
     backgroundColor: '#d9d9d9',
     marginTop: '-30%',
   },
   activeDotStyle: {
-    height: 20,
-    width: 50,
+    height: 10,
+    width: 30,
     borderRadius: 20,
     backgroundColor: '#d9d9d9',
     marginTop: '-30%',
+  },
+  renderNextButton: {
+    height: 30,
+    width: 30,
+    backgroundColor: '#d9d9d9',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
   },
 });

@@ -30,11 +30,11 @@ export const sendRequest = (url: any, body?: any) => {
       if (res.data.success) {
         return res.data;
       } else if (!res.data.success) {
-        // if ((res.data.error.code = 11000)) {
-        //   showUnSuccessMessage('Өмнө бүртгэгдсэн байна');
-        // } else {
-        showUnSuccessMessage(res.data.error.message);
-        // }
+        if ((res.data.error.code = 11000)) {
+          showUnSuccessMessage('Өмнө бүртгэгдсэн байна');
+        } else {
+          showUnSuccessMessage(res.data.error.message);
+        }
 
         return {error: res.data.error.message};
       }

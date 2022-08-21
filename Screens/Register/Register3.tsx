@@ -45,74 +45,60 @@ const Register3 = (props: any) => {
   };
 
   return (
-    <KeyboardAwareScrollView bounces={false} style={{flex: 1}}>
-      <View style={styles.container}>
-        <Text style={styles.headerTitle}>Bizcard</Text>
-        <Text style={styles.title}>Нэрийн хуудасны мэдээлэл</Text>
-        <Text style={styles.titlePhoto}>Нэрийн хуудасны зураг</Text>
-        {image ? (
-          <Image
-            resizeMode="cover"
-            source={{uri: image}}
-            style={styles.photoContainer}
-          />
-        ) : (
-          <TouchableOpacity style={styles.photoContainer} onPress={openCamera}>
-            <FeatherIcon name="camera" style={styles.photoIcon} />
-          </TouchableOpacity>
-        )}
-        <TextInput
-          value={intro}
-          placeholder="Өөрийн тухай товчхон..."
-          multiline
-          placeholderTextColor={COLORS.textColor}
-          style={styles.input}
-          onChangeText={(val: any) => setIntro(val)}
+    <KeyboardAwareScrollView bounces={false} style={styles.container}>
+      {/* <View> */}
+      <Text style={styles.headerTitle}>Bizcard</Text>
+      <Text style={styles.title}>Нэрийн хуудасны мэдээлэл</Text>
+      <Text style={styles.titlePhoto}>Нэрийн хуудасны зураг</Text>
+      {image ? (
+        <Image
+          resizeMode="cover"
+          source={{uri: image}}
+          style={styles.photoContainer}
         />
-        <TouchableOpacity
-          style={styles.checkBoxContainer}
-          onPress={() => setIsPublic(!isPublic)}>
-          {/* <CheckBox
-            boxType="square"
-            onCheckColor={COLORS.textColor}
-            onFillColor={COLORS.textColor}
-            tintColor={COLORS.textColor}
-            onTintColor={COLORS.textColor}
-            value={isPublic}
-            style={styles.checkBox}
-            tintColors={{false: COLORS.textColor, true: COLORS.textColor}}
-            onValueChange={val => setIsPublic(val)}
-          /> */}
-          <Checkbox
-            // boxType="square"
-            color={'yellow.100'}
-            backgroundColor={'green'}
-            value={isPublic ? '1' : '0'}
-            style={[styles.checkbox]}
-            tintColor={COLORS.textColor}
-            outlineColor="green"
-            onChange={val => setIsPublic(val)}
-            // tintColors={{true: textColor, false: textColor}}
-            // onValueChange={val => setRemember(val)}
-          />
-          <Text style={styles.checkBoxTitle}>Нийтэд нээлттэй эсэх</Text>
+      ) : (
+        <TouchableOpacity style={styles.photoContainer} onPress={openCamera}>
+          <FeatherIcon name="camera" style={styles.photoIcon} />
         </TouchableOpacity>
-        <View style={styles.bottombuttonContainer}>
-          <Button
-            icon="chevron-left"
-            style={styles.backButton}
-            iconStyle={styles.backButtonIcon}
-            titleStyle={styles.buttonText}
-            onPress={() => props.navigation.goBack()}
-          />
-          <Button
-            title="Хадгалах"
-            style={styles.registerButton}
-            titleStyle={styles.buttonText}
-            onPress={handleButtonPress}
-          />
-        </View>
+      )}
+      <TextInput
+        value={intro}
+        placeholder="Өөрийн тухай товчхон..."
+        multiline
+        placeholderTextColor={COLORS.textColor}
+        style={styles.input}
+        onChangeText={(val: any) => setIntro(val)}
+      />
+      <TouchableOpacity
+        style={styles.checkBoxContainer}
+        onPress={() => setIsPublic(!isPublic)}>
+        <Checkbox
+          isChecked={isPublic}
+          value={'isPublic'}
+          style={[styles.checkbox]}
+          backgroundColor={COLORS.DEFAULT_COLOR}
+          colorScheme={'white'}
+          tintColor={COLORS.textColor}
+          onChange={val => setIsPublic(val)}
+        />
+        <Text style={styles.checkBoxTitle}>Нийтэд нээлттэй эсэх</Text>
+      </TouchableOpacity>
+      <View style={styles.bottombuttonContainer}>
+        <Button
+          icon="chevron-left"
+          style={styles.backButton}
+          iconStyle={styles.backButtonIcon}
+          titleStyle={styles.buttonText}
+          onPress={() => props.navigation.goBack()}
+        />
+        <Button
+          title="Хадгалах"
+          style={styles.registerButton}
+          titleStyle={styles.buttonText}
+          onPress={handleButtonPress}
+        />
       </View>
+      {/* </View> */}
     </KeyboardAwareScrollView>
   );
 };
@@ -130,7 +116,7 @@ const styles = StyleSheet.create({
     color: '#f2f2f2',
     fontWeight: 'bold',
     fontSize: 64,
-    marginTop: 55,
+    marginTop: '15%',
   },
   checkbox: {
     marginRight: 10,
@@ -138,8 +124,8 @@ const styles = StyleSheet.create({
   },
   title: {
     color: COLORS.textColor,
-    fontSize: 24,
-    marginTop: 40,
+    fontSize: 22,
+    marginTop: '13%',
     fontWeight: 'bold',
   },
   titlePhoto: {
@@ -189,15 +175,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   backButton: {
-    width: 55,
-    height: 55,
+    width: 50,
+    height: 50,
   },
   backButtonIcon: {
-    fontSize: 40,
+    fontSize: 35,
   },
   registerButton: {
     width: '78%',
-    height: 55,
+    height: 50,
   },
   buttonText: {
     fontSize: 16,

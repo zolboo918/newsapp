@@ -1,4 +1,11 @@
-import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Header from '../../Components/Header/Header';
 import {baseUrl, COLORS, imageUrl} from '../../constants';
@@ -9,6 +16,7 @@ import QRCode from 'react-native-qrcode-svg';
 import {isEmpty} from 'lodash';
 import {showSuccessMessage} from '../../utils/helper';
 import {useIsFocused} from '@react-navigation/native';
+import {setHeight} from '../../utils/Dimension';
 
 const NameCardDetail = (props: any) => {
   const {id, manual} = props.route.params;
@@ -17,12 +25,16 @@ const NameCardDetail = (props: any) => {
   const [company, setCompany] = useState('');
   const [isFriend, setIsFriend] = useState<any>();
 
-  const {userInfo} = useContext<any>(UserContext);
+  const [loading, setLoading] = useState(false);
+
+  const {userInfo, logOut} = useContext<any>(UserContext);
 
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    if (isFocused) getAllData();
+    if (isFocused) {
+      getAllData();
+    }
   }, [isFocused]);
 
   useEffect(() => {
@@ -36,11 +48,13 @@ const NameCardDetail = (props: any) => {
   }, [data, isFocused]);
 
   const getAllData = () => {
+    setLoading(true);
     if (id == 1) {
       getRequest('/nameCards/user/' + userInfo._id).then(res => {
         if (!res.error) {
           setData(res.data);
           getSector(res.data?.sectorId);
+          setLoading(false);
         }
       });
       getSector(userInfo.sectorId);
@@ -49,6 +63,7 @@ const NameCardDetail = (props: any) => {
         if (!res.error) {
           setData(res.data);
           getSector(res.data?.sectorId);
+          setLoading(false);
         }
       });
     } else {
@@ -62,6 +77,7 @@ const NameCardDetail = (props: any) => {
           }).then(ress => {
             if (!ress?.error) {
               setIsFriend(ress.data[0]);
+              setLoading(false);
             }
           });
           getSector(res.data?.sectorId);
@@ -116,70 +132,80 @@ const NameCardDetail = (props: any) => {
       });
     }
   };
-
+  console.log('id', id);
   return (
     <View style={styles.container}>
       <Header
         title="Нэрийн хуудас"
-        leftIcon="left"
+        rightIcon={id == 1 ? 'logout' : ''}
+        rightIconPress={logOut}
+        leftIcon={id != 1 ? 'left' : ''}
         leftIconPress={() => props.navigation.goBack()}
       />
       <ScrollView style={styles.wrapper}>
-        <Image
-          source={{
-            uri: imageUrl + 'uploads/' + data?.image,
-          }}
-          resizeMode="cover"
-          style={styles.image}
-        />
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>Нэр:</Text>
-          <View style={{flexDirection: 'row', width: '100%'}}>
-            <Text style={styles.text3}>{data?.firstName} </Text>
-            <Text style={styles.text3}>{data?.lastName}</Text>
+        {loading ? (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size={'large'} color={COLORS.textColor} />
           </View>
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>Байгууллага:</Text>
-          <Text style={styles.text2}>
-            {data?.companyName ? data?.companyName : company}
-          </Text>
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>Албан тушаал:</Text>
-          <Text style={styles.text2}>{data?.position}</Text>
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>Салбар:</Text>
-          <Text style={styles.text2}>{sector?.displayName}</Text>
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>Утас:</Text>
-          <Text style={styles.text2}>{data?.phone}</Text>
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>Мэйл:</Text>
-          <Text style={styles.text2}>{data?.email}</Text>
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>Танилцуулга:</Text>
-          <Text style={styles.text2}>{data?.note}</Text>
-        </View>
-        <View style={styles.qr}>
-          <QRCode value={data?.qr} size={130} />
-        </View>
-        <Button
-          title={
-            id == '1'
-              ? 'Засах'
-              : manual || isFriend?.isFriend == '1'
-              ? 'Устгах'
-              : 'Хүсэлт илгээх'
-          }
-          style={styles.button}
-          titleStyle={styles.buttonText}
-          onPress={buttonPress}
-        />
+        ) : (
+          <>
+            <Image
+              source={{
+                uri: imageUrl + 'uploads/' + data?.image,
+              }}
+              resizeMode="cover"
+              style={styles.image}
+            />
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>Нэр:</Text>
+              <View style={{flexDirection: 'row', width: '100%'}}>
+                <Text style={styles.text3}>{data?.firstName} </Text>
+                <Text style={styles.text3}>{data?.lastName}</Text>
+              </View>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>Байгууллага:</Text>
+              <Text style={styles.text2}>
+                {data?.companyName ? data?.companyName : company}
+              </Text>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>Албан тушаал:</Text>
+              <Text style={styles.text2}>{data?.position}</Text>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>Салбар:</Text>
+              <Text style={styles.text2}>{sector?.displayName}</Text>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>Утас:</Text>
+              <Text style={styles.text2}>{data?.phone}</Text>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>Мэйл:</Text>
+              <Text style={styles.text2}>{data?.email}</Text>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>Танилцуулга:</Text>
+              <Text style={styles.text2}>{data?.note}</Text>
+            </View>
+            <View style={styles.qr}>
+              <QRCode value={data?.qr} size={130} />
+            </View>
+            <Button
+              title={
+                id == '1'
+                  ? 'Засах'
+                  : manual || isFriend?.isFriend == '1'
+                  ? 'Устгах'
+                  : 'Хүсэлт илгээх'
+              }
+              style={styles.button}
+              titleStyle={styles.buttonText}
+              onPress={buttonPress}
+            />
+          </>
+        )}
       </ScrollView>
     </View>
   );
@@ -194,6 +220,12 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     paddingHorizontal: 20,
+  },
+  loaderContainer: {
+    height: setHeight(50),
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
     width: '100%',

@@ -8,6 +8,7 @@ import {
   Alert,
   Image,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -55,7 +56,7 @@ const AgreementAndQR = (props: any) => {
         if (!result.error) {
           fileUpload(
             data.image,
-            `http://192.168.1.18:4000/api/v1/users/${result.data.nameCardId}/photo`,
+            `${baseUrl}/users/${result.data.nameCardId}/photo`,
           )
             .then((res: any) => {
               setLoading(false);
@@ -94,25 +95,41 @@ const AgreementAndQR = (props: any) => {
     <View style={styles.container}>
       <Text style={styles.headerTitle}>Bizcard</Text>
       {isEmpty(qrImage) && !loading ? (
-        <View>
+        <View style={{height: '100%'}}>
           <View style={styles.textContainer}>
             <Text style={styles.title}>Үйлчилгээний нөхцөл</Text>
-            <Text style={styles.mainText}>
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum."
-              Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-              labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-              nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-              consequat. Duis aute irure dolor in reprehenderit in voluptate
-              velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-              occaecat cupidatat non proident, sunt in culpa qui officia
-              deserunt mollit anim id est laborum."
-            </Text>
+            <ScrollView>
+              <Text style={styles.mainText}>
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
+                sunt in culpa qui officia deserunt mollit anim id est laborum."
+                Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+                nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                commodo consequat. Duis aute irure dolor in reprehenderit in
+                voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                Excepteur sint occaecat cupidatat non proident, sunt in culpa
+                qui officia deserunt mollit anim id est laborum." "Lorem ipsum
+                dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                aliquip ex ea commodo consequat. Duis aute irure dolor in
+                reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
+                sunt in culpa qui officia deserunt mollit anim id est laborum."
+                Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+                nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                commodo consequat. Duis aute irure dolor in reprehenderit in
+                voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                Excepteur sint occaecat cupidatat non proident, sunt in culpa
+                qui officia deserunt mollit anim id est laborum."
+              </Text>
+            </ScrollView>
           </View>
           <TouchableOpacity
             style={styles.checkBoxContainer}
@@ -120,23 +137,14 @@ const AgreementAndQR = (props: any) => {
               setIsConfirmed(!isConfirmed);
               setError(false);
             }}>
-            {/* <CheckBox
-              value={isConfirmed}
-              style={styles.checkBox}
-              tintColors={
-                !error
-                  ? {false: COLORS.textColor, true: COLORS.textColor}
-                  : {false: '#ff6666', true: '#ff6666'}
-              }
-              onValueChange={val => {
-                setIsConfirmed(val);
-                setError(false);
-              }}
-            /> */}
             <Checkbox
               accessibilityLabel="agreement"
-              value={isConfirmed ? 'true' : 'false'}
+              isChecked={isConfirmed}
+              value={'isConfirmed'}
               style={[styles.checkbox]}
+              backgroundColor={COLORS.DEFAULT_COLOR}
+              colorScheme={'white'}
+              borderColor="grey"
               tintColor={COLORS.textColor}
               onChange={val => setIsConfirmed(val)}
             />
@@ -197,6 +205,7 @@ export default AgreementAndQR;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height: '100%',
     backgroundColor: COLORS.DEFAULT_COLOR,
     paddingHorizontal: 30,
   },
@@ -212,6 +221,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 25,
     marginTop: 40,
+    height: '50%',
   },
   title: {
     color: '#323232',
@@ -243,15 +253,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   backButton: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
   },
   backButtonIcon: {
-    fontSize: 40,
+    fontSize: 35,
   },
   registerButton: {
     width: '78%',
-    height: 60,
+    height: 50,
   },
   buttonText: {
     fontSize: 18,

@@ -1,4 +1,9 @@
-import {useIsFocused} from '@react-navigation/native';
+import {
+  CommonActions,
+  StackActions,
+  useIsFocused,
+  useNavigation,
+} from '@react-navigation/native';
 import {Fab} from 'native-base';
 import React, {useContext, useEffect, useState} from 'react';
 import {
@@ -64,8 +69,6 @@ const News = (props: any) => {
     });
   };
 
-  console.log('newsData', newsData);
-
   const onPressFab = () => {
     props.navigation.navigate('AddNews');
   };
@@ -120,11 +123,13 @@ const styles = StyleSheet.create({
   fab: {
     backgroundColor: '#E88B00',
     position: 'absolute',
-    height: 60,
-    width: 60,
+    height: 50,
+    width: 50,
+    paddingLeft: '27%',
+    paddingTop: '25%',
   },
   fabIcon: {
     color: COLORS.DEFAULT_COLOR,
-    fontSize: 26,
+    fontSize: 24,
   },
 });

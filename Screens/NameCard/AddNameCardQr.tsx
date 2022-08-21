@@ -37,7 +37,7 @@ const AddNameCardQr = (props: any) => {
             reactivateTimeout={5000}
             cameraStyle={styles.cameraStyle}
             onRead={onSuccess}
-            flashMode={RNCamera.Constants.FlashMode.torch}
+            flashMode={'off'}
           />
         </View>
       </View>

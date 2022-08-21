@@ -90,7 +90,9 @@ const Register1 = (props: any) => {
               setPassword(text);
             }}
           />
-          {error && <Text style={{color: '#ff6666'}}>{error}</Text>}
+          {error && (
+            <Text style={{color: '#ff6666', fontSize: 12}}>{error}</Text>
+          )}
           <TextInput
             placeholder="Нууц үг давт"
             value={password2}
@@ -102,7 +104,9 @@ const Register1 = (props: any) => {
               setPassword2(text);
             }}
           />
-          {error2 && <Text style={{color: '#ff6666'}}>{error2}</Text>}
+          {error2 && (
+            <Text style={{color: '#ff6666', fontSize: 12}}>{error2}</Text>
+          )}
           <View style={styles.bottombuttonContainer}>
             <Button
               icon="chevron-left"
@@ -138,12 +142,12 @@ const styles = StyleSheet.create({
     // fontWeight: "bold",
     fontWeight: 'bold',
     fontSize: 64,
-    marginTop: 65,
+    marginTop: '15%',
   },
   title: {
     color: COLORS.textColor,
-    fontSize: 24,
-    marginTop: 60,
+    fontSize: 22,
+    marginTop: '17%',
     fontWeight: 'bold',
   },
   inputsContainer: {
@@ -167,15 +171,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   backButton: {
-    width: 55,
-    height: 55,
+    width: 50,
+    height: 50,
   },
   backButtonIcon: {
-    fontSize: 40,
+    fontSize: 35,
   },
   registerButton: {
     width: '78%',
-    height: 55,
+    height: 50,
   },
   buttonText: {
     fontSize: 16,

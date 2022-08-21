@@ -1,6 +1,6 @@
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import React from 'react';
-import {Platform, StyleSheet} from 'react-native';
+import {Platform, StatusBar, StyleSheet} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../constants';
 import AddNameCard from '../Screens/NameCard/AddNameCard';
@@ -9,17 +9,23 @@ import NameCards from '../Screens/NameCard/NameCards';
 import News from '../Screens/News/News';
 import NameCardDetail from '../Screens/NameCard/NameCardDetail';
 import Working from '../Screens/Working';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const Tab = createMaterialBottomTabNavigator();
-
 function BottomTabs() {
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = insets.top;
+
   return (
     <Tab.Navigator
       initialRouteName="News"
       activeColor="#E88B00"
       inactiveColor="#fff"
       labeled={false}
-      barStyle={styles.barStyle}>
+      barStyle={[
+        styles.barStyle,
+        {paddingTop: Platform.OS == 'ios' && statusBarHeight > 20 ? 32 : 0},
+      ]}>
       <Tab.Screen
         name="News"
         component={News}
@@ -96,40 +102,39 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.DEFAULT_COLOR,
     height: 80,
     justifyContent: 'center',
-    paddingTop: Platform.OS == 'ios' ? 32 : 0,
   },
   events: {
     transform: [{rotateZ: '-45deg'}],
-    fontSize: 29,
-    height: 30,
-    width: 30,
+    fontSize: 24,
+    height: 24,
+    width: 24,
     marginTop: 0,
     marginLeft: 5,
   },
   icons: {
     marginTop: -2,
-    fontSize: 32,
-    height: 32,
-    width: 32,
+    fontSize: 26,
+    height: 26,
+    width: 26,
   },
   calendatIcon: {
     marginTop: -3,
-    fontSize: 33,
-    height: 33,
-    width: 33,
+    fontSize: 27,
+    height: 27,
+    width: 27,
   },
   addIcon: {
     marginTop: -10,
     alignSelf: 'center',
-    fontSize: 50,
-    height: 50,
-    width: 50,
+    fontSize: 45,
+    height: 45,
+    width: 45,
   },
   userIcon: {
-    marginTop: -2,
+    marginTop: -3,
     alignSelf: 'center',
-    fontSize: 36,
-    height: 36,
-    width: 36,
+    fontSize: 30,
+    height: 30,
+    width: 30,
   },
 });

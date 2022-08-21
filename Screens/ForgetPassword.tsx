@@ -17,28 +17,34 @@ const ForgetPassword = (props: any) => {
   const [error, setError] = useState('');
   const [error2, setError2] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   const handleButtonPress1 = () => {
     if (isEmpty(email)) {
       Toast.show({title: 'Алдаа', description: 'И-Мэйл хаяг оруулна уу'});
-    } else if (!validateEmail(email)) {
+    } else if (!validateEmail(email.trim())) {
       Toast.show({title: 'Алдаа', description: 'И-Мэйл хаяг буруу байна.'});
     } else {
-      sendRequest('/users/forgot-password', {email: email.toLowerCase()}).then(
-        res => {
-          if (res.success) {
-            setCurrentScreen(1);
-            showSuccessMessage('Мэйл хаягт явуулсан кодыг оруулна уу');
-          }
-        },
-      );
+      setLoading(true);
+      sendRequest('/users/forgot-password', {
+        email: email.toLowerCase().trim(),
+      }).then(res => {
+        setLoading(false);
+        if (res.success) {
+          setCurrentScreen(1);
+          showSuccessMessage('Мэйл хаягт явуулсан кодыг оруулна уу');
+        }
+      });
     }
   };
   const handleButtonPress2 = () => {
     const body = {
       token,
-      email: email.toLowerCase(),
+      email: email.toLowerCase().trim(),
     };
+    setLoading(true);
     sendRequest('/users/check-token', body).then(res => {
+      setLoading(false);
       if (!res?.error) {
         setCurrentScreen(2);
       }
@@ -55,8 +61,10 @@ const ForgetPassword = (props: any) => {
     } else if (password != password2) {
       setError2('Нууц үг тохирохгүй байна.');
     } else {
+      setLoading(true);
       sendRequest('/users/reset-password', {password, token}).then(res => {
         if (res.success) {
+          setLoading(false);
           props.navigation.navigate('Login');
           showSuccessMessage('Нууц үг амжилттай шинэчлэгдлээ');
         }
@@ -86,6 +94,7 @@ const ForgetPassword = (props: any) => {
                 onPress={() => props.navigation.goBack()}
               />
               <Button
+                loading={loading}
                 title="Үргэлжлүүлэх"
                 style={styles.registerButton}
                 titleStyle={styles.buttonText}
@@ -120,6 +129,7 @@ const ForgetPassword = (props: any) => {
               />
               <Button
                 title="Үргэлжлүүлэх"
+                loading={loading}
                 style={styles.registerButton}
                 titleStyle={styles.buttonText}
                 onPress={handleButtonPress2}
@@ -137,18 +147,28 @@ const ForgetPassword = (props: any) => {
               secureTextEntry
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
-              onChangeText={val => setPassword(val)}
+              onChangeText={val => {
+                setPassword(val);
+                setError('');
+              }}
             />
-            {error && <Text style={{color: '#ff6666'}}>{error}</Text>}
+            {error && (
+              <Text style={{color: '#ff6666', fontSize: 12}}>{error}</Text>
+            )}
             <TextInput
               value={password2}
               placeholder="Нууц үг давт"
               secureTextEntry
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
-              onChangeText={val => setPassword2(val)}
+              onChangeText={val => {
+                setPassword2(val);
+                setError2('');
+              }}
             />
-            {error2 && <Text style={{color: '#ff6666'}}>{error2}</Text>}
+            {error2 && (
+              <Text style={{color: '#ff6666', fontSize: 12}}>{error2}</Text>
+            )}
             <View style={styles.bottombuttonContainer}>
               <Button
                 icon="chevron-left"
@@ -159,6 +179,7 @@ const ForgetPassword = (props: any) => {
               />
               <Button
                 title="Хадгалах"
+                loading={loading}
                 style={styles.registerButton}
                 titleStyle={styles.buttonText}
                 onPress={handleButtonPress3}
@@ -216,15 +237,15 @@ const styles = StyleSheet.create({
     marginTop: 130,
   },
   backButton: {
-    width: 55,
-    height: 55,
+    width: 50,
+    height: 50,
   },
   backButtonIcon: {
-    fontSize: 40,
+    fontSize: 35,
   },
   registerButton: {
     width: '78%',
-    height: 55,
+    height: 50,
   },
   buttonText: {
     fontSize: 16,

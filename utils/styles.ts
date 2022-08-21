@@ -56,7 +56,7 @@ export const styles = StyleSheet.create({
   },
   modalText2: {
     // color: ,
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: 'bold',
     width: '90%',
     marginLeft: '5%',

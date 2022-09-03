@@ -159,6 +159,7 @@ const AddNameCardManual = (props: any) => {
             <TextInput
               value={phone}
               placeholder="Утас"
+              keyboardType="number-pad"
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
               onChangeText={val => setPhone(val)}
@@ -166,6 +167,7 @@ const AddNameCardManual = (props: any) => {
             <TextInput
               value={mail}
               placeholder="И-Мэйл"
+              keyboardType="email-address"
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
               onChangeText={val => setMail(val)}

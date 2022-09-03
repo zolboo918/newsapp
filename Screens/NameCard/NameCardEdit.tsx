@@ -196,13 +196,13 @@ const NameCardEdit = (props: any) => {
           items={companyData}
           placeholder={company ? company : 'Байгууллага'}
           showAdd={true}
-          showSearch={true}
+          // showSearch={true}
           selectedItem={company}
           onAddPress={addCompany}
           style={{marginTop: 1}}
           onPress={onPressCompany}
-          onChangeSearchValue={onChangeSearchValue}
-          onEndSearchValue={onEndSearchValue}
+          // onChangeSearchValue={onChangeSearchValue}
+          // onEndSearchValue={onEndSearchValue}
           setCompanySearchValue={setCompanySearchValue}
           onValueChange={(val: any) => setCompany(val)}
         />

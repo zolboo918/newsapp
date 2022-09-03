@@ -33,6 +33,8 @@ const AddNameCardQr = (props: any) => {
         <Text style={styles.title}>QR код уншуулна уу</Text>
         <View style={styles.qrContainer}>
           <QRCodeScanner
+            // containerStyle={{height: 360}}
+            // cameraContainerStyle={{height: 360}}
             reactivate={true}
             reactivateTimeout={5000}
             cameraStyle={styles.cameraStyle}
@@ -72,6 +74,6 @@ const styles = StyleSheet.create({
     marginTop: '15%',
     marginLeft: '10%',
     width: '80%',
-    height: '20%',
+    height: '100%',
   },
 });

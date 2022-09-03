@@ -81,6 +81,7 @@ const ForgetPassword = (props: any) => {
             <TextInput
               value={email}
               placeholder="И-Мэйл"
+              keyboardType="email-address"
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
               onChangeText={val => setEmail(val)}

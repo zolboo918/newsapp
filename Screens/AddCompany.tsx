@@ -199,14 +199,17 @@ const AddCompany = (props: any) => {
           style={styles.inputBig}
           onChangeText={(text: string) => setIntro(text)}
         />
-        <View>
+        <View style={{height: 200, position: 'relative'}}>
           <MapView
             mapType="standard"
             showsUserLocation
             provider={'google'} // remove if not using Google Maps
             style={styles.mapMini}
             region={initialRegion}
-            onPress={e => setLocation(e.nativeEvent.coordinate)}>
+            onPress={e => {
+              console.log('e', e.nativeEvent);
+              setLocation(e.nativeEvent.coordinate);
+            }}>
             {location && <Marker coordinate={location} />}
           </MapView>
           <TouchableOpacity

@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 230,
+    height: 136,
     marginTop: 10,
   },
   photoIcon: {

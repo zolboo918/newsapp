@@ -10,6 +10,7 @@ export const getRequest = (url: any) => {
   return axios
     .get(`${baseUrl}${url}`)
     .then((res: any) => {
+      console.log('res :>> ', res);
       if (res.data.success) {
         return res.data;
       } else if (!res.data.success) {
@@ -18,6 +19,7 @@ export const getRequest = (url: any) => {
       }
     })
     .catch(err => {
+      console.log('err :>> ', err);
       showUnSuccessMessage(JSON.stringify(err));
       return {error: err};
     });
@@ -30,7 +32,7 @@ export const sendRequest = (url: any, body?: any) => {
       if (res.data.success) {
         return res.data;
       } else if (!res.data.success) {
-        if ((res.data.error.code = 11000)) {
+        if (res.data.error.code == 11000) {
           showUnSuccessMessage('Өмнө бүртгэгдсэн байна');
         } else {
           showUnSuccessMessage(res.data.error.message);
@@ -99,9 +101,9 @@ export const fileUpload = (file: any, path: any) => {
     xhr.onload = e => {
       const response = JSON.parse(xhr.response);
       if (response.success && !isEmpty(response.data)) {
-        Toast.show({
-          title: 'Aмжилттай хуулагдлаа',
-        });
+        // Toast.show({
+        //   title: 'Aмжилттай хуулагдлаа',
+        // });
         resolve({success: true});
       } else {
         Toast.show({

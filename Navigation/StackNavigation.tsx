@@ -20,6 +20,7 @@ import AddCompany from '../Screens/AddCompany';
 import FriendRequest from '../Screens/FriendRequest';
 import {SafeAreaView, StatusBar, View} from 'react-native';
 import {COLORS} from '../constants';
+import Register4 from '../Screens/Register/Register4';
 
 const Stack = createNativeStackNavigator();
 
@@ -58,6 +59,11 @@ function StackNavigation() {
                 options={{headerShown: false}}
               />
               <Stack.Screen
+                name="Register4"
+                component={Register4}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
                 name="AgreementAndQR"
                 component={AgreementAndQR}
                 options={{headerShown: false}}
@@ -65,6 +71,11 @@ function StackNavigation() {
               <Stack.Screen
                 name="ForgetPassword"
                 component={ForgetPassword}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AddCompany"
+                component={AddCompany}
                 options={{headerShown: false}}
               />
             </>

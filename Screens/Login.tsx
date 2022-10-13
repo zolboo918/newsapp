@@ -30,8 +30,8 @@ const Login = (props: any) => {
   // const [userName, setUserName] = useState('hutga@shuvug.com');
   // const [userName, setUserName] = useState('tsetseg@urgamal.com');
   // const [password, setPassword] = useState('12341234');
-  const [userName, setUserName] = useState('');
-  const [password, setPassword] = useState('');
+  const [userName, setUserName] = useState('zolboo412@gmail.com');
+  const [password, setPassword] = useState('12341234');
   const [remember, setRemember] = useState(false);
   const [userNameEdited, setUserNameEdited] = useState(false);
 

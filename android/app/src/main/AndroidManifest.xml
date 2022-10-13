@@ -32,4 +32,9 @@
       </activity>
       <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyBspyEjdjNnJCiLpl3DDDyZTYw_sqB1XIg" />
     </application>
+    <queries>
+   <intent>
+     <action android:name="com.google.android.youtube.api.service.START" />
+   </intent>
+</queries>
 </manifest>

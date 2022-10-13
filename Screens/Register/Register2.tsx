@@ -11,46 +11,53 @@ import {getRequest} from '../../utils/Service';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const Register2 = (props: any) => {
-  const [companyName, setCompanyName] = useState('');
   const [position, setPosition] = useState('');
-  const [sectorId, setSectorId] = useState('');
-  const [sectorData, setSectorData] = useState([]);
+  const [workPhone, setWorkPhone] = useState('');
+  const [aboutActivity, setAboutActivity] = useState('');
+  const [company, setCompany] = useState('');
+  const [companyData, setCompanyData] = useState([]);
 
   const continuePress = () => {
     props.navigation.dispatch(
       StackActions.push('Register3', {
         ...props.route.params,
-        companyName,
+        companyId: company,
         position,
-        sectorId,
+        workPhone,
+        aboutActivity,
       }),
     );
   };
 
-  const onPressSector = () => {
-    if (isEmpty(sectorData)) {
-      getRequest('/companyCategories').then(res => {
-        let arr: any = [];
-        res.data.forEach((el: any) => {
-          arr.push({label: el.displayName, value: el._id});
-        });
-        setSectorData(arr);
+  const addCompany = () => {
+    props.navigation.navigate('AddCompany');
+  };
+
+  const onPressCompany = () => {
+    getRequest('/company').then(res => {
+      let arr: any = [];
+      res.data.forEach((el: any) => {
+        arr.push({label: el.name, value: el._id});
       });
-    }
+      setCompanyData(arr);
+    });
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>Bizcard</Text>
-      <Text style={styles.title}>Ажлын мэдээлэл</Text>
+      <Text style={styles.title}>Байгууллага</Text>
       <KeyboardAwareScrollView style={styles.inputsContainer}>
         <Picker
-          value={sectorId}
-          items={sectorData}
-          placeholder="Салбар"
-          style={{marginTop: 5}}
-          onPress={onPressSector}
-          onValueChange={(val: any) => setSectorId(val)}
+          value={company}
+          items={companyData}
+          placeholder={company ? company : 'Байгууллага'}
+          showAdd={true}
+          selectedItem={company}
+          onAddPress={addCompany}
+          style={{marginTop: 1}}
+          onPress={onPressCompany}
+          onValueChange={(val: any) => setCompany(val)}
         />
         <TextInput
           value={position}
@@ -60,16 +67,20 @@ const Register2 = (props: any) => {
           onChangeText={(val: any) => setPosition(val)}
         />
         <TextInput
-          value={companyName}
-          placeholder="Байгууллага"
+          value={workPhone}
+          placeholder="Ажлын утас"
           placeholderTextColor={COLORS.textColor}
           style={styles.input}
-          onChangeText={(val: any) => setCompanyName(val)}
+          onChangeText={(val: any) => setWorkPhone(val)}
         />
-        <Text style={styles.tip}>
-          * Бүртгэл хийгдсэний дараа хувийн мэдээлэл хэсэгт байгууллагын
-          мэдээллийг бүрэн оруулна уу
-        </Text>
+        <TextInput
+          value={aboutActivity}
+          placeholder="Үйл ажиллагааны тухай товч тайлбар"
+          multiline
+          placeholderTextColor={COLORS.textColor}
+          style={styles.inputBig}
+          onChangeText={(val: any) => setAboutActivity(val)}
+        />
         <View style={styles.bottombuttonContainer}>
           <Button
             icon="chevron-left"
@@ -79,7 +90,7 @@ const Register2 = (props: any) => {
             onPress={() => props.navigation.goBack()}
           />
           <Button
-            title="Үргэлжлүүлэх 2/3"
+            title="Үргэлжлүүлэх"
             style={styles.registerButton}
             titleStyle={styles.buttonText}
             onPress={continuePress}
@@ -126,6 +137,18 @@ const styles = StyleSheet.create({
     borderColor: COLORS.textColor,
     paddingHorizontal: 10,
     height: 40,
+    fontSize: 14,
+    color: COLORS.textColor,
+  },
+  inputBig: {
+    marginTop: 20,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: COLORS.textColor,
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    height: 70,
+    textAlignVertical: 'top',
     fontSize: 14,
     color: COLORS.textColor,
   },

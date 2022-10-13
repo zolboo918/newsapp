@@ -132,7 +132,7 @@ const NameCardDetail = (props: any) => {
       });
     }
   };
-  console.log('id', id);
+
   return (
     <View style={styles.container}>
       <Header

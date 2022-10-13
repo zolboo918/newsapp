@@ -21,10 +21,12 @@ import Button from '../Components/Button/Button';
 import Header from '../Components/Header/Header';
 import Picker from '../Components/Picker/Picker';
 import {baseUrl, COLORS} from '../constants';
+import {Checkbox} from 'native-base';
 import {
   choosePhoto,
   showSuccessMessage,
   showUnSuccessMessage,
+  showWarningMessage,
   takePhoto,
 } from '../utils/helper';
 import {fileUpload, getRequest, sendRequest} from '../utils/Service';
@@ -32,10 +34,14 @@ import {fileUpload, getRequest, sendRequest} from '../utils/Service';
 const AddCompany = (props: any) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [phone2, setPhone2] = useState('');
+  const [phone3, setPhone3] = useState('');
   const [email, setEmail] = useState('');
+  const [web, setWeb] = useState('');
   const [address, setAddress] = useState('');
   const [intro, setIntro] = useState('');
   const [location, setLocation] = useState<any>('');
+  const [isofficaial, setIsofficaial] = useState(false);
 
   const [category, setCategory] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
@@ -130,14 +136,36 @@ const AddCompany = (props: any) => {
         leftIconPress={() => props.navigation.goBack()}
       />
       <ScrollView style={styles.inputsContainer}>
+        {fileData?.path ? (
+          <TouchableOpacity onPress={() => setModalShow(true)}>
+            <Image
+              style={styles.photoContainer2}
+              source={{uri: fileData?.path}}
+            />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.photoContainer2}
+            onPress={() => setModalShow(true)}>
+            <FeatherIcon name="camera" style={styles.photoIcon} />
+          </TouchableOpacity>
+        )}
         <TextInput
-          placeholder="Нэр"
+          placeholder="Байгууллагын нэр"
           value={name}
           placeholderTextColor={COLORS.textColor}
           style={styles.input}
           onChangeText={(text: string) => setName(text)}
         />
-        <Text style={styles.titlePhoto}>Лого</Text>
+        <Text style={styles.introCount}>{intro.length} / 199</Text>
+        <TextInput
+          placeholder="Товч танилцуулга"
+          value={intro}
+          multiline
+          placeholderTextColor={COLORS.textColor}
+          style={styles.inputBig}
+          onChangeText={(text: string) => setIntro(text)}
+        />
         {fileData?.path ? (
           <TouchableOpacity onPress={() => setModalShow(true)}>
             <Image
@@ -149,17 +177,20 @@ const AddCompany = (props: any) => {
           <TouchableOpacity
             style={styles.photoContainer}
             onPress={() => setModalShow(true)}>
-            <FeatherIcon name="camera" style={styles.photoIcon} />
+            <FeatherIcon
+              name="camera"
+              style={[styles.photoIcon, {color: COLORS.textColor}]}
+            />
           </TouchableOpacity>
         )}
-        <Picker
+        {/* <Picker
           value={category}
           items={categoryData}
           placeholder="Үйл ажиллагааны ангилал"
           onPress={onPressCategory}
           style={{marginTop: 4}}
           onValueChange={(val: any) => setCategory(val)}
-        />
+        /> */}
         <Picker
           value={childCategory}
           items={childCategoryData}
@@ -169,7 +200,7 @@ const AddCompany = (props: any) => {
           onValueChange={(val: any) => setChildCategory(val)}
         />
         <TextInput
-          placeholder="Утас"
+          placeholder="Утас 1"
           value={phone}
           keyboardType="decimal-pad"
           placeholderTextColor={COLORS.textColor}
@@ -177,12 +208,36 @@ const AddCompany = (props: any) => {
           onChangeText={(text: string) => setPhone(text)}
         />
         <TextInput
-          placeholder="Мэйл"
+          placeholder="Утас 2"
+          value={phone2}
+          keyboardType="decimal-pad"
+          placeholderTextColor={COLORS.textColor}
+          style={styles.input}
+          onChangeText={(text: string) => setPhone2(text)}
+        />
+        <TextInput
+          placeholder="Утас 3"
+          value={phone3}
+          keyboardType="decimal-pad"
+          placeholderTextColor={COLORS.textColor}
+          style={styles.input}
+          onChangeText={(text: string) => setPhone3(text)}
+        />
+        <TextInput
+          placeholder="Цахим шуудан"
           value={email}
           keyboardType="email-address"
           placeholderTextColor={COLORS.textColor}
           style={styles.input}
           onChangeText={(text: string) => setEmail(text)}
+        />
+        <TextInput
+          placeholder="Цахим хуудас URL"
+          value={web}
+          keyboardType="url"
+          placeholderTextColor={COLORS.textColor}
+          style={styles.input}
+          onChangeText={(text: string) => setWeb(text)}
         />
         <TextInput
           placeholder="Хаяг"
@@ -191,14 +246,7 @@ const AddCompany = (props: any) => {
           style={styles.input}
           onChangeText={(text: string) => setAddress(text)}
         />
-        <TextInput
-          placeholder="Танилцуулга"
-          value={intro}
-          multiline
-          placeholderTextColor={COLORS.textColor}
-          style={styles.inputBig}
-          onChangeText={(text: string) => setIntro(text)}
-        />
+
         <View style={{height: 200, position: 'relative'}}>
           <MapView
             mapType="standard"
@@ -215,9 +263,40 @@ const AddCompany = (props: any) => {
           <TouchableOpacity
             style={styles.mapIconContainer}
             onPress={() => setMapMini(true)}>
-            <EntypoIcon name="resize-full-screen" style={{fontSize: 16}} />
+            <EntypoIcon
+              name="resize-full-screen"
+              style={{fontSize: 16, color: COLORS.DEFAULT_COLOR}}
+            />
           </TouchableOpacity>
         </View>
+        <TouchableOpacity
+          style={styles.checkBoxContainer}
+          onPress={() => {
+            if (!isofficaial) {
+              showWarningMessage(
+                'Албан ёсны  байгууллага болохын тулд дараах шаардлагуудыг тавина.',
+              );
+            }
+            setIsofficaial(!isofficaial);
+          }}>
+          <Checkbox
+            isChecked={isofficaial}
+            value={'isPublic'}
+            style={[styles.checkbox]}
+            backgroundColor={COLORS.DEFAULT_COLOR}
+            colorScheme={'white'}
+            tintColor={COLORS.textColor}
+            onChange={val => {
+              if (val) {
+                showWarningMessage(
+                  'Албан ёсны  байгууллага болохын тулд дараах шаардлагуудыг тавина.',
+                );
+              }
+              setIsofficaial(val);
+            }}
+          />
+          <Text style={styles.checkBoxTitle}>Албан ёсны байгууллага</Text>
+        </TouchableOpacity>
 
         <View style={styles.bottombuttonContainer}>
           <Button
@@ -276,7 +355,10 @@ const AddCompany = (props: any) => {
             <TouchableOpacity
               style={styles.mapIconContainer}
               onPress={() => setMapMini(false)}>
-              <EntypoIcon name="resize-100" style={{fontSize: 16}} />
+              <EntypoIcon
+                name="resize-100"
+                style={{fontSize: 16, color: COLORS.DEFAULT_COLOR}}
+              />
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
@@ -314,7 +396,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: COLORS.textColor,
     paddingHorizontal: 10,
-    height: 160,
+    height: 107,
+    paddingTop: 10,
     textAlignVertical: 'top',
     fontSize: 14,
     color: COLORS.textColor,
@@ -329,6 +412,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textColor,
   },
+  introCount: {
+    alignSelf: 'flex-end',
+    color: COLORS.textColor,
+    marginTop: 10,
+    marginBottom: -15,
+  },
   titlePhoto: {
     color: COLORS.textColor,
     fontSize: 14,
@@ -340,12 +429,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 236,
+    height: 120,
+    marginTop: 20,
+  },
+  photoContainer2: {
+    borderWidth: 1,
+    borderColor: COLORS.textColor,
+    borderRadius: 100,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 120,
+    width: 120,
+    backgroundColor: '#7C8999',
     marginTop: 10,
   },
   photoIcon: {
     fontSize: 36,
-    color: COLORS.textColor,
+    color: COLORS.DEFAULT_COLOR,
   },
   bottombuttonContainer: {
     flexDirection: 'row',
@@ -423,5 +524,20 @@ const styles = StyleSheet.create({
   mapNotMini: {
     height: '100%',
     width: '100%',
+  },
+  checkBoxContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    marginTop: 40,
+    alignItems: 'center',
+  },
+  checkbox: {
+    marginRight: 10,
+    margin: 0,
+  },
+  checkBoxTitle: {
+    color: '#D9D9D9',
+    fontSize: 14,
+    marginLeft: 10,
   },
 });

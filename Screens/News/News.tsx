@@ -47,10 +47,12 @@ const News = (props: any) => {
           let check = false;
           news.data.forEach((newsItem: any) => {
             map.data.forEach((mapItem: any) => {
+              console.log('mapItem', mapItem);
               if (
                 !check &&
                 newsItem.nameCardId == mapItem.sourceId &&
-                userInfo.nameCardId == mapItem.targetId
+                userInfo.nameCardId == mapItem.targetId &&
+                mapItem.isFriend == '1'
               ) {
                 arr.push(newsItem);
                 check = true;
@@ -82,7 +84,7 @@ const News = (props: any) => {
     await getNews();
     setRefreshing(false);
   };
-
+  console.log('newsData :>> ', newsData);
   return (
     <View style={styles.container}>
       <Header title="Мэдээ" rightIcon="logout" rightIconPress={logOut} />

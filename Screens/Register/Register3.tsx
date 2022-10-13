@@ -1,55 +1,74 @@
-import CheckBox from '@react-native-community/checkbox';
 import {StackActions} from '@react-navigation/native';
-import {isEmpty} from 'lodash';
-import {Checkbox, Toast} from 'native-base';
 import React, {useState} from 'react';
 import {
   Image,
+  Modal,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {launchCamera} from 'react-native-image-picker';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import Button from '../../Components/Button/Button';
 import {COLORS} from '../../constants';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {takePhoto} from '../../utils/helper';
+import {choosePhoto, takePhoto} from '../../utils/helper';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Register3 = (props: any) => {
   const [image, setImage] = useState<any>();
-  const [intro, setIntro] = useState('');
-  const [isPublic, setIsPublic] = useState(false);
+  const [image2, setImage2] = useState<any>();
   const [fileData, setFileData] = useState();
+  const [fileData2, setFileData2] = useState();
+
+  const [modalShow, setModalShow] = useState('');
 
   const handleButtonPress = () => {
     props.navigation.dispatch(
-      StackActions.push('AgreementAndQR', {
+      StackActions.push('Register4', {
         ...props.route.params,
-        image: fileData,
-        note: intro,
-        isPublic,
+        frontImage: fileData,
+        backImage: fileData2,
       }),
     );
   };
 
-  const openCamera = () => {
+  const openCamera = (type: any) => {
     takePhoto().then(res => {
       if (!res?.error) {
-        setFileData(res);
-        setImage(res.path);
+        if (type == '1') {
+          setFileData(res);
+          setImage(res.path);
+        } else {
+          setFileData2(res);
+          setImage2(res.path);
+        }
+      }
+    });
+  };
+  const openGallery = (type: any) => {
+    choosePhoto().then(res => {
+      setModalShow('');
+      if (!res?.error) {
+        if (type == '1') {
+          setFileData(res);
+          setImage(res.path);
+        } else {
+          setFileData2(res);
+          setImage2(res.path);
+        }
       }
     });
   };
 
   return (
     <KeyboardAwareScrollView bounces={false} style={styles.container}>
-      {/* <View> */}
       <Text style={styles.headerTitle}>Bizcard</Text>
       <Text style={styles.title}>Нэрийн хуудасны мэдээлэл</Text>
-      <Text style={styles.titlePhoto}>Нэрийн хуудасны зураг</Text>
+      <Text style={[styles.titlePhoto, {marginTop: 10, marginBottom: -10}]}>
+        Нэрийн хуудасны зураг
+      </Text>
       {image ? (
         <Image
           resizeMode="cover"
@@ -57,32 +76,28 @@ const Register3 = (props: any) => {
           style={styles.photoContainer}
         />
       ) : (
-        <TouchableOpacity style={styles.photoContainer} onPress={openCamera}>
+        <TouchableOpacity
+          style={styles.photoContainer}
+          onPress={() => setModalShow('1')}>
           <FeatherIcon name="camera" style={styles.photoIcon} />
+          <Text style={styles.titlePhoto}>Нүүр</Text>
         </TouchableOpacity>
       )}
-      <TextInput
-        value={intro}
-        placeholder="Өөрийн тухай товчхон..."
-        multiline
-        placeholderTextColor={COLORS.textColor}
-        style={styles.input}
-        onChangeText={(val: any) => setIntro(val)}
-      />
-      <TouchableOpacity
-        style={styles.checkBoxContainer}
-        onPress={() => setIsPublic(!isPublic)}>
-        <Checkbox
-          isChecked={isPublic}
-          value={'isPublic'}
-          style={[styles.checkbox]}
-          backgroundColor={COLORS.DEFAULT_COLOR}
-          colorScheme={'white'}
-          tintColor={COLORS.textColor}
-          onChange={val => setIsPublic(val)}
+
+      {image2 ? (
+        <Image
+          resizeMode="cover"
+          source={{uri: image2}}
+          style={styles.photoContainer}
         />
-        <Text style={styles.checkBoxTitle}>Нийтэд нээлттэй эсэх</Text>
-      </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.photoContainer}
+          onPress={() => setModalShow('2')}>
+          <FeatherIcon name="camera" style={styles.photoIcon} />
+          <Text style={styles.titlePhoto}>Ар тал</Text>
+        </TouchableOpacity>
+      )}
       <View style={styles.bottombuttonContainer}>
         <Button
           icon="chevron-left"
@@ -92,13 +107,35 @@ const Register3 = (props: any) => {
           onPress={() => props.navigation.goBack()}
         />
         <Button
-          title="Хадгалах"
+          title="Үргэлжлүүлэх"
           style={styles.registerButton}
           titleStyle={styles.buttonText}
           onPress={handleButtonPress}
         />
       </View>
-      {/* </View> */}
+      <Modal
+        visible={modalShow == '1' || modalShow == '2'}
+        transparent
+        animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setModalShow('')}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modal}>
+              <TouchableOpacity
+                style={styles.modalItem}
+                onPress={() => openCamera(modalShow == '1' ? '1' : '2')}>
+                <Icon name="camera" style={styles.icon} />
+                <Text style={styles.text}>Зураг авах</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalItem}
+                onPress={() => openGallery(modalShow == '1' ? '1' : '2')}>
+                <Icon name="photo" style={styles.icon} />
+                <Text style={styles.text}>Зураг оруулах</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </KeyboardAwareScrollView>
   );
 };
@@ -131,7 +168,7 @@ const styles = StyleSheet.create({
   titlePhoto: {
     color: COLORS.textColor,
     fontSize: 14,
-    marginTop: 20,
+    marginTop: 10,
   },
   photoContainer: {
     borderWidth: 1,
@@ -140,7 +177,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: 160,
-    marginTop: 10,
+    marginTop: 20,
   },
   photoIcon: {
     fontSize: 36,
@@ -189,5 +226,39 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#e1e1e1',
     alignSelf: 'center',
+  },
+  modalContainer: {
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    flex: 1,
+  },
+  modal: {
+    height: '30%',
+    width: '80%',
+    alignSelf: 'center',
+    backgroundColor: COLORS.DEFAULT_COLOR,
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
+  modalItem: {
+    height: '50%',
+    width: '40%',
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#e1e1e1',
+    borderRadius: 10,
+  },
+  icon: {
+    fontSize: 24,
+    marginBottom: 10,
+    color: COLORS.textColor,
+  },
+  text: {
+    fontSize: 16,
+    color: COLORS.textColor,
   },
 });

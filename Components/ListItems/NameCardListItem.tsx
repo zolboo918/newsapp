@@ -73,8 +73,10 @@ const NameCardListItem = (props: any) => {
       />
       <View style={styles.infoSection}>
         <View style={styles.names}>
-          <Text style={styles.name}>{item.firstName}</Text>
-          <Text style={styles.name}> {item.lastName}</Text>
+          <Text style={styles.name}>
+            {item.firstName} {item.lastName}
+          </Text>
+          {/* <Text style={styles.name}> </Text> */}
         </View>
         <Text style={styles.position}>{item.position}</Text>
         <Text style={styles.position}>
@@ -119,6 +121,7 @@ const styles = StyleSheet.create({
   },
   names: {
     flexDirection: 'row',
+    width: '100%',
   },
   name: {
     color: '#8A939E',

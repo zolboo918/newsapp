@@ -1,6 +1,7 @@
 import {isEmpty} from 'lodash';
 import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import {baseUrl, imageUrl} from '../../constants';
 
 const NewsListItem = (props: any) => {
@@ -32,10 +33,25 @@ const NewsListItem = (props: any) => {
           style={styles.newsImage}
         />
         <Text style={styles.newsTitle}>{item.title}</Text>
-        <Text style={styles.newsDate}>
-          {date.getFullYear()}.{date.getMonth() + 1}.{date.getDate()}{' '}
-          {date.getHours()}:{date.getMinutes()}
-        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            marginTop: 10,
+            alignItems: 'center',
+            width: '100%',
+          }}>
+          <Icon name="heart-o" style={{fontSize: 20, color: '#fff'}} />
+          <Text style={{fontSize: 12, color: '#fff', marginLeft: 5}}>34</Text>
+          <Icon
+            name="commenting-o"
+            style={{fontSize: 20, color: '#fff', marginLeft: 20}}
+          />
+          <Text style={{fontSize: 12, color: '#fff', marginLeft: 5}}>34</Text>
+          <Text style={styles.newsDate}>
+            {date.getFullYear()}.{date.getMonth() + 1}.{date.getDate()}{' '}
+            {date.getHours()}:{date.getMinutes()}
+          </Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -81,6 +97,7 @@ const styles = StyleSheet.create({
   newsDate: {
     fontSize: 14,
     color: '#fff',
-    marginTop: 5,
+    textAlign: 'right',
+    marginLeft: '38%',
   },
 });

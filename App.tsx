@@ -33,7 +33,7 @@ const App = () => {
     });
     setTimeout(() => {
       SplashScreen.hide();
-    }, 1500);
+    }, 2000);
   }, []);
 
   LogBox.ignoreAllLogs();

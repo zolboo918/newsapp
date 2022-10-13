@@ -11,36 +11,45 @@ import {
 import Button from '../../Components/Button/Button';
 import {COLORS} from '../../constants';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import Picker from '../../Components/Picker/Picker';
+import {isEmpty} from 'lodash';
+import {getRequest} from '../../utils/Service';
 
 const Register1 = (props: any) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [password2, setPassword2] = useState('');
-  const [error, setError] = useState('');
-  const [error2, setError2] = useState('');
+
+  const [intro, setIntro] = useState('');
+  const [sectorId, setSectorId] = useState('');
+  const [sectorData, setSectorData] = useState([]);
+  const [profession, setProfession] = useState('');
+
+  const onPressSector = () => {
+    if (isEmpty(sectorData)) {
+      getRequest('/companyCategories').then(res => {
+        let arr: any = [];
+        res.data.forEach((el: any) => {
+          arr.push({label: el.displayName, value: el._id});
+        });
+        setSectorData(arr);
+      });
+    }
+  };
 
   const handleButtonPress = () => {
-    if (password.length < 6 && password != password2) {
-      setError('Нууц үгийн урт 6-аас доошгүй байна');
-      setError2('Нууц үг хоорондоо таарахгүй байна');
-    } else if (password.length < 6) {
-      setError('Нууц үгийн урт 6-аас доошгүй байна');
-    } else if (password != password2) {
-      setError2('Нууц үг хоорондоо таарахгүй байна');
-    } else {
-      props.navigation.dispatch(
-        StackActions.push('Register2', {
-          firstName,
-          lastName,
-          phone,
-          email,
-          password,
-        }),
-      );
-    }
+    props.navigation.dispatch(
+      StackActions.push('Register2', {
+        firstName,
+        lastName,
+        phone,
+        email,
+        sectorId,
+        profession,
+      }),
+    );
+    // }
   };
   return (
     <View style={styles.container}>
@@ -63,7 +72,7 @@ const Register1 = (props: any) => {
             onChangeText={(text: string) => setFirstName(text)}
           />
           <TextInput
-            placeholder="Утас"
+            placeholder="Хувийн гар утас"
             value={phone}
             keyboardType="decimal-pad"
             placeholderTextColor={COLORS.textColor}
@@ -71,7 +80,7 @@ const Register1 = (props: any) => {
             onChangeText={(text: string) => setPhone(text)}
           />
           <TextInput
-            placeholder="Мэйл"
+            placeholder="Хувийн цахим шуудан"
             value={email}
             keyboardType="email-address"
             placeholderTextColor={COLORS.textColor}
@@ -79,34 +88,28 @@ const Register1 = (props: any) => {
             onChangeText={(text: string) => setEmail(text)}
           />
           <TextInput
-            placeholder="Нууц үг"
-            value={password}
-            textContentType="oneTimeCode"
-            secureTextEntry
+            value={intro}
+            placeholder="Миний тухай"
+            multiline
             placeholderTextColor={COLORS.textColor}
-            style={styles.input}
-            onChangeText={(text: string) => {
-              setError('');
-              setPassword(text);
-            }}
+            style={styles.inputBig}
+            onChangeText={(val: any) => setIntro(val)}
           />
-          {error && (
-            <Text style={{color: '#ff6666', fontSize: 12}}>{error}</Text>
-          )}
+          <Picker
+            value={sectorId}
+            items={sectorData}
+            placeholder="Салбар"
+            style={{marginTop: 5}}
+            onPress={onPressSector}
+            onValueChange={(val: any) => setSectorId(val)}
+          />
           <TextInput
-            placeholder="Нууц үг давт"
-            value={password2}
-            secureTextEntry
+            placeholder="Мэргэжил"
+            value={profession}
             placeholderTextColor={COLORS.textColor}
             style={styles.input}
-            onChangeText={(text: string) => {
-              setError2('');
-              setPassword2(text);
-            }}
+            onChangeText={(text: string) => setProfession(text)}
           />
-          {error2 && (
-            <Text style={{color: '#ff6666', fontSize: 12}}>{error2}</Text>
-          )}
           <View style={styles.bottombuttonContainer}>
             <Button
               icon="chevron-left"
@@ -116,7 +119,7 @@ const Register1 = (props: any) => {
               onPress={() => props.navigation.goBack()}
             />
             <Button
-              title="Үргэлжлүүлэх 1/3"
+              title="Үргэлжлүүлэх"
               style={styles.registerButton}
               titleStyle={styles.buttonText}
               onPress={handleButtonPress}
@@ -165,6 +168,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textColor,
     backgroundColor: COLORS.DEFAULT_COLOR,
+  },
+  inputBig: {
+    marginTop: 20,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: COLORS.textColor,
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    height: 70,
+    textAlignVertical: 'top',
+    fontSize: 14,
+    color: COLORS.textColor,
   },
   bottombuttonContainer: {
     flexDirection: 'row',

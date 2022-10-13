@@ -40,8 +40,8 @@ function BottomTabs() {
         }}
       />
       <Tab.Screen
-        name="Working"
-        component={Working}
+        name="Events"
+        component={Events}
         options={{
           tabBarIcon: ({color}) => (
             <MaterialCommunityIcons

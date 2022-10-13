@@ -1,5 +1,6 @@
 import {Buffer} from 'buffer';
 import {Toast} from 'native-base';
+import {Platform} from 'react-native';
 import {openCamera, openPicker} from 'react-native-image-crop-picker';
 import {CustomAlert} from './CustomAlert';
 
@@ -9,6 +10,9 @@ export function toBase64(input: any) {
 
 export const showSuccessMessage = (message?: any) => {
   CustomAlert.show('Амжилттай', message, '', 'checkmark-circle-outline');
+};
+export const showWarningMessage = (message?: any) => {
+  CustomAlert.show('Анхааруулга', message, '', 'information-circle-outline');
 };
 
 export const showUnSuccessMessage = (message?: any) => {
@@ -31,7 +35,9 @@ export const choosePhoto = () => {
     cropping: true,
     showCropFrame: true,
     showCropGuidelines: true,
-    cropperToolbarTitle: '16:9 хэмжээг сонгоно уу',
+    freeStyleCropEnabled: true,
+    cropperToolbarTitle:
+      Platform.OS == 'android' ? '16:9 хэмжээг сонгоно уу' : '',
   })
     .then((res: any): any => res)
     .catch(e => {

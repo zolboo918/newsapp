@@ -30,6 +30,7 @@ const AgreementAndQR = (props: any) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [qrImage, setQrImage] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
   const [qrsvgref, setqrsvgref] = useState<any>();
 
   const handleButtonPress = () => {
@@ -42,20 +43,36 @@ const AgreementAndQR = (props: any) => {
         phone: data.phone,
         email: data.email.toLowerCase(),
         companyName: data.companyName,
-        companyId: '',
+        companyId: data.companyId,
         linkedInId: data.linkedInId,
         password: data.password,
         position: data.position.toUpperCase(),
         sectorId: data.sectorId,
-        image: '',
+        backImage: '',
+        frontImage: '',
+        profession: data.profession,
+        workPhone: data.workPhone,
         note: data.note,
         isPublic: data.isPublic,
+        aboutActivity: data.aboutActivity,
       };
 
       sendRequest('/users/register', body).then(result => {
         if (!result.error) {
           fileUpload(
-            data.image,
+            data.backImage,
+            `${baseUrl}/users/${result.data.nameCardId}/photo`,
+          )
+            .then((res: any) => {
+              setLoading(false);
+              setQrImage(result.data.qr);
+            })
+            .catch((e: any) => {
+              showUnSuccessMessage(JSON.stringify(e));
+              setLoading(false);
+            });
+          fileUpload(
+            data.frontImage,
             `${baseUrl}/users/${result.data.nameCardId}/photo`,
           )
             .then((res: any) => {
@@ -83,7 +100,7 @@ const AgreementAndQR = (props: any) => {
           return CameraRoll.save(filePath);
         })
         .then(() => {
-          Toast.show({title: 'Зураг ажмжилттай татагдлаа'});
+          Toast.show({title: 'Зураг амжилттай татагдлаа'});
         });
     });
   };
@@ -144,11 +161,35 @@ const AgreementAndQR = (props: any) => {
               style={[styles.checkbox]}
               backgroundColor={COLORS.DEFAULT_COLOR}
               colorScheme={'white'}
-              borderColor="grey"
+              borderColor={'grey'}
               tintColor={COLORS.textColor}
-              onChange={val => setIsConfirmed(val)}
+              onChange={val => {
+                setIsConfirmed(val);
+                setError(false);
+              }}
             />
-            <Text style={styles.checkBoxTitle}>Зөвшөөрч байна</Text>
+            <Text
+              style={
+                error
+                  ? [styles.checkBoxTitle, {color: '#FA5353'}]
+                  : styles.checkBoxTitle
+              }>
+              Зөвшөөрч байна
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.checkBoxContainer}
+            onPress={() => setIsPublic(!isPublic)}>
+            <Checkbox
+              isChecked={isPublic}
+              value={'isPublic'}
+              style={[styles.checkbox]}
+              backgroundColor={COLORS.DEFAULT_COLOR}
+              colorScheme={'white'}
+              tintColor={COLORS.textColor}
+              onChange={val => setIsPublic(val)}
+            />
+            <Text style={styles.checkBoxTitle}>Нийтэд нээлттэй эсэх</Text>
           </TouchableOpacity>
           <View style={styles.bottombuttonContainer}>
             <Button
@@ -172,7 +213,7 @@ const AgreementAndQR = (props: any) => {
           <View style={styles.QRImg}>
             <QRCode
               value={qrImage}
-              size={250}
+              size={230}
               getRef={(r: any) => setqrsvgref(r)}
             />
           </View>
@@ -279,6 +320,9 @@ const styles = StyleSheet.create({
     width: 250,
     alignSelf: 'center',
     marginVertical: 40,
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 10,
   },
   loaderContainer: {
     flex: 1,

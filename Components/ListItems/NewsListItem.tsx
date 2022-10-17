@@ -41,12 +41,16 @@ const NewsListItem = (props: any) => {
             width: '100%',
           }}>
           <Icon name="heart-o" style={{fontSize: 20, color: '#fff'}} />
-          <Text style={{fontSize: 12, color: '#fff', marginLeft: 5}}>34</Text>
+          <Text style={{fontSize: 12, color: '#fff', marginLeft: 5}}>
+            {item?.likeCount}
+          </Text>
           <Icon
             name="commenting-o"
             style={{fontSize: 20, color: '#fff', marginLeft: 20}}
           />
-          <Text style={{fontSize: 12, color: '#fff', marginLeft: 5}}>34</Text>
+          <Text style={{fontSize: 12, color: '#fff', marginLeft: 5}}>
+            {item.commentCount}
+          </Text>
           <Text style={styles.newsDate}>
             {date.getFullYear()}.{date.getMonth() + 1}.{date.getDate()}{' '}
             {date.getHours()}:{date.getMinutes()}

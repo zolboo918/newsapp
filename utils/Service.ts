@@ -10,7 +10,6 @@ export const getRequest = (url: any) => {
   return axios
     .get(`${baseUrl}${url}`)
     .then((res: any) => {
-      console.log('res :>> ', res);
       if (res.data.success) {
         return res.data;
       } else if (!res.data.success) {

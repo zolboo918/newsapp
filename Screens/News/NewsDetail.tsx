@@ -1,5 +1,6 @@
-import React, {useContext, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
+  FlatList,
   Image,
   Platform,
   ScrollView,
@@ -12,7 +13,7 @@ import Header from '../../Components/Header/Header';
 import {COLORS, imageUrl} from '../../constants';
 import YouTube from 'react-native-youtube';
 import UserContext from '../../Context/userContext';
-import {deleteRequest} from '../../utils/Service';
+import {deleteRequest, getRequest, sendRequest} from '../../utils/Service';
 import {showDialogMessage, showSuccessMessage} from '../../utils/helper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ActionSheet, {ActionSheetRef} from 'react-native-actions-sheet';
@@ -20,10 +21,13 @@ import {getWidth, setHeight} from '../../utils/Dimension';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const NewsDetail = (props: any) => {
-  const [heartPress, setHeartPress] = useState(false);
-  const [likeCount, setLikeCount] = useState(34);
-  const actionSheetRef = useRef<ActionSheetRef>(null);
   const data = props.route.params;
+  const [heartPress, setHeartPress] = useState(false);
+  const [likeCount, setLikeCount] = useState(data.likeCount);
+  const [commentData, setCommentData] = useState([]);
+  const [commentContent, setCommentContent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const actionSheetRef = useRef<ActionSheetRef>(null);
   const date = new Date(data.createdDate);
   const videoLink = data.videoLink;
   const videoId = videoLink?.substr(
@@ -32,6 +36,18 @@ const NewsDetail = (props: any) => {
   );
 
   const {userInfo} = useContext<any>(UserContext);
+
+  useEffect(() => {
+    getRequest('/newsLike/' + data._id).then((res: any) => {
+      if (res.success) {
+        res.data.forEach((el: any) => {
+          if (el.userId._id == userInfo._id) {
+            setHeartPress(true);
+          }
+        });
+      }
+    });
+  }, []);
 
   const deleteNews = () => {
     showDialogMessage('Та итгэлтэй байна уу?', () => {
@@ -45,12 +61,53 @@ const NewsDetail = (props: any) => {
   };
 
   const onPressLike = () => {
-    setHeartPress(!heartPress);
+    const body = {
+      newsId: data._id,
+      userId: userInfo._id,
+    };
     if (heartPress) {
       setLikeCount(likeCount - 1);
+      sendRequest(`/newsLike/unlike`, body).then();
     } else {
       setLikeCount(likeCount + 1);
+      const body = {
+        newsId: data._id,
+        userId: userInfo._id,
+      };
+      sendRequest(`/newsLike/`, body).then();
     }
+    setHeartPress(!heartPress);
+  };
+
+  const onPressComment = () => {
+    actionSheetRef.current?.show();
+    getCommentData();
+  };
+
+  const getCommentData = () => {
+    setLoading(true);
+    getRequest('/newsComment/' + data._id + '/comment').then((res: any) => {
+      console.log('res', res);
+      if (res.success) {
+        setLoading(false);
+        setCommentData(res.data);
+      }
+    });
+  };
+
+  const sendComment = () => {
+    const body = {
+      userId: userInfo._id,
+      newsId: data._id,
+      content: commentContent,
+    };
+    sendRequest(`/newsComment/${data._id}`, body).then((res: any) => {
+      console.log('res :>> ', res);
+      if (res.success) {
+        getCommentData();
+        setCommentContent('');
+      }
+    });
   };
 
   return (
@@ -98,10 +155,10 @@ const NewsDetail = (props: any) => {
 
             <TouchableOpacity
               style={styles.commentButtonContainer}
-              onPress={() => actionSheetRef.current?.show()}>
+              onPress={onPressComment}>
               <Icon name="commenting-o" style={{fontSize: 26, color: '#fff'}} />
               <Text style={styles.commentButtonText}>Сэтгэгдэл</Text>
-              <Text style={styles.commentButtonText}>34</Text>
+              <Text style={styles.commentButtonText}>{data.commentCount}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -111,30 +168,57 @@ const NewsDetail = (props: any) => {
               <Text style={styles.commentTitle}>Сэтгэгдлүүд</Text>
             </View>
             <ScrollView style={{maxHeight: setHeight(60)}}>
-              <View style={{marginTop: 20, flexDirection: 'row', width: '90%'}}>
-                <Image
-                  source={{
-                    uri: 'https://img.freepik.com/free-photo/portrait-dark-skinned-cheerful-woman-with-curly-hair-touches-chin-gently-laughs-happily-enjoys-day-off-feels-happy-enthusiastic-hears-something-positive-wears-casual-blue-turtleneck_273609-43443.jpg?w=2000',
-                  }}
-                  style={{height: 40, width: 40, borderRadius: 30}}
-                />
-                <View>
-                  <View style={styles.commentBodyContainer}>
-                    <Text style={styles.commentUser}>Ундармаа</Text>
-                    <Text style={{color: '#282828', fontSize: 14}}>
-                      An summo saepe maiestatis sit, ei saepe eos. gaga
-                    </Text>
-                  </View>
-                  <Text style={styles.commentDate}>2022.10.13 23:38</Text>
-                </View>
-              </View>
+              <FlatList
+                data={commentData}
+                renderItem={({item, index}: any) => {
+                  const date = new Date(item.date);
+                  return (
+                    <View
+                      style={{
+                        marginTop: 20,
+                        flexDirection: 'row',
+                        width: '90%',
+                      }}>
+                      <Image
+                        source={{
+                          uri: 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png',
+                        }}
+                        style={{height: 40, width: 40, borderRadius: 30}}
+                      />
+                      <View>
+                        <View style={styles.commentBodyContainer}>
+                          <Text style={styles.commentUser}>
+                            {item.userId.firstName} {item.userId.lastName}
+                          </Text>
+                          <Text style={{color: '#282828', fontSize: 14}}>
+                            {item.content}
+                          </Text>
+                        </View>
+                        <Text style={styles.commentDate}>
+                          {date.getFullYear() +
+                            '.' +
+                            (date.getMonth() + 1) +
+                            '.' +
+                            date.getDate() +
+                            ' ' +
+                            date.getHours() +
+                            ':' +
+                            date.getMinutes()}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                }}
+              />
             </ScrollView>
             <View style={styles.writeCommentContainer}>
               <TextInput
+                value={commentContent}
                 placeholder="Сэтгэгдэл үлдээх"
                 style={styles.commentInput}
+                onChangeText={(val: any) => setCommentContent(val)}
               />
-              <Icon name="send" style={styles.sendIcon} />
+              <Icon name="send" style={styles.sendIcon} onPress={sendComment} />
             </View>
           </View>
         </ActionSheet>

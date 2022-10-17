@@ -23,7 +23,7 @@ import UserContext from '../../Context/userContext';
 import {getRequest} from '../../utils/Service';
 
 const News = (props: any) => {
-  const [newsData, setNewsData] = useState([]);
+  const [newsData, setNewsData] = useState<any>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -36,30 +36,57 @@ const News = (props: any) => {
     }
   }, [userInfo, isFocused]);
 
+  const getLikeCount = async (newsId: any) => {
+    return getRequest('/newsLike/' + newsId + '/likeCount').then((res: any) => {
+      return res.data;
+    });
+  };
+  const getCommentCount = async (newsId: any) => {
+    return getRequest('/newsComment/' + newsId + '/commentCount').then(
+      (res: any) => {
+        return res.data;
+      },
+    );
+  };
+
   const getNews = () => {
     setLoading(true);
     let arr: any = [];
     getRequest(`/news`).then((news: any) => {
       getRequest(`/nameCardsMap`).then((map: any) => {
-        setLoading(false);
         if (!news.error && !news.error) {
-          setLoading(false);
           let check = false;
           news.data.forEach((newsItem: any) => {
             map.data.forEach((mapItem: any) => {
-              console.log('mapItem', mapItem);
               if (
                 !check &&
                 newsItem.nameCardId == mapItem.sourceId &&
                 userInfo.nameCardId == mapItem.targetId &&
                 mapItem.isFriend == '1'
               ) {
-                arr.push(newsItem);
-                check = true;
+                getLikeCount(newsItem._id).then((likeCount: any) => {
+                  getCommentCount(newsItem._id).then((commentCount: any) => {
+                    const data = {...newsItem, likeCount, commentCount};
+                    if (!newsData.includes(data)) {
+                      setNewsData((old: any) => [...old, data]);
+                      setLoading(false);
+                      check = true;
+                    }
+                  });
+                });
               }
             });
             if (newsItem.nameCardId == userInfo.nameCardId) {
-              arr.push(newsItem);
+              getLikeCount(newsItem._id).then((likeCount: any) => {
+                getCommentCount(newsItem._id).then((commentCount: any) => {
+                  const data = {...newsItem, likeCount, commentCount};
+                  if (!newsData.includes(data)) {
+                    setNewsData((old: any) => [...old, data]);
+                    setLoading(false);
+                  }
+                });
+              });
+              // setNewsData((old: any) => [...old, data]);
             }
             check = false;
           });
@@ -84,7 +111,7 @@ const News = (props: any) => {
     await getNews();
     setRefreshing(false);
   };
-  console.log('newsData :>> ', newsData);
+
   return (
     <View style={styles.container}>
       <Header title="Мэдээ" rightIcon="logout" rightIconPress={logOut} />

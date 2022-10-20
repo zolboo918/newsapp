@@ -64,7 +64,7 @@ const NameCardListItem = (props: any) => {
       });
     });
   };
-
+  console.log('item.image :>> ', item);
   return (
     <TouchableOpacity style={styles.container} onPress={handleItemPress}>
       <Image

@@ -5,6 +5,7 @@ import {
   Modal,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -21,6 +22,7 @@ const Register3 = (props: any) => {
   const [image2, setImage2] = useState<any>();
   const [fileData, setFileData] = useState();
   const [fileData2, setFileData2] = useState();
+  const [qrText, setQrText] = useState('');
 
   const [modalShow, setModalShow] = useState('');
 
@@ -30,12 +32,14 @@ const Register3 = (props: any) => {
         ...props.route.params,
         frontImage: fileData,
         backImage: fileData2,
+        qrText,
       }),
     );
   };
 
   const openCamera = (type: any) => {
     takePhoto().then(res => {
+      setModalShow('');
       if (!res?.error) {
         if (type == '1') {
           setFileData(res);
@@ -98,6 +102,18 @@ const Register3 = (props: any) => {
           <Text style={styles.titlePhoto}>Ар тал</Text>
         </TouchableOpacity>
       )}
+      <Text style={{color: COLORS.textColor, fontSize: 12, marginTop: 20}}>
+        Зөвхөн таний QR код үүсгэхэд шаардлагатай оронтой тоог оруулна уу
+      </Text>
+      <TextInput
+        placeholder=""
+        value={qrText}
+        maxLength={4}
+        keyboardType="number-pad"
+        placeholderTextColor={COLORS.textColor}
+        style={styles.input}
+        onChangeText={(text: string) => setQrText(text)}
+      />
       <View style={styles.bottombuttonContainer}>
         <Button
           icon="chevron-left"
@@ -184,12 +200,12 @@ const styles = StyleSheet.create({
     color: COLORS.textColor,
   },
   input: {
-    marginTop: 25,
+    marginTop: 5,
     borderWidth: 1,
     borderRadius: 10,
     borderColor: COLORS.textColor,
     paddingHorizontal: 10,
-    height: 160,
+    height: 40,
     textAlignVertical: 'top',
     fontSize: 14,
     color: COLORS.textColor,

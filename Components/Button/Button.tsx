@@ -13,12 +13,21 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../../constants';
 
 const Button = (props: any) => {
-  const {title, icon, style, loading, titleStyle, iconStyle, onPress} = props;
+  const {
+    title,
+    icon,
+    style,
+    loading,
+    titleStyle,
+    iconStyle,
+    disabled,
+    onPress,
+  } = props;
   return (
     <TouchableOpacity
       style={[styles.buttonContainer, style]}
       onPress={onPress}
-      disabled={loading}>
+      disabled={loading || disabled}>
       {title && typeof loading == 'boolean' && loading ? (
         <ActivityIndicator color={COLORS.textColor} size="large" />
       ) : (

@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
   bottombuttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 20,
   },
   backButton: {
     width: 50,

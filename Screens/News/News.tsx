@@ -4,6 +4,7 @@ import {
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
+import {isEmpty} from 'lodash';
 import {Fab} from 'native-base';
 import React, {useContext, useEffect, useState} from 'react';
 import {
@@ -54,43 +55,50 @@ const News = (props: any) => {
     let arr: any = [];
     getRequest(`/news`).then((news: any) => {
       getRequest(`/nameCardsMap`).then((map: any) => {
-        if (!news.error && !news.error) {
+        if (!news.error && !map.error) {
           let check = false;
-          news.data.forEach((newsItem: any) => {
-            map.data.forEach((mapItem: any) => {
-              if (
-                !check &&
-                newsItem.nameCardId == mapItem.sourceId &&
-                userInfo.nameCardId == mapItem.targetId &&
-                mapItem.isFriend == '1'
-              ) {
+          if (!isEmpty(news.data)) {
+            news.data.forEach((newsItem: any) => {
+              map.data.forEach((mapItem: any) => {
+                if (
+                  !check &&
+                  newsItem.nameCardId == mapItem.sourceId &&
+                  userInfo.nameCardId == mapItem.targetId &&
+                  mapItem.isFriend == '1'
+                ) {
+                  getLikeCount(newsItem._id).then((likeCount: any) => {
+                    getCommentCount(newsItem._id).then((commentCount: any) => {
+                      setLoading(false);
+                      const data = {...newsItem, likeCount, commentCount};
+                      if (!newsData.includes(data)) {
+                        setNewsData((old: any) => [...old, data]);
+                        check = true;
+                      }
+                    });
+                  });
+                } else {
+                  console.log('eeee');
+                  setLoading(false);
+                }
+              });
+              if (newsItem.nameCardId == userInfo.nameCardId) {
                 getLikeCount(newsItem._id).then((likeCount: any) => {
                   getCommentCount(newsItem._id).then((commentCount: any) => {
                     const data = {...newsItem, likeCount, commentCount};
                     if (!newsData.includes(data)) {
                       setNewsData((old: any) => [...old, data]);
                       setLoading(false);
-                      check = true;
                     }
                   });
                 });
+                // setNewsData((old: any) => [...old, data]);
               }
+              check = false;
             });
-            if (newsItem.nameCardId == userInfo.nameCardId) {
-              getLikeCount(newsItem._id).then((likeCount: any) => {
-                getCommentCount(newsItem._id).then((commentCount: any) => {
-                  const data = {...newsItem, likeCount, commentCount};
-                  if (!newsData.includes(data)) {
-                    setNewsData((old: any) => [...old, data]);
-                    setLoading(false);
-                  }
-                });
-              });
-              // setNewsData((old: any) => [...old, data]);
-            }
-            check = false;
-          });
-          setNewsData(arr);
+            setNewsData(arr);
+          } else {
+            setLoading(false);
+          }
         } else {
           setLoading(false);
         }

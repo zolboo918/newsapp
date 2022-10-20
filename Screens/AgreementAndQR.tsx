@@ -50,10 +50,11 @@ const AgreementAndQR = (props: any) => {
         sectorId: data.sectorId,
         backImage: '',
         frontImage: '',
+        qrText: data.qrText,
         profession: data.profession,
         workPhone: data.workPhone,
         note: data.note,
-        isPublic: data.isPublic,
+        isPublic: isPublic,
         aboutActivity: data.aboutActivity,
       };
 
@@ -61,7 +62,7 @@ const AgreementAndQR = (props: any) => {
         if (!result.error) {
           fileUpload(
             data.backImage,
-            `${baseUrl}/users/${result.data.nameCardId}/photo`,
+            `${baseUrl}/users/${result.data.nameCardId}/backImage`,
           )
             .then((res: any) => {
               setLoading(false);
@@ -73,7 +74,7 @@ const AgreementAndQR = (props: any) => {
             });
           fileUpload(
             data.frontImage,
-            `${baseUrl}/users/${result.data.nameCardId}/photo`,
+            `${baseUrl}/users/${result.data.nameCardId}/frontImage`,
           )
             .then((res: any) => {
               setLoading(false);

@@ -47,6 +47,9 @@ const NewsDetail = (props: any) => {
         });
       }
     });
+    sendRequest('/news/' + data._id + '/viewedCount', {
+      viewedCount: data.viewedCount + 1,
+    });
   }, []);
 
   const deleteNews = () => {

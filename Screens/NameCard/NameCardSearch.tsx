@@ -72,10 +72,12 @@ const NameCardSearch = (props: any) => {
           doubleCheck = false;
         });
       }
-      const a = arr.filter(
+      console.log('arr', arr);
+      const publicNameCards = arr.filter(
         (elm: any) => elm._id != userInfo.nameCardId && elm.isPublic,
       );
-      setNameCardsData(a);
+      console.log('a :>> ', publicNameCards);
+      setNameCardsData(publicNameCards);
     });
   }, []);
 

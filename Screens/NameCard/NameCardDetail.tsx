@@ -24,6 +24,7 @@ const NameCardDetail = (props: any) => {
   const [sector, setSector] = useState<any>();
   const [company, setCompany] = useState('');
   const [isFriend, setIsFriend] = useState<any>();
+  const [requested, setRequested] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -127,11 +128,14 @@ const NameCardDetail = (props: any) => {
       };
       sendRequest('/nameCardsMap', body).then(res => {
         if (!res?.error) {
+          setRequested(true);
           showSuccessMessage();
         }
       });
     }
   };
+
+  console.log('data', data);
 
   return (
     <View style={styles.container}>
@@ -149,13 +153,22 @@ const NameCardDetail = (props: any) => {
           </View>
         ) : (
           <>
-            <Image
-              source={{
-                uri: imageUrl + 'uploads/' + data?.image,
-              }}
-              resizeMode="cover"
-              style={styles.image}
-            />
+            <ScrollView horizontal>
+              <Image
+                source={{
+                  uri: imageUrl + 'uploads/' + data?.image,
+                }}
+                resizeMode="cover"
+                style={styles.image}
+              />
+              <Image
+                source={{
+                  uri: imageUrl + 'uploads/' + data?.image,
+                }}
+                resizeMode="cover"
+                style={styles.image}
+              />
+            </ScrollView>
             <View style={styles.textContainer}>
               <Text style={styles.text}>Нэр:</Text>
               <View style={{flexDirection: 'row', width: '100%'}}>
@@ -177,29 +190,37 @@ const NameCardDetail = (props: any) => {
               <Text style={styles.text}>Салбар:</Text>
               <Text style={styles.text2}>{sector?.displayName}</Text>
             </View>
-            <View style={styles.textContainer}>
-              <Text style={styles.text}>Утас:</Text>
-              <Text style={styles.text2}>{data?.phone}</Text>
-            </View>
-            <View style={styles.textContainer}>
-              <Text style={styles.text}>Мэйл:</Text>
-              <Text style={styles.text2}>{data?.email}</Text>
-            </View>
-            <View style={styles.textContainer}>
-              <Text style={styles.text}>Танилцуулга:</Text>
-              <Text style={styles.text2}>{data?.note}</Text>
-            </View>
-            <View style={styles.qr}>
-              <QRCode value={data?.qr} size={130} />
-            </View>
+            {isFriend?.isFriend == '1' ||
+              (id == 1 && (
+                <>
+                  <View style={styles.textContainer}>
+                    <Text style={styles.text}>Утас:</Text>
+                    <Text style={styles.text2}>{data?.phone}</Text>
+                  </View>
+                  <View style={styles.textContainer}>
+                    <Text style={styles.text}>Мэйл:</Text>
+                    <Text style={styles.text2}>{data?.email}</Text>
+                  </View>
+                  <View style={styles.textContainer}>
+                    <Text style={styles.text}>Танилцуулга:</Text>
+                    <Text style={styles.text2}>{data?.note}</Text>
+                  </View>
+                  <View style={styles.qr}>
+                    <QRCode value={data?.qr} size={130} />
+                  </View>
+                </>
+              ))}
             <Button
               title={
                 id == '1'
                   ? 'Засах'
                   : manual || isFriend?.isFriend == '1'
                   ? 'Устгах'
+                  : requested || isFriend?.isFriend == '2'
+                  ? 'Хүсэлт илгээгдсэн'
                   : 'Хүсэлт илгээх'
               }
+              disabled={requested || isFriend?.isFriend == '2'}
               style={styles.button}
               titleStyle={styles.buttonText}
               onPress={buttonPress}

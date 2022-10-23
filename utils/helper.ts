@@ -52,7 +52,7 @@ export const takePhoto = () => {
     cropping: true,
     showCropFrame: true,
     showCropGuidelines: true,
-    cropperToolbarTitle: '16:9 хэмжээг сонгоно уу',
+    // cropperToolbarTitle: '16:9 хэмжээг сонгоно уу',
   })
     .then((res: any): any => res)
     .catch(e => {

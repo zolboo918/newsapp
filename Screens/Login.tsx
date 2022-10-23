@@ -1,7 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
+  Alert,
   BackHandler,
   Image,
+  Modal,
   Platform,
   StyleSheet,
   Text,
@@ -22,14 +24,50 @@ import {CustomAlert} from '../utils/CustomAlert';
 import {Checkbox} from 'native-base';
 import {isEmpty} from 'lodash';
 import {showUnSuccessMessage} from '../utils/helper';
+import LinkedInModal from 'react-native-linkedin';
+import {setHeight} from '../utils/Dimension';
+import WebView from 'react-native-webview';
+import querystring from 'query-string';
+import 'react-native-get-random-values';
+import {v4} from 'uuid';
+import {pipe, evolve, propSatisfies, applySpec, propOr, add} from 'ramda';
+
+export const cleanUrlString = (state: any) => state.replace('#!', '');
+
+export const getCodeAndStateFromUrl = pipe(
+  querystring.extract,
+  querystring.parse,
+  evolve({state: cleanUrlString}),
+);
+export const fetchToken = async (payload: any) => {
+  return fetch('https://www.linkedin.com/oauth/v2/accessToken/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+    },
+    body: querystring.stringify({
+      grant_type: 'client_credentials',
+      client_id: '786unfwxdhdyye',
+      client_secret: 'GhTrt0w51H41sbes',
+    }),
+  })
+    .then(response => response.json())
+    .then(responseData => {
+      console.log(JSON.stringify(responseData));
+    });
+};
 
 const textColor = '#8a939e';
 
 const Login = (props: any) => {
-  const [userName, setUserName] = useState('zolboo412@gmail.com');
-  const [password, setPassword] = useState('000000');
+  const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [userNameEdited, setUserNameEdited] = useState(false);
+  // const [payload, setPayload] = useState();
+  // let modal = React.createRef<LinkedInModal>();
+  const [modal, setModal] = useState<LinkedInModal>();
+  const [show, setShow] = useState(false);
 
   const {loading, login} = useContext(UserContext);
 
@@ -70,6 +108,67 @@ const Login = (props: any) => {
       setRemember(false);
       AsyncStorage.removeItem('rememberUserName');
     }
+  };
+
+  const getUser = async (data: any) => {
+    console.log('data :>> ', data);
+    const {access_token, authentication_code} = data;
+    if (!authentication_code) {
+      const response = await fetch(
+        'https://api.linkedin.com/v2/me?projection= (id,firstName,lastName,profilePicture(displayImage~:playableStreams) )',
+        {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + access_token,
+          },
+        },
+      );
+      const apipayload = await response.json();
+      // setPayload(apipayload);
+    } else {
+      Alert.alert(`authentication_code = ${authentication_code}`);
+    }
+  };
+
+  const getUserEmailId = async (data: any) => {
+    const {access_token, authentication_code} = data;
+    if (!authentication_code) {
+      const response = await fetch(
+        'https://api.linkedin.com/v2/clientAwareMemberHandles?  q=members&projection=(elements*(primary,type,handle~))',
+        {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + access_token,
+          },
+        },
+      );
+      const emailpayload = await response.json();
+      console.log('emailpayload', emailpayload);
+
+      // setEmail(emailpayload.elements[0]['handle~'].emailAddress);
+      // handleGetUser();
+    } else {
+      Alert.alert(`authentication_code = ${authentication_code}`);
+    }
+  };
+
+  const onNavigationStateChange = async ({url}: any) => {
+    const {code, state} = getCodeAndStateFromUrl(url);
+    console.log('code', code);
+    const token = await getAccessToken(code);
+    console.log('token :>> ', token);
+  };
+
+  const getAccessToken = async (code: any) => {
+    const token = await fetchToken({
+      grant_type: 'authorization_code',
+      code,
+      client_id: '786unfwxdhdyye',
+      client_secret: 'GhTrt0w51H41sbes',
+      redirect_uri: 'https://www.linkedin.com/developers/tools/oauth/redirect',
+    });
+
+    return token;
   };
 
   return (
@@ -120,13 +219,42 @@ const Login = (props: any) => {
         <Text style={styles.checkboxLabel}>Намайг сануул</Text>
       </TouchableOpacity>
       <Button title="Нэвтрэх" loading={loading} onPress={handleLoginButton} />
-      <TouchableOpacity style={styles.linkedinContainer}>
+      <TouchableOpacity
+        style={styles.linkedinContainer}
+        onPress={() => setShow(true)}>
         <Image
           resizeMode="contain"
           source={require('../assets/images/LinkedIn_icon.png')}
           style={styles.linkedinLogo}
         />
       </TouchableOpacity>
+      <Modal visible={show} animationType="fade" transparent>
+        <View style={styles.modalContainer}>
+          <TouchableOpacity style={styles.close} onPress={() => setShow(false)}>
+            <Text style={{fontSize: 20, lineHeight: 20}}>x</Text>
+          </TouchableOpacity>
+          <WebView
+            source={{
+              uri: `https://www.linkedin.com/oauth/v2/authorization?${querystring.stringify(
+                {
+                  grant_type: 'authorization_code',
+                  response_type: 'code',
+                  client_id: '786unfwxdhdyye',
+                  scope: ['r_liteprofile', 'r_emailaddress'].join(' ').trim(),
+                  state: v4(),
+                  redirect_uri:
+                    'https://www.linkedin.com/developers/tools/oauth/redirect',
+                },
+              )}`,
+            }}
+            onNavigationStateChange={onNavigationStateChange}
+            startInLoadingState={true}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            sharedCookiesEnabled={true}
+          />
+        </View>
+      </Modal>
       <View style={styles.footer}>
         <TouchableOpacity onPress={handleRegisterButton}>
           <Text style={styles.checkboxLabel}>БҮРТГҮҮЛЭХ</Text>
@@ -212,5 +340,26 @@ const styles = StyleSheet.create({
   },
   forgetPassword: {
     marginTop: '5%',
+  },
+  close: {
+    backgroundColor: '#f2f2f2',
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-end',
+    borderRadius: 30,
+    marginBottom: -10,
+    marginRight: -10,
+    borderWidth: 2,
+    borderColor: '#a0a0a0',
+    zIndex: 1,
+  },
+  modalContainer: {
+    height: '85%',
+    width: '90%',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    alignSelf: 'center',
   },
 });

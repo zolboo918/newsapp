@@ -26,6 +26,7 @@ const Picker = (props: any) => {
   return (
     <View>
       <Select
+        ref={props.ref}
         onOpen={onPress}
         selectedValue={value}
         _selectedItem={selectedItem}

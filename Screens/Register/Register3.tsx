@@ -74,11 +74,13 @@ const Register3 = (props: any) => {
         Нэрийн хуудасны зураг
       </Text>
       {image ? (
-        <Image
-          resizeMode="cover"
-          source={{uri: image}}
-          style={styles.photoContainer}
-        />
+        <TouchableOpacity onPress={() => setModalShow('1')}>
+          <Image
+            resizeMode="cover"
+            source={{uri: image}}
+            style={styles.photoContainer}
+          />
+        </TouchableOpacity>
       ) : (
         <TouchableOpacity
           style={styles.photoContainer}
@@ -89,11 +91,13 @@ const Register3 = (props: any) => {
       )}
 
       {image2 ? (
-        <Image
-          resizeMode="cover"
-          source={{uri: image2}}
-          style={styles.photoContainer}
-        />
+        <TouchableOpacity onPress={() => setModalShow('2')}>
+          <Image
+            resizeMode="cover"
+            source={{uri: image2}}
+            style={styles.photoContainer}
+          />
+        </TouchableOpacity>
       ) : (
         <TouchableOpacity
           style={styles.photoContainer}
@@ -103,7 +107,7 @@ const Register3 = (props: any) => {
         </TouchableOpacity>
       )}
       <Text style={{color: COLORS.textColor, fontSize: 12, marginTop: 20}}>
-        Зөвхөн таний QR код үүсгэхэд шаардлагатай оронтой тоог оруулна уу
+        Зөвхөн таний QR код үүсгэхэд шаардлагатай 4 оронтой тоог оруулна уу
       </Text>
       <TextInput
         placeholder=""

@@ -52,6 +52,7 @@ export const UserStore = (props: any) => {
         password,
       })
       .then(res => {
+        console.log('res :>> ', res);
         if (res.data.success) {
           setToken(res.data.token);
           setIsLoggedIn(true);
@@ -72,6 +73,7 @@ export const UserStore = (props: any) => {
         }
       })
       .catch(err => {
+        console.log('err', err);
         setError(
           err.response.data.error.message
             ? err.response.data.error.message

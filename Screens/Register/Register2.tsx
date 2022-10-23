@@ -2,7 +2,7 @@ import {StackActions} from '@react-navigation/native';
 import axios from 'axios';
 import {isEmpty} from 'lodash';
 import {Select} from 'native-base';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 import Button from '../../Components/Button/Button';
 import Picker from '../../Components/Picker/Picker';
@@ -16,6 +16,7 @@ const Register2 = (props: any) => {
   const [aboutActivity, setAboutActivity] = useState('');
   const [company, setCompany] = useState('');
   const [companyData, setCompanyData] = useState([]);
+  const ref = useRef();
 
   const continuePress = () => {
     props.navigation.dispatch(
@@ -49,6 +50,7 @@ const Register2 = (props: any) => {
       <Text style={styles.title}>Байгууллага</Text>
       <KeyboardAwareScrollView style={styles.inputsContainer}>
         <Picker
+          ref={ref}
           value={company}
           items={companyData}
           placeholder={company ? company : 'Байгууллага'}
@@ -69,6 +71,7 @@ const Register2 = (props: any) => {
         <TextInput
           value={workPhone}
           placeholder="Ажлын утас"
+          keyboardType="phone-pad"
           placeholderTextColor={COLORS.textColor}
           style={styles.input}
           onChangeText={(val: any) => setWorkPhone(val)}

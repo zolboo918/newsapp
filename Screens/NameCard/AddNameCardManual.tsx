@@ -31,6 +31,7 @@ import {fileUpload, getRequest, sendRequest} from '../../utils/Service';
 
 const AddNameCardManual = (props: any) => {
   const [image, setImage] = useState('');
+  const [image2, setImage2] = useState('');
   const [lastName, setLastName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [phone, setPhone] = useState('');
@@ -39,18 +40,23 @@ const AddNameCardManual = (props: any) => {
   const [company, setCompany] = useState('');
   const [sector, setSector] = useState('');
   const [note, setNote] = useState('');
+  const [profession, setProfession] = useState('');
+  const [workPhone, setWorkPhone] = useState('');
 
   const [sectorData, setSectorData] = useState([]);
+  const [companyData, setCompanyData] = useState([]);
   const [fileData, setFileData] = useState<any>();
+  const [fileData2, setFileData2] = useState<any>();
   const [loading, setLoading] = useState(false);
-  const [modalShow, setModalShow] = useState(false);
+  const [modalShow, setModalShow] = useState<any>(null);
 
   const navigation = useNavigation();
   const {userInfo} = useContext<any>(UserContext);
   const handleButtonPress = () => {
     const body = {
       userId: userInfo._id,
-      image: '',
+      backImage: '',
+      frontImage: '',
       lastName,
       firstName,
       phone,
@@ -58,20 +64,46 @@ const AddNameCardManual = (props: any) => {
       position,
       companyName: company,
       sectorId: sector,
-      note,
+      profession,
+      workPhone,
+      aboutActivity: note,
     };
     setLoading(true);
     sendRequest('/nameCardManual', body).then(res => {
       if (!res?.error) {
-        fileUpload(fileData, `${baseUrl}/nameCardManual/${res.data._id}/photo`)
-          .then((res: any) => {
-            setLoading(false);
-            navigation.goBack();
-            showSuccessMessage('Амжилттай бүртгэгдлээ');
+        fileUpload(
+          fileData2,
+          `${baseUrl}/nameCardManual/${res.data._id}/photoFront`,
+        )
+          .then(() => {
+            fileUpload(
+              fileData,
+              `${baseUrl}/nameCardManual/${res.data._id}/photoBack`,
+            )
+              .then((res: any) => {
+                setLoading(false);
+                navigation.goBack();
+                showSuccessMessage('Амжилттай бүртгэгдлээ');
+              })
+              .catch((e: any) => {
+                showUnSuccessMessage(JSON.stringify(e));
+                setLoading(false);
+              });
           })
-          .catch((e: any) => {
-            showUnSuccessMessage(JSON.stringify(e));
-            setLoading(false);
+          .catch(() => {
+            fileUpload(
+              fileData,
+              `${baseUrl}/nameCardManual/${res.data._id}/photoBack`,
+            )
+              .then((res: any) => {
+                setLoading(false);
+                navigation.goBack();
+                showSuccessMessage('Амжилттай бүртгэгдлээ');
+              })
+              .catch((e: any) => {
+                showUnSuccessMessage(JSON.stringify(e));
+                setLoading(false);
+              });
           });
       } else {
         setLoading(false);
@@ -91,22 +123,42 @@ const AddNameCardManual = (props: any) => {
     }
   };
 
+  const onPressCompany = () => {
+    getRequest('/company').then(res => {
+      let arr: any = [];
+      res.data.forEach((el: any) => {
+        arr.push({label: el.name, value: el._id});
+      });
+      setCompanyData(arr);
+    });
+  };
+
   const openCamera = () => {
     takePhoto().then(res => {
-      setModalShow(false);
+      setModalShow(null);
       if (!res?.error) {
-        setFileData(res);
-        setImage(res.path);
+        if (modalShow == '1') {
+          setFileData(res);
+          setImage(res.path);
+        } else if (modalShow == '2') {
+          setFileData2(res);
+          setImage2(res.path);
+        }
       }
     });
   };
 
   const openGallery = () => {
     choosePhoto().then(res => {
-      setModalShow(false);
+      setModalShow(null);
       if (!res?.error) {
-        setFileData(res);
-        setImage(res.path);
+        if (modalShow == '1') {
+          setFileData(res);
+          setImage(res.path);
+        } else if (modalShow == '2') {
+          setFileData2(res);
+          setImage2(res.path);
+        }
       }
     });
   };
@@ -125,9 +177,9 @@ const AddNameCardManual = (props: any) => {
           </View>
         ) : (
           <View style={styles.inputsContainer}>
-            <Text style={styles.label}>Нэрийн хуудасны зураг</Text>
+            <Text style={styles.label}>Нэрийн хуудасны зураг /Нүүр/</Text>
             {fileData?.path ? (
-              <TouchableOpacity onPress={() => setModalShow(true)}>
+              <TouchableOpacity onPress={() => setModalShow('1')}>
                 <Image
                   style={styles.photoContainer}
                   source={{uri: fileData?.path}}
@@ -136,7 +188,24 @@ const AddNameCardManual = (props: any) => {
             ) : (
               <TouchableOpacity
                 style={styles.photoContainer}
-                onPress={() => setModalShow(true)}>
+                onPress={() => setModalShow('1')}>
+                <View style={styles.iconContainer}>
+                  <FeatherIcon name="camera" style={styles.photoIcon} />
+                </View>
+              </TouchableOpacity>
+            )}
+            <Text style={styles.label}>Нэрийн хуудасны зураг /Ар тал/</Text>
+            {fileData2?.path ? (
+              <TouchableOpacity onPress={() => setModalShow('2')}>
+                <Image
+                  style={styles.photoContainer}
+                  source={{uri: fileData2?.path}}
+                />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.photoContainer}
+                onPress={() => setModalShow('2')}>
                 <View style={styles.iconContainer}>
                   <FeatherIcon name="camera" style={styles.photoIcon} />
                 </View>
@@ -158,7 +227,7 @@ const AddNameCardManual = (props: any) => {
             />
             <TextInput
               value={phone}
-              placeholder="Утас"
+              placeholder="Хувийн утас"
               keyboardType="number-pad"
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
@@ -166,11 +235,27 @@ const AddNameCardManual = (props: any) => {
             />
             <TextInput
               value={mail}
-              placeholder="И-Мэйл"
+              placeholder="Хувийн цахим шуудан"
               keyboardType="email-address"
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
               onChangeText={val => setMail(val)}
+            />
+            <Picker
+              value={sector}
+              items={sectorData}
+              placeholder="Салбар"
+              onPress={onPressSector}
+              onValueChange={(val: any) => setSector(val)}
+            />
+            <Picker
+              value={company}
+              items={companyData}
+              placeholder={company ? company : 'Байгууллага'}
+              selectedItem={company}
+              style={{marginTop: 5}}
+              onPress={onPressCompany}
+              onValueChange={(val: any) => setCompany(val)}
             />
             <TextInput
               value={position}
@@ -180,18 +265,19 @@ const AddNameCardManual = (props: any) => {
               onChangeText={val => setPosition(val)}
             />
             <TextInput
-              value={company}
-              placeholder="Байгууллага"
+              value={profession}
+              placeholder="Мэргэжил"
               placeholderTextColor={COLORS.textColor}
               style={styles.input}
-              onChangeText={val => setCompany(val)}
+              onChangeText={val => setProfession(val)}
             />
-            <Picker
-              value={sector}
-              items={sectorData}
-              placeholder="Салбар"
-              onPress={onPressSector}
-              onValueChange={(val: any) => setSector(val)}
+            <TextInput
+              value={workPhone}
+              placeholder="Ажлын утас"
+              keyboardType="phone-pad"
+              placeholderTextColor={COLORS.textColor}
+              style={styles.input}
+              onChangeText={val => setWorkPhone(val)}
             />
             <TextInput
               value={note}
@@ -212,8 +298,11 @@ const AddNameCardManual = (props: any) => {
           </View>
         )}
       </KeyboardAwareScrollView>
-      <Modal visible={modalShow} transparent animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setModalShow(false)}>
+      <Modal
+        visible={modalShow == '1' || modalShow == '2'}
+        transparent
+        animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setModalShow(null)}>
           <View style={styles.modalContainer}>
             <View style={styles.modal}>
               <TouchableOpacity style={styles.modalItem} onPress={openCamera}>

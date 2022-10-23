@@ -32,6 +32,8 @@ import {
 import {fileUpload, getRequest, sendRequest} from '../utils/Service';
 
 const AddCompany = (props: any) => {
+  const [logo, setLogo] = useState<any>();
+  const [coverPhoto, setCoverPhoto] = useState<any>();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [phone2, setPhone2] = useState('');
@@ -47,8 +49,8 @@ const AddCompany = (props: any) => {
   const [categoryData, setCategoryData] = useState([]);
   const [childCategory, setChildCategory] = useState([]);
   const [childCategoryData, setChildCategoryData] = useState([]);
-  const [fileData, setFileData] = useState<any>();
-  const [modalShow, setModalShow] = useState(false);
+
+  const [modalShow, setModalShow] = useState<any>(null);
   const [mapMini, setMapMini] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -58,24 +60,39 @@ const AddCompany = (props: any) => {
     const body = {
       name,
       logo: '',
+      cover: '',
       category,
-      childCategory,
       intro,
-      phone,
+      phone1: phone,
+      phone2,
+      phone3,
       email,
+      website: web,
       address,
       location: JSON.stringify(location),
+      isOfficial: isofficaial,
     };
 
     setLoading(true);
     sendRequest('/company', body).then(res => {
       setLoading(false);
-      fileUpload(fileData, `${baseUrl}/company/${res.data._id}/logo`)
-        .then((ress: any) => {
-          showSuccessMessage();
-          navigation.goBack();
+      fileUpload(logo, `${baseUrl}/company/${res.data._id}/cover`)
+        .then((res: any) => {
+          fileUpload(logo, `${baseUrl}/company/${res.data._id}/logo`)
+            .then((ress: any) => {
+              showSuccessMessage();
+              navigation.goBack();
+            })
+            .catch((e: any) => showUnSuccessMessage(JSON.stringify(e)));
         })
-        .catch((e: any) => showUnSuccessMessage(JSON.stringify(e)));
+        .catch(() => {
+          fileUpload(logo, `${baseUrl}/company/${res.data._id}/logo`)
+            .then((ress: any) => {
+              showSuccessMessage();
+              navigation.goBack();
+            })
+            .catch((e: any) => showUnSuccessMessage(JSON.stringify(e)));
+        });
     });
   };
 
@@ -112,18 +129,26 @@ const AddCompany = (props: any) => {
 
   const openCamera = () => {
     takePhoto().then(res => {
-      setModalShow(false);
+      setModalShow(null);
       if (!res?.error) {
-        setFileData(res);
+        if (modalShow == 1) {
+          setLogo(res);
+        } else {
+          setCoverPhoto(res);
+        }
       }
     });
   };
 
-  const openGallery = () => {
+  const openGallery = (type: any) => {
     choosePhoto().then(res => {
-      setModalShow(false);
+      setModalShow(null);
       if (!res?.error) {
-        setFileData(res);
+        if (modalShow == 1) {
+          setLogo(res);
+        } else {
+          setCoverPhoto(res);
+        }
       }
     });
   };
@@ -136,18 +161,16 @@ const AddCompany = (props: any) => {
         leftIconPress={() => props.navigation.goBack()}
       />
       <ScrollView style={styles.inputsContainer}>
-        {fileData?.path ? (
-          <TouchableOpacity onPress={() => setModalShow(true)}>
-            <Image
-              style={styles.photoContainer2}
-              source={{uri: fileData?.path}}
-            />
+        {logo?.path ? (
+          <TouchableOpacity onPress={() => setModalShow('1')}>
+            <Image style={styles.photoContainer2} source={{uri: logo?.path}} />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
             style={styles.photoContainer2}
-            onPress={() => setModalShow(true)}>
+            onPress={() => setModalShow('1')}>
             <FeatherIcon name="camera" style={styles.photoIcon} />
+            <Text>Лого</Text>
           </TouchableOpacity>
         )}
         <TextInput
@@ -166,39 +189,42 @@ const AddCompany = (props: any) => {
           style={styles.inputBig}
           onChangeText={(text: string) => setIntro(text)}
         />
-        {fileData?.path ? (
-          <TouchableOpacity onPress={() => setModalShow(true)}>
+        <Text style={{marginTop: 20, color: COLORS.textColor}}>
+          Cover зураг
+        </Text>
+        {coverPhoto?.path ? (
+          <TouchableOpacity onPress={() => setModalShow('2')}>
             <Image
               style={styles.photoContainer}
-              source={{uri: fileData?.path}}
+              source={{uri: coverPhoto?.path}}
             />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
             style={styles.photoContainer}
-            onPress={() => setModalShow(true)}>
+            onPress={() => setModalShow('2')}>
             <FeatherIcon
               name="camera"
               style={[styles.photoIcon, {color: COLORS.textColor}]}
             />
           </TouchableOpacity>
         )}
-        {/* <Picker
+        <Picker
           value={category}
           items={categoryData}
           placeholder="Үйл ажиллагааны ангилал"
           onPress={onPressCategory}
           style={{marginTop: 4}}
           onValueChange={(val: any) => setCategory(val)}
-        /> */}
-        <Picker
+        />
+        {/* <Picker
           value={childCategory}
           items={childCategoryData}
           placeholder="Үйл ажиллагааны чиглэл"
           onPress={onPressChildCategory}
           style={{marginTop: 4}}
           onValueChange={(val: any) => setChildCategory(val)}
-        />
+        /> */}
         <TextInput
           placeholder="Утас 1"
           value={phone}
@@ -315,8 +341,11 @@ const AddCompany = (props: any) => {
           />
         </View>
       </ScrollView>
-      <Modal visible={modalShow} transparent animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setModalShow(false)}>
+      <Modal
+        visible={modalShow == '1' || modalShow == '2'}
+        transparent
+        animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setModalShow(null)}>
           <View style={styles.modalContainer}>
             <View style={styles.modal}>
               <TouchableOpacity style={styles.modalItem} onPress={openCamera}>
@@ -332,7 +361,7 @@ const AddCompany = (props: any) => {
         </TouchableWithoutFeedback>
       </Modal>
       <Modal visible={mapMini} transparent animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setModalShow(false)}>
+        <TouchableWithoutFeedback onPress={() => setModalShow(null)}>
           <View style={styles.modalContainer}>
             <MapView
               mapType="standard"
@@ -430,7 +459,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: 120,
-    marginTop: 20,
+    marginTop: 10,
   },
   photoContainer2: {
     borderWidth: 1,

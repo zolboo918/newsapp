@@ -21,6 +21,8 @@ import FriendRequest from '../Screens/FriendRequest';
 import {SafeAreaView, StatusBar, View} from 'react-native';
 import {COLORS} from '../constants';
 import Register4 from '../Screens/Register/Register4';
+import AddEvent from '../Screens/Events/AddEvent';
+import EventDetail from '../Screens/Events/EventDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -84,6 +86,16 @@ function StackNavigation() {
               <Stack.Screen
                 name="BottomTab"
                 component={BottomTabs}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AddEvent"
+                component={AddEvent}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="EventDetail"
+                component={EventDetail}
                 options={{headerShown: false}}
               />
               <Stack.Screen

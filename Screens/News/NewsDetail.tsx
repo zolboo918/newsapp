@@ -2,6 +2,8 @@ import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   FlatList,
   Image,
+  Keyboard,
+  KeyboardAvoidingView,
   Platform,
   ScrollView,
   TextInput,
@@ -19,6 +21,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import ActionSheet, {ActionSheetRef} from 'react-native-actions-sheet';
 import {getWidth, setHeight} from '../../utils/Dimension';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {isEmpty} from 'lodash';
 
 const NewsDetail = (props: any) => {
   const data = props.route.params;
@@ -27,6 +30,7 @@ const NewsDetail = (props: any) => {
   const [commentData, setCommentData] = useState([]);
   const [commentContent, setCommentContent] = useState('');
   const [loading, setLoading] = useState(false);
+  const [commentHeight, setCommentHeight] = useState(true);
   const actionSheetRef = useRef<ActionSheetRef>(null);
   const date = new Date(data.createdDate);
   const videoLink = data.videoLink;
@@ -34,10 +38,27 @@ const NewsDetail = (props: any) => {
     videoLink.lastIndexOf('/') + 1,
     videoLink.length,
   );
+  let showRef: any;
+  let hideRef: any;
 
   const {userInfo} = useContext<any>(UserContext);
 
   useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setCommentHeight(false);
+      },
+    );
+    showRef = keyboardDidShowListener;
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setCommentHeight(true);
+      },
+    );
+    hideRef = keyboardDidHideListener;
     getRequest('/newsLike/' + data._id).then((res: any) => {
       if (res.success) {
         res.data.forEach((el: any) => {
@@ -50,6 +71,10 @@ const NewsDetail = (props: any) => {
     sendRequest('/news/' + data._id + '/viewedCount', {
       viewedCount: data.viewedCount + 1,
     });
+    return () => {
+      hideRef.remove();
+      showRef.remove();
+    };
   }, []);
 
   const deleteNews = () => {
@@ -90,7 +115,6 @@ const NewsDetail = (props: any) => {
   const getCommentData = () => {
     setLoading(true);
     getRequest('/newsComment/' + data._id + '/comment').then((res: any) => {
-      console.log('res', res);
       if (res.success) {
         setLoading(false);
         setCommentData(res.data);
@@ -99,18 +123,19 @@ const NewsDetail = (props: any) => {
   };
 
   const sendComment = () => {
-    const body = {
-      userId: userInfo._id,
-      newsId: data._id,
-      content: commentContent,
-    };
-    sendRequest(`/newsComment/${data._id}`, body).then((res: any) => {
-      console.log('res :>> ', res);
-      if (res.success) {
-        getCommentData();
-        setCommentContent('');
-      }
-    });
+    if (!isEmpty(commentContent)) {
+      const body = {
+        userId: userInfo._id,
+        newsId: data._id,
+        content: commentContent,
+      };
+      sendRequest(`/newsComment/${data._id}`, body).then((res: any) => {
+        if (res.success) {
+          getCommentData();
+          setCommentContent('');
+        }
+      });
+    }
   };
 
   return (
@@ -150,7 +175,7 @@ const NewsDetail = (props: any) => {
             <Icon
               name={heartPress ? 'heart' : 'heart-o'}
               onPress={onPressLike}
-              style={{fontSize: 26, color: heartPress ? 'tomato' : '#fff'}}
+              style={{fontSize: 22, color: heartPress ? 'tomato' : '#fff'}}
             />
             <Text style={{fontSize: 16, color: '#fff', marginLeft: 5}}>
               {likeCount}
@@ -159,18 +184,22 @@ const NewsDetail = (props: any) => {
             <TouchableOpacity
               style={styles.commentButtonContainer}
               onPress={onPressComment}>
-              <Icon name="commenting-o" style={{fontSize: 26, color: '#fff'}} />
-              <Text style={styles.commentButtonText}>Сэтгэгдэл</Text>
+              <Icon name="commenting-o" style={{fontSize: 22, color: '#fff'}} />
+              {/* <Text style={styles.commentButtonText}>Сэтгэгдэл</Text> */}
               <Text style={styles.commentButtonText}>{data.commentCount}</Text>
             </TouchableOpacity>
           </View>
         </View>
         <ActionSheet ref={actionSheetRef}>
-          <View style={{height: setHeight(80), padding: 20}}>
+          <View
+            style={{
+              height: commentHeight ? setHeight(80) : setHeight(50),
+              padding: 20,
+            }}>
             <View style={{borderBottomWidth: 1, borderBottomColor: '#e1e1e1'}}>
               <Text style={styles.commentTitle}>Сэтгэгдлүүд</Text>
             </View>
-            <ScrollView style={{maxHeight: setHeight(60)}}>
+            <ScrollView style={{maxHeight: setHeight(65)}}>
               <FlatList
                 data={commentData}
                 renderItem={({item, index}: any) => {
@@ -214,15 +243,18 @@ const NewsDetail = (props: any) => {
                 }}
               />
             </ScrollView>
-            <View style={styles.writeCommentContainer}>
+            <KeyboardAwareScrollView
+              style={styles.writeCommentContainer}
+              scrollEnabled={false}>
               <TextInput
                 value={commentContent}
                 placeholder="Сэтгэгдэл үлдээх"
+                placeholderTextColor={'#a0a0a0'}
                 style={styles.commentInput}
                 onChangeText={(val: any) => setCommentContent(val)}
               />
               <Icon name="send" style={styles.sendIcon} onPress={sendComment} />
-            </View>
+            </KeyboardAwareScrollView>
           </View>
         </ActionSheet>
       </ScrollView>
@@ -270,10 +302,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   commentButtonContainer: {
-    marginLeft: '20%',
-    borderWidth: 1,
+    marginLeft: 20,
+    // borderWidth: 1,
     borderColor: '#fff',
-    borderRadius: 30,
+    // borderRadius: 30,
     height: 40,
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -293,7 +325,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
     borderRadius: 10,
     padding: 10,
-    marginLeft: 20,
+    marginLeft: 10,
   },
   commentUser: {
     color: '#282828',
@@ -303,13 +335,16 @@ const styles = StyleSheet.create({
   commentDate: {
     color: '#A0A0A0',
     fontSize: 12,
-    marginLeft: '7%',
+    marginLeft: '10%',
     marginTop: 5,
   },
   writeCommentContainer: {
     width: getWidth(),
+    height: setHeight(8),
+    position: 'absolute',
+    bottom: Platform.OS == 'android' ? -20 : 0,
     backgroundColor: '#f0f0f0',
-    marginLeft: -20,
+    // marginLeft: -20,
     padding: 10,
   },
   commentInput: {
@@ -323,8 +358,8 @@ const styles = StyleSheet.create({
   sendIcon: {
     position: 'absolute',
     borderRadius: 5,
-    right: 40,
-    top: 20,
+    right: 30,
+    top: 10,
     fontSize: 20,
     color: COLORS.DEFAULT_COLOR,
   },

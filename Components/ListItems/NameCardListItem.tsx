@@ -68,7 +68,7 @@ const NameCardListItem = (props: any) => {
   return (
     <TouchableOpacity style={styles.container} onPress={handleItemPress}>
       <Image
-        source={{uri: imageUrl + 'uploads/' + item.image}}
+        source={{uri: imageUrl + 'uploads/' + item.frontImage}}
         style={styles.image}
       />
       <View style={styles.infoSection}>

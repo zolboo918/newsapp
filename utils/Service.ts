@@ -80,7 +80,7 @@ export const deleteRequest = (url: any) => {
 
 export const fileUpload = (file: any, path: any) => {
   const formData = new FormData();
-  file.fileName = 'photo.jpg';
+  file.fileName = 'photo.' + file.mime.split('/')[1];
   formData.append('file', {
     uri: file.path,
     type: file.mime,

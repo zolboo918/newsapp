@@ -4,7 +4,7 @@ import {Platform, StatusBar, StyleSheet} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../constants';
 import AddNameCard from '../Screens/NameCard/AddNameCard';
-import Events from '../Screens/Events';
+import Events from '../Screens/Events/Events';
 import NameCards from '../Screens/NameCard/NameCards';
 import News from '../Screens/News/News';
 import NameCardDetail from '../Screens/NameCard/NameCardDetail';

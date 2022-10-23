@@ -57,32 +57,39 @@ const AgreementAndQR = (props: any) => {
         isPublic: isPublic,
         aboutActivity: data.aboutActivity,
       };
-
       sendRequest('/users/register', body).then(result => {
         if (!result.error) {
           fileUpload(
             data.backImage,
             `${baseUrl}/users/${result.data.nameCardId}/backImage`,
           )
-            .then((res: any) => {
-              setLoading(false);
-              setQrImage(result.data.qr);
+            .then(res => {
+              fileUpload(
+                data.frontImage,
+                `${baseUrl}/users/${result.data.nameCardId}/frontImage`,
+              )
+                .then((res: any) => {
+                  setLoading(false);
+                  setQrImage(result.data.qr);
+                })
+                .catch((e: any) => {
+                  showUnSuccessMessage(JSON.stringify(e));
+                  setLoading(false);
+                });
             })
-            .catch((e: any) => {
-              showUnSuccessMessage(JSON.stringify(e));
-              setLoading(false);
-            });
-          fileUpload(
-            data.frontImage,
-            `${baseUrl}/users/${result.data.nameCardId}/frontImage`,
-          )
-            .then((res: any) => {
-              setLoading(false);
-              setQrImage(result.data.qr);
-            })
-            .catch((e: any) => {
-              showUnSuccessMessage(JSON.stringify(e));
-              setLoading(false);
+            .catch(() => {
+              fileUpload(
+                data.frontImage,
+                `${baseUrl}/users/${result.data.nameCardId}/frontImage`,
+              )
+                .then((res: any) => {
+                  setLoading(false);
+                  setQrImage(result.data.qr);
+                })
+                .catch((e: any) => {
+                  showUnSuccessMessage(JSON.stringify(e));
+                  setLoading(false);
+                });
             });
         } else {
           setLoading(false);

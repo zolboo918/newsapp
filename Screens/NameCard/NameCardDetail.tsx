@@ -16,7 +16,7 @@ import QRCode from 'react-native-qrcode-svg';
 import {isEmpty} from 'lodash';
 import {showSuccessMessage} from '../../utils/helper';
 import {useIsFocused} from '@react-navigation/native';
-import {setHeight} from '../../utils/Dimension';
+import {setHeight, setWidth} from '../../utils/Dimension';
 
 const NameCardDetail = (props: any) => {
   const {id, manual} = props.route.params;
@@ -156,14 +156,14 @@ const NameCardDetail = (props: any) => {
             <ScrollView horizontal>
               <Image
                 source={{
-                  uri: imageUrl + 'uploads/' + data?.image,
+                  uri: imageUrl + 'uploads/' + data?.frontImage,
                 }}
                 resizeMode="cover"
-                style={styles.image}
+                style={[styles.image, {marginRight: 20}]}
               />
               <Image
                 source={{
-                  uri: imageUrl + 'uploads/' + data?.image,
+                  uri: imageUrl + 'uploads/' + data?.backImage,
                 }}
                 resizeMode="cover"
                 style={styles.image}
@@ -203,7 +203,7 @@ const NameCardDetail = (props: any) => {
                   </View>
                   <View style={styles.textContainer}>
                     <Text style={styles.text}>Танилцуулга:</Text>
-                    <Text style={styles.text2}>{data?.note}</Text>
+                    <Text style={styles.text2}>{data?.aboutActivity}</Text>
                   </View>
                   <View style={styles.qr}>
                     <QRCode value={data?.qr} size={130} />
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: '100%',
+    width: setWidth(80),
     height: 220,
     marginTop: 20,
     marginBottom: 10,
@@ -278,6 +278,7 @@ const styles = StyleSheet.create({
     width: 150,
     marginTop: 40,
     padding: 10,
+    borderRadius: 10,
     backgroundColor: '#fff',
   },
   button: {

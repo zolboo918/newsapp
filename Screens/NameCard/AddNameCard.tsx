@@ -18,23 +18,16 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 const AddNameCard = (props: any) => {
   const {logOut} = useContext(UserContext);
-  const [modalShow, setModalShow] = useState(false);
 
-  const register = () => {
-    //
-    setModalShow(true);
-  };
-  const friend = () => {
-    props.navigation.navigate('FriendRequest');
+  const search = () => {
+    props.navigation.navigate('NameCardSearch');
   };
 
   const manual = () => {
-    setModalShow(false);
     props.navigation.navigate('AddNameCardManual');
   };
 
   const qr = () => {
-    setModalShow(false);
     props.navigation.navigate('AddNameCardQr');
   };
   return (
@@ -46,16 +39,22 @@ const AddNameCard = (props: any) => {
       />
       <View style={styles.wrapper}>
         <View style={{alignItems: 'center', width: '30%'}}>
-          <TouchableOpacity style={styles.photoContainer} onPress={register}>
-            <FeatherIcon name="camera" style={styles.photoIcon} />
+          <TouchableOpacity style={styles.photoContainer} onPress={manual}>
+            <Icon name="edit" style={styles.icon} />
           </TouchableOpacity>
-          <Text style={styles.text}>Нэрийн хуудас бүртгэх</Text>
+          <Text style={styles.text}>Гараар бүртгэх</Text>
         </View>
         <View style={{alignItems: 'center', width: '30%'}}>
-          <TouchableOpacity style={styles.photoContainer} onPress={friend}>
-            <FeatherIcon name="user-plus" style={styles.photoIcon} />
+          <TouchableOpacity style={styles.photoContainer} onPress={qr}>
+            <Icon name="qrcode" style={styles.icon} />
           </TouchableOpacity>
-          <Text style={styles.text}>Найзын хүсэлт</Text>
+          <Text style={styles.text}>QR уншуулах</Text>
+        </View>
+        <View style={{alignItems: 'center', width: '30%'}}>
+          <TouchableOpacity style={styles.photoContainer} onPress={search}>
+            <FeatherIcon name="search" style={styles.photoIcon} />
+          </TouchableOpacity>
+          <Text style={styles.text}>Хайлт хийх</Text>
         </View>
         <AntDesign
           name="down"
@@ -63,22 +62,6 @@ const AddNameCard = (props: any) => {
           onPress={() => props.navigation.goBack()}
         />
       </View>
-      <Modal visible={modalShow} transparent animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setModalShow(false)}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modal}>
-              <TouchableOpacity style={styles.modalItem} onPress={manual}>
-                <Icon name="edit" style={styles.icon} />
-                <Text style={styles.text}>Гараар бүртгэх</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.modalItem} onPress={qr}>
-                <Icon name="qrcode" style={styles.icon} />
-                <Text style={styles.text}>QR уншуулах</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
     </View>
   );
 };
@@ -102,7 +85,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   photoContainer: {
-    borderColor: '#1F252B',
+    borderColor: '#a0a0a0',
     borderWidth: 1,
     height: 100,
     width: 100,
@@ -111,7 +94,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   photoIcon: {
-    fontSize: 40,
+    fontSize: 35,
     color: '#fff',
   },
   text: {
@@ -126,34 +109,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: '46.5%',
   },
-  modalContainer: {
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    flex: 1,
-  },
-  modal: {
-    height: '30%',
-    width: '80%',
-    alignSelf: 'center',
-    backgroundColor: COLORS.DEFAULT_COLOR,
-    marginTop: 'auto',
-    marginBottom: 'auto',
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-  },
-  modalItem: {
-    height: '50%',
-    width: '40%',
-    borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: '#e1e1e1',
-    borderRadius: 10,
-  },
   icon: {
-    fontSize: 30,
-    marginBottom: 10,
-    color: COLORS.textColor,
+    fontSize: 35,
+    color: '#fff',
   },
 });

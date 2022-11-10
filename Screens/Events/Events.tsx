@@ -15,6 +15,7 @@ const AgendaScreen = (props: any) => {
   const [items, setItems] = useState<any>([]);
   const [today, setToday] = useState(date.toISOString().split('T')[0]);
   const [invited, setinvited] = useState<any>([]);
+  const [markedDates, setMarkedDates] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const {userInfo, logOut} = useContext<any>(UserContext);
   const isFocused = useIsFocused();
@@ -25,7 +26,7 @@ const AgendaScreen = (props: any) => {
 
   const loadDayData = (date: any) => {
     setLoading(true);
-    getRequest(`/event/${date}`).then((res: any) => {
+    getRequest(`/event/events/${date}`).then((res: any) => {
       setLoading(false);
       let arr: any = [];
       if (res.success && !isEmpty(res.data)) {
@@ -53,6 +54,25 @@ const AgendaScreen = (props: any) => {
         //this.state.items[dayString] = [];
       }
       setItems(arr);
+    });
+  };
+
+  const loadMonthData = (date: any) => {
+    setLoading(true);
+    getRequest(
+      `/event/filter/${date.year}-${date.month}-01/${date.year}-${date.month}-31`,
+    ).then((res: any) => {
+      let arr: any = {};
+      setLoading(false);
+      if (res.success && !isEmpty(res.data)) {
+        res.data.forEach((el: any) => {
+          // arr.push(el.date);
+          // '2022-11-20': {textColor: 'green', marked: true},
+          arr[el.date] = {marked: true};
+        });
+        console.log('arr', arr);
+        setMarkedDates(arr);
+      }
     });
   };
 
@@ -104,7 +124,6 @@ const AgendaScreen = (props: any) => {
       <Agenda
         testID={'calendars'}
         items={items}
-        // loadItemsForMonth={}
         selected={today}
         renderItem={renderItem}
         renderEmptyDate={() => (
@@ -120,9 +139,13 @@ const AgendaScreen = (props: any) => {
           loadDayData(day.dateString);
         }}
         // Callback that gets called when day changes while scrolling agenda list
+        loadItemsForMonth={date => {
+          loadMonthData(date);
+        }}
         onDayChange={day => {
           console.log('day changed');
         }}
+        markedDates={markedDates}
         theme={{
           calendarBackground: COLORS.DEFAULT_COLOR,
           agendaKnobColor: COLORS.textColor,

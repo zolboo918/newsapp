@@ -39,17 +39,13 @@ export const getCodeAndStateFromUrl = pipe(
   querystring.parse,
   evolve({state: cleanUrlString}),
 );
-export const fetchToken = async (payload: any) => {
-  return fetch('https://www.linkedin.com/oauth/v2/accessToken/', {
-    method: 'POST',
+export const fetchToken = async (code: any) => {
+  return fetch('https://api.linkedin.com/v2/me', {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      Authorization: `Bearer ${code}`,
     },
-    body: querystring.stringify({
-      grant_type: 'client_credentials',
-      client_id: '786unfwxdhdyye',
-      client_secret: 'GhTrt0w51H41sbes',
-    }),
   })
     .then(response => response.json())
     .then(responseData => {
@@ -60,8 +56,8 @@ export const fetchToken = async (payload: any) => {
 const textColor = '#8a939e';
 
 const Login = (props: any) => {
-  const [userName, setUserName] = useState('');
-  const [password, setPassword] = useState('');
+  const [userName, setUserName] = useState('zolboo412@gmail.com');
+  const [password, setPassword] = useState('000000');
   const [remember, setRemember] = useState(false);
   const [userNameEdited, setUserNameEdited] = useState(false);
   // const [payload, setPayload] = useState();
@@ -110,63 +106,16 @@ const Login = (props: any) => {
     }
   };
 
-  const getUser = async (data: any) => {
-    console.log('data :>> ', data);
-    const {access_token, authentication_code} = data;
-    if (!authentication_code) {
-      const response = await fetch(
-        'https://api.linkedin.com/v2/me?projection= (id,firstName,lastName,profilePicture(displayImage~:playableStreams) )',
-        {
-          method: 'GET',
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
-      );
-      const apipayload = await response.json();
-      // setPayload(apipayload);
-    } else {
-      Alert.alert(`authentication_code = ${authentication_code}`);
-    }
-  };
-
-  const getUserEmailId = async (data: any) => {
-    const {access_token, authentication_code} = data;
-    if (!authentication_code) {
-      const response = await fetch(
-        'https://api.linkedin.com/v2/clientAwareMemberHandles?  q=members&projection=(elements*(primary,type,handle~))',
-        {
-          method: 'GET',
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
-      );
-      const emailpayload = await response.json();
-      console.log('emailpayload', emailpayload);
-
-      // setEmail(emailpayload.elements[0]['handle~'].emailAddress);
-      // handleGetUser();
-    } else {
-      Alert.alert(`authentication_code = ${authentication_code}`);
-    }
-  };
-
-  const onNavigationStateChange = async ({url}: any) => {
-    const {code, state} = getCodeAndStateFromUrl(url);
-    console.log('code', code);
-    const token = await getAccessToken(code);
-    console.log('token :>> ', token);
+  const onNavigationStateChange = async (res: any) => {
+    console.log('res :>> ', res);
+    const ros = getCodeAndStateFromUrl(res.url);
+    const token = await getAccessToken(
+      'AQSUVWWFBfo1m3Hep3NBwIUcd-PAEFNhPoCKZNDPUAhnapb7jWTRjA9jo-UKN5Z4lQLwyxc4xP9ZC9EL3BBQT66gmse9RO5VD2WiW8Drf0FkNLaj7LqXUAT36-Dmq2zsaFYVuFyohZlD8e50Dm-HtXETOtrVdq9HNxupRGy3QN2lears9_pJ9DLGYv2rfWBvThXHQWblJyahNlYl0yQ',
+    );
   };
 
   const getAccessToken = async (code: any) => {
-    const token = await fetchToken({
-      grant_type: 'authorization_code',
-      code,
-      client_id: '786unfwxdhdyye',
-      client_secret: 'GhTrt0w51H41sbes',
-      redirect_uri: 'https://www.linkedin.com/developers/tools/oauth/redirect',
-    });
+    const token = await fetchToken(code);
 
     return token;
   };

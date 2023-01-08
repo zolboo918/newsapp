@@ -1,6 +1,7 @@
 import {
   Dimensions,
   FlatList,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -408,6 +409,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
     alignSelf: 'center',
     flexDirection: 'row',
+    marginBottom: Platform.OS == 'ios' ? 20 : 0,
   },
   doneButtonIcon: {
     color: '#585858',

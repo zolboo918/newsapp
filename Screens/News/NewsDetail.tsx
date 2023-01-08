@@ -322,6 +322,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingLeft: 10,
     paddingRight: 60,
+    paddingTop: Platform.OS == 'ios' ? 10 : 0,
   },
   sendIcon: {
     position: 'absolute',

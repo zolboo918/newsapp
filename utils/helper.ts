@@ -41,7 +41,7 @@ export const choosePhoto = () => {
   })
     .then((res: any): any => res)
     .catch(e => {
-      Toast.show({title: 'Алдаа гарлаа', description: JSON.stringify(e)});
+      Toast.show({title: 'Алдаа гарлаа', description: e.message});
       return {error: e};
     });
 };
@@ -50,13 +50,14 @@ export const takePhoto = () => {
   return openCamera({
     mediaType: 'photo',
     cropping: true,
+    freeStyleCropEnabled: true,
     showCropFrame: true,
     showCropGuidelines: true,
     // cropperToolbarTitle: '16:9 хэмжээг сонгоно уу',
   })
     .then((res: any): any => res)
     .catch(e => {
-      Toast.show({title: 'Алдаа гарлаа', description: JSON.stringify(e)});
+      Toast.show({title: 'Алдаа гарлаа', description: e.message});
       return {error: e};
     });
 };

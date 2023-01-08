@@ -1,8 +1,4 @@
-import {useIsFocused} from '@react-navigation/native';
-import {identity, includes, isEmpty} from 'lodash';
-import React, {useContext, useEffect, useState} from 'react';
 import {
-  ActivityIndicator,
   Dimensions,
   FlatList,
   StyleSheet,
@@ -11,20 +7,25 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import React, {useEffect, useState} from 'react';
 import Header from '../../Components/Header/Header';
-import NameCardListItem from '../../Components/ListItems/NameCardListItem';
+import {getRequest} from '../../utils/Service';
+import {isEmpty} from 'lodash';
+import Icon from 'react-native-vector-icons/Ionicons';
+import SimpleLineIcon from 'react-native-vector-icons/SimpleLineIcons';
+import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import {position} from 'native-base/lib/typescript/theme/styled-system';
 import Picker from '../../Components/Picker/Picker';
 import {COLORS} from '../../constants';
-import UserContext from '../../Context/userContext';
 import {positions} from '../../data/Data';
-import {getRequest} from '../../utils/Service';
+import {setHeight} from '../../utils/Dimension';
 
 let data: any;
 
-const NameCardSearch = (props: any) => {
-  const [nameCardsData, setNameCardsData] = useState([]);
-  const [nameCardMapData, setNameCardMapData] = useState([]);
+const AddEventUsers = (props: any) => {
+  const {selectedUsers, setSelectedUsers} = props.route.params;
+  const [users, setUsers] = useState([]);
+  const [chosenUsers, setChosenUsers] = useState<any>(selectedUsers);
   const [searchValue, setSearchValue] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -35,68 +36,15 @@ const NameCardSearch = (props: any) => {
   const [position, setPosition] = useState('');
   const [positionData, setPositionData] = useState<any>([]);
 
-  const {userInfo} = useContext<any>(UserContext);
-
   useEffect(() => {
-    getData().then(({nameCards, nameCardsMap}: any) => {
-      let arr: any = [];
-      let check = false;
-      let doubleCheck = false;
-      if (isEmpty(nameCardsMap)) {
-        nameCards.forEach((nameCard: any, index: any) => {
-          nameCard = {...nameCard, isFriend: '0'};
-          arr.push(nameCard);
-        });
-      } else {
-        nameCards.forEach((nameCard: any, i: any) => {
-          nameCardsMap.forEach((map: any, index: any) => {
-            if (!check) {
-              if (nameCard._id == map.targetId) {
-                nameCard = {...nameCard, isFriend: map.isFriend};
-                if (!check && !doubleCheck) {
-                  arr.push(nameCard);
-                } else {
-                  arr[arr.length - 1] = nameCard;
-                }
-                check = true;
-              } else {
-                nameCard = {...nameCard, isFriend: '0'};
-                if (!arr.some((elm: any) => elm._id == nameCard._id))
-                  arr.push(nameCard);
-                doubleCheck = true;
-                check = false;
-              }
-            }
-          });
-          check = false;
-          doubleCheck = false;
-        });
+    getRequest('/nameCards').then((res: any) => {
+      if (!isEmpty(res.data)) {
+        data = res.data;
+        setUsers(res.data);
       }
-      const publicNameCards = arr.filter(
-        (elm: any) => elm._id != userInfo.nameCardId && elm.isPublic,
-      );
-      setNameCardsData(publicNameCards);
     });
   }, []);
-
-  const getData = async () => {
-    setLoading(true);
-    const nameCards = await getRequest('/nameCards');
-    if (!nameCards?.error) {
-      data = nameCards.data;
-    }
-
-    const nameCardMap = await getRequest(
-      '/nameCardsMap/' + userInfo.nameCardId,
-    );
-
-    if (!nameCardMap?.error) {
-      setNameCardMapData(nameCardMap.data);
-    }
-    setLoading(false);
-    return {nameCards: nameCards.data, nameCardsMap: nameCardMap.data};
-  };
-
+  console.log('selectedUsers :>> ', selectedUsers);
   const onPressSector = () => {
     if (isEmpty(sectorData)) {
       getRequest('/companyCategories').then(res => {
@@ -132,7 +80,7 @@ const NameCardSearch = (props: any) => {
     setSectorId('');
     setPosition('');
     setSearchValue('');
-    setNameCardsData(data);
+    setUsers(data);
   };
 
   const search = () => {
@@ -149,12 +97,12 @@ const NameCardSearch = (props: any) => {
         filtered.push(el);
       }
     });
-    setNameCardsData(filtered);
+    setUsers(filtered);
   };
 
   const onChangeText = (val: any) => {
     if (val == '') {
-      setNameCardsData(data);
+      setUsers(data);
       setSearchValue(val);
     } else setSearchValue(val);
   };
@@ -169,7 +117,7 @@ const NameCardSearch = (props: any) => {
           }
         });
         setSectorId(val);
-        setNameCardsData(arr);
+        setUsers(arr);
         break;
       case 'company':
         data.forEach((el: any) => {
@@ -178,7 +126,7 @@ const NameCardSearch = (props: any) => {
           }
         });
         setCompany(val);
-        setNameCardsData(arr);
+        setUsers(arr);
         break;
       case 'position':
         data.forEach((el: any) => {
@@ -187,7 +135,7 @@ const NameCardSearch = (props: any) => {
           }
         });
         setPosition(val);
-        setNameCardsData(arr);
+        setUsers(arr);
         break;
 
       default:
@@ -197,18 +145,20 @@ const NameCardSearch = (props: any) => {
 
   return (
     <View style={styles.container}>
-      <Header title="Нэрийн хуудас" />
+      <Header
+        title="Зочин урих"
+        leftIcon="left"
+        leftIconPress={() => {
+          setSelectedUsers(chosenUsers);
+          props.navigation.goBack();
+        }}
+      />
       <View style={styles.wrapper}>
         <View style={styles.searchSection}>
-          <AntDesignIcon
-            name="left"
-            style={styles.backIcon}
-            onPress={() => props.navigation.goBack()}
-          />
           <TextInput
             value={searchValue}
             style={styles.input}
-            placeholder="Бүх талбараас хайх"
+            placeholder="Xайх"
             placeholderTextColor={COLORS.textColor}
             onEndEditing={search}
             onChangeText={onChangeText}
@@ -221,7 +171,7 @@ const NameCardSearch = (props: any) => {
           </TouchableOpacity>
         </View>
         <Text style={styles.total}>
-          Нийт {nameCardsData.length} нэрийн хуудас байна.
+          Нийт {users.length} нэрийн хуудас байна.
         </Text>
 
         <View style={styles.filterSection}>
@@ -270,46 +220,87 @@ const NameCardSearch = (props: any) => {
         </View>
 
         <View style={styles.line} />
-        {loading ? (
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator color={COLORS.textColor} size="large" />
-          </View>
-        ) : (
-          <FlatList
-            style={styles.list}
-            data={nameCardsData}
-            numColumns={2}
-            keyExtractor={(item: any, index: any) => index}
-            renderItem={({item, index}: any) => (
-              <NameCardListItem
-                item={item}
-                index={index}
-                data={nameCardsData}
-                nameCardMapData={nameCardMapData}
-                setData={setNameCardsData}
-              />
-            )}
-          />
-        )}
+      </View>
+      <View style={{height: setHeight(67)}}>
+        <FlatList
+          data={users}
+          style={{padding: 20, marginBottom: 20}}
+          renderItem={({item, index}: any) => {
+            let check = false;
+            chosenUsers.forEach((el: any) => {
+              if (el._id == item._id) {
+                check = true;
+              }
+            });
+            return (
+              <View>
+                {check && (
+                  <View style={styles.checkContainer}>
+                    <AntDesignIcon name="check" style={{color: '#fff'}} />
+                  </View>
+                )}
+                <TouchableOpacity
+                  style={styles.listItemContainer}
+                  onPress={() => {
+                    let arr: any = [...chosenUsers];
+                    if (!arr.some((el: any) => el._id == item._id)) {
+                      arr.push(item);
+                    } else {
+                      arr = chosenUsers.filter((el: any) => el._id != item._id);
+                    }
+                    setChosenUsers(arr);
+                  }}>
+                  <Text style={styles.listItemName}>
+                    {item.firstName} {item.lastName}
+                  </Text>
+                  <Text style={[styles.listItemDesc, {marginTop: 5}]}>
+                    {item.companyId.name}
+                  </Text>
+                  <View style={[styles.rowCenter, {marginTop: 5}]}>
+                    <View style={[styles.rowCenter, {width: '30%'}]}>
+                      <SimpleLineIcon name="bag" style={styles.listItemDesc} />
+                      <Text style={[styles.listItemDesc, {marginLeft: 5}]}>
+                        {item.position}
+                      </Text>
+                    </View>
+                    <View style={[styles.rowCenter, {marginLeft: 20}]}>
+                      <Icon
+                        style={styles.listItemDesc}
+                        name="clipboard-outline"
+                      />
+                      <Text style={[styles.listItemDesc, {marginLeft: 5}]}>
+                        {item.profession}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            );
+          }}
+        />
+        <TouchableOpacity
+          style={styles.doneButton}
+          onPress={() => {
+            setSelectedUsers(chosenUsers);
+            props.navigation.goBack();
+          }}>
+          <AntDesignIcon name="left" style={styles.doneButtonIcon} />
+          <Text style={styles.doneButtonText}>Болсон</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-export default NameCardSearch;
+export default AddEventUsers;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#2B3036',
     flex: 1,
+    backgroundColor: '#2B3036',
   },
   wrapper: {
     paddingHorizontal: 20,
-  },
-  loaderContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '70%',
   },
   searchSection: {
     flexDirection: 'row',
@@ -324,7 +315,7 @@ const styles = StyleSheet.create({
     width: '8%',
   },
   input: {
-    width: '80%',
+    width: '90%',
     backgroundColor: '#d9d9d9',
     height: 40,
     borderRadius: 10,
@@ -359,9 +350,36 @@ const styles = StyleSheet.create({
     marginLeft: -20,
     marginTop: '5%',
   },
-  list: {
-    marginTop: '5%',
-    height: '66.8%',
+  checkContainer: {
+    height: 20,
+    width: 20,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#9dc795',
+    marginBottom: -10,
+    zIndex: 1,
+  },
+  listItemContainer: {
+    backgroundColor: '#f2f2f2',
+    padding: 10,
+    width: '100%',
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  listItemName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#585858',
+    lineHeight: 20,
+  },
+  listItemDesc: {
+    color: '#a0a0a0',
+    fontSize: 14,
+  },
+  rowCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   pickerContainer: {
     marginTop: 2,
@@ -380,5 +398,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     paddingLeft: 2,
     paddingRight: 1,
+  },
+  doneButton: {
+    height: 50,
+    width: 150,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f2f2f2',
+    alignSelf: 'center',
+    flexDirection: 'row',
+  },
+  doneButtonIcon: {
+    color: '#585858',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginRight: 10,
+  },
+  doneButtonText: {
+    color: '#585858',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

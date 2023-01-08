@@ -1,3 +1,5 @@
+import {isEmpty} from 'lodash';
+import React, {useContext, useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -8,17 +10,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
-import Header from '../../Components/Header/Header';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {COLORS} from '../../constants';
-import Button from '../../Components/Button/Button';
 import DatePicker from 'react-native-date-picker';
-import {getRequest, sendRequest} from '../../utils/Service';
-import {isEmpty} from 'lodash';
-import {showSuccessMessage, showWarningMessage} from '../../utils/helper';
-import Icon from 'react-native-vector-icons/EvilIcons';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import Button from '../../Components/Button/Button';
+import Header from '../../Components/Header/Header';
+import {COLORS} from '../../constants';
 import UserContext from '../../Context/userContext';
+import {showSuccessMessage, showWarningMessage} from '../../utils/helper';
+import {sendRequest} from '../../utils/Service';
 
 const AddEvent = (props: any) => {
   const [title, setTitle] = useState('');
@@ -34,14 +33,6 @@ const AddEvent = (props: any) => {
   const [timeOpen, setTimeOpen] = useState(false);
 
   const {userInfo} = useContext<any>(UserContext);
-
-  useEffect(() => {
-    getRequest('/nameCards').then((res: any) => {
-      if (!isEmpty(res.data)) {
-        setUsers(res.data);
-      }
-    });
-  }, []);
 
   const handleButtonPress = () => {
     if (isEmpty(title)) {
@@ -71,6 +62,13 @@ const AddEvent = (props: any) => {
         }
       });
     }
+  };
+
+  const goAddEventUsers = () => {
+    props.navigation.navigate('AddEventUsers', {
+      selectedUsers,
+      setSelectedUsers,
+    });
   };
 
   return (
@@ -127,41 +125,51 @@ const AddEvent = (props: any) => {
           </View>
 
           <View>
-            <Text style={styles.titlePhoto}>Урих зочид</Text>
-            <FlatList
-              horizontal
-              data={users}
-              style={{paddingTop: 10}}
-              renderItem={({item, index}: any) => {
-                return (
-                  <TouchableOpacity
-                    style={styles.userItemContainer}
-                    onPress={() => {
-                      if (selectedUsers.includes(item)) {
-                        const arr = selectedUsers.filter(
-                          (el: any) => el != item,
-                        );
-                        setSelectedUsers(arr);
-                      } else {
-                        setSelectedUsers((old: any) => [...old, item]);
-                      }
-                    }}>
-                    <Image
-                      source={require('../../assets/userIcon.png')}
-                      style={styles.userItemImage}
-                    />
-                    <Text style={{color: COLORS.textColor, marginTop: 5}}>
-                      {item.firstName}
-                    </Text>
-                    {selectedUsers.includes(item) && (
-                      <View style={styles.checkContainer}>
-                        <Icon name="check" style={styles.checkIcon} />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              }}
-            />
+            <Text style={styles.titlePhoto}>Зочин урих</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <TouchableOpacity
+                style={styles.addGuestButton}
+                onPress={goAddEventUsers}>
+                <Text style={{color: '#a0a0a0', fontSize: 24, lineHeight: 26}}>
+                  +
+                </Text>
+              </TouchableOpacity>
+              <FlatList
+                horizontal
+                data={selectedUsers}
+                style={{paddingTop: 10}}
+                renderItem={({item, index}: any) => {
+                  return (
+                    <TouchableOpacity
+                      style={styles.userItemContainer}
+                      // onPress={() => {
+                      //   if (selectedUsers.includes(item)) {
+                      //     const arr = selectedUsers.filter(
+                      //       (el: any) => el != item,
+                      //     );
+                      //     setSelectedUsers(arr);
+                      //   } else {
+                      //     setSelectedUsers((old: any) => [...old, item]);
+                      //   }
+                      // }}
+                    >
+                      <Image
+                        source={require('../../assets/userIcon.png')}
+                        style={styles.userItemImage}
+                      />
+                      <Text style={{color: COLORS.textColor, marginTop: 5}}>
+                        {item.firstName}
+                      </Text>
+                      {/* {selectedUsers.includes(item) && (
+                        <View style={styles.checkContainer}>
+                          <Icon name="check" style={styles.checkIcon} />
+                        </View>
+                      )} */}
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </View>
           </View>
           <Button
             title="Хадгалах"
@@ -219,6 +227,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 20,
   },
+  addGuestButton: {
+    height: 50,
+    width: 50,
+    borderRadius: 50,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#a0a0a0',
+    marginRight: 20,
+    marginTop: 10,
+  },
   input: {
     marginTop: 10,
     borderWidth: 1,
@@ -269,7 +289,7 @@ const styles = StyleSheet.create({
   dateTimeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: 10,
   },
   userItemContainer: {
     marginRight: 20,

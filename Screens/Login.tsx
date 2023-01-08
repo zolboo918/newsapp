@@ -107,7 +107,6 @@ const Login = (props: any) => {
   };
 
   const onNavigationStateChange = async (res: any) => {
-    console.log('res :>> ', res);
     const ros = getCodeAndStateFromUrl(res.url);
     const token = await getAccessToken(
       'AQSUVWWFBfo1m3Hep3NBwIUcd-PAEFNhPoCKZNDPUAhnapb7jWTRjA9jo-UKN5Z4lQLwyxc4xP9ZC9EL3BBQT66gmse9RO5VD2WiW8Drf0FkNLaj7LqXUAT36-Dmq2zsaFYVuFyohZlD8e50Dm-HtXETOtrVdq9HNxupRGy3QN2lears9_pJ9DLGYv2rfWBvThXHQWblJyahNlYl0yQ',

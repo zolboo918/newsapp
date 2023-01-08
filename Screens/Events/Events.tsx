@@ -59,6 +59,16 @@ const AgendaScreen = (props: any) => {
 
   const loadMonthData = (date: any) => {
     setLoading(true);
+    if (!date) {
+      const d = new Date();
+      const month =
+        d.getMonth() + 1 < 10 ? `0${d.getMonth() + 1}` : d.getMonth() + 1;
+      date = {year: d.getFullYear(), month};
+    }
+    if (date.month < 10) {
+      date.month = `0${date.month}`;
+    }
+
     getRequest(
       `/event/filter/${date.year}-${date.month}-01/${date.year}-${date.month}-31`,
     ).then((res: any) => {
@@ -70,7 +80,6 @@ const AgendaScreen = (props: any) => {
           // '2022-11-20': {textColor: 'green', marked: true},
           arr[el.date] = {marked: true};
         });
-        console.log('arr', arr);
         setMarkedDates(arr);
       }
     });
@@ -142,9 +151,7 @@ const AgendaScreen = (props: any) => {
         loadItemsForMonth={date => {
           loadMonthData(date);
         }}
-        onDayChange={day => {
-          console.log('day changed');
-        }}
+        onDayChange={day => {}}
         markedDates={markedDates}
         theme={{
           calendarBackground: COLORS.DEFAULT_COLOR,

@@ -135,8 +135,6 @@ const NameCardDetail = (props: any) => {
     }
   };
 
-  console.log('data', data);
-
   return (
     <View style={styles.container}>
       <Header

@@ -23,6 +23,7 @@ import {COLORS} from '../constants';
 import Register4 from '../Screens/Register/Register4';
 import AddEvent from '../Screens/Events/AddEvent';
 import EventDetail from '../Screens/Events/EventDetail';
+import AddEventUsers from '../Screens/Events/AddEventUsers';
 
 const Stack = createNativeStackNavigator();
 
@@ -96,6 +97,11 @@ function StackNavigation() {
               <Stack.Screen
                 name="EventDetail"
                 component={EventDetail}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AddEventUsers"
+                component={AddEventUsers}
                 options={{headerShown: false}}
               />
               <Stack.Screen

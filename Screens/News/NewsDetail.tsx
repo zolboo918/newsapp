@@ -38,27 +38,10 @@ const NewsDetail = (props: any) => {
     videoLink.lastIndexOf('/') + 1,
     videoLink.length,
   );
-  let showRef: any;
-  let hideRef: any;
 
   const {userInfo} = useContext<any>(UserContext);
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        setCommentHeight(false);
-      },
-    );
-    showRef = keyboardDidShowListener;
-
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setCommentHeight(true);
-      },
-    );
-    hideRef = keyboardDidHideListener;
     getRequest('/newsLike/' + data._id).then((res: any) => {
       if (res.success) {
         res.data.forEach((el: any) => {
@@ -68,13 +51,10 @@ const NewsDetail = (props: any) => {
         });
       }
     });
+    getCommentData();
     sendRequest('/news/' + data._id + '/viewedCount', {
       viewedCount: data.viewedCount + 1,
     });
-    return () => {
-      hideRef.remove();
-      showRef.remove();
-    };
   }, []);
 
   const deleteNews = () => {
@@ -190,73 +170,58 @@ const NewsDetail = (props: any) => {
             </TouchableOpacity>
           </View>
         </View>
-        <ActionSheet ref={actionSheetRef}>
-          <View
-            style={{
-              height: commentHeight ? setHeight(80) : setHeight(50),
-              padding: 20,
-            }}>
-            <View style={{borderBottomWidth: 1, borderBottomColor: '#e1e1e1'}}>
-              <Text style={styles.commentTitle}>Сэтгэгдлүүд</Text>
-            </View>
-            <ScrollView style={{maxHeight: setHeight(65)}}>
-              <FlatList
-                data={commentData}
-                renderItem={({item, index}: any) => {
-                  const date = new Date(item.date);
-                  return (
-                    <View
-                      style={{
-                        marginTop: 20,
-                        flexDirection: 'row',
-                        width: '90%',
-                      }}>
-                      <Image
-                        source={{
-                          uri: 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png',
-                        }}
-                        style={{height: 40, width: 40, borderRadius: 30}}
-                      />
-                      <View>
-                        <View style={styles.commentBodyContainer}>
-                          <Text style={styles.commentUser}>
-                            {item.userId.firstName} {item.userId.lastName}
-                          </Text>
-                          <Text style={{color: '#282828', fontSize: 14}}>
-                            {item.content}
-                          </Text>
-                        </View>
-                        <Text style={styles.commentDate}>
-                          {date.getFullYear() +
-                            '.' +
-                            (date.getMonth() + 1) +
-                            '.' +
-                            date.getDate() +
-                            ' ' +
-                            date.getHours() +
-                            ':' +
-                            date.getMinutes()}
-                        </Text>
-                      </View>
-                    </View>
-                  );
-                }}
-              />
-            </ScrollView>
-            <KeyboardAwareScrollView
-              style={styles.writeCommentContainer}
-              scrollEnabled={false}>
-              <TextInput
-                value={commentContent}
-                placeholder="Сэтгэгдэл үлдээх"
-                placeholderTextColor={'#a0a0a0'}
-                style={styles.commentInput}
-                onChangeText={(val: any) => setCommentContent(val)}
-              />
-              <Icon name="send" style={styles.sendIcon} onPress={sendComment} />
-            </KeyboardAwareScrollView>
+        <View>
+          <View style={styles.writeCommentContainer}>
+            <TextInput
+              value={commentContent}
+              multiline
+              placeholder="Сэтгэгдэл үлдээх"
+              placeholderTextColor={'#a0a0a0'}
+              style={styles.commentInput}
+              onChangeText={(val: any) => setCommentContent(val)}
+            />
+            <Icon name="send" style={styles.sendIcon} onPress={sendComment} />
           </View>
-        </ActionSheet>
+
+          <FlatList
+            data={commentData}
+            renderItem={({item, index}: any) => {
+              const date = new Date(item.date);
+              return (
+                <View style={styles.listItemContainer}>
+                  <View style={styles.listItemImageContainer}>
+                    <Image
+                      source={require('../../assets/userIcon.jpeg')}
+                      style={styles.listItemImage}
+                    />
+                  </View>
+                  <View>
+                    <View style={styles.commentBodyContainer}>
+                      <Text style={styles.commentUser}>
+                        {item.userId.firstName} {item.userId.lastName}
+                      </Text>
+                      <Text style={{color: '#282828', fontSize: 14}}>
+                        {item.content}
+                      </Text>
+                    </View>
+                    <Text style={styles.commentDate}>
+                      {date.getFullYear() +
+                        '.' +
+                        (date.getMonth() + 1) +
+                        '.' +
+                        date.getDate() +
+                        ' ' +
+                        date.getHours() +
+                        ':' +
+                        date.getMinutes()}
+                    </Text>
+                  </View>
+                </View>
+              );
+            }}
+          />
+        </View>
+        {/* <ActionSheet ref={actionSheetRef}></ActionSheet> */}
       </ScrollView>
     </View>
   );
@@ -322,10 +287,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   commentBodyContainer: {
-    backgroundColor: '#F0F0F0',
-    borderRadius: 10,
+    backgroundColor: '#f2f2f2',
     padding: 10,
     marginLeft: 10,
+    borderRadius: 20,
+    width: '96.5%',
   },
   commentUser: {
     color: '#282828',
@@ -341,26 +307,47 @@ const styles = StyleSheet.create({
   writeCommentContainer: {
     width: getWidth(),
     height: setHeight(8),
-    position: 'absolute',
-    bottom: Platform.OS == 'android' ? -20 : 0,
-    backgroundColor: '#f0f0f0',
+    // position: 'absolute',
+    // bottom: Platform.OS == 'android' ? -20 : 0,
+    // backgroundColor: '#f0f0f0',
     // marginLeft: -20,
-    padding: 10,
+    paddingVertical: 10,
   },
   commentInput: {
-    width: '95%',
-    marginLeft: '2.5%',
-    height: 40,
+    width: '90%',
+    minHeight: 40,
+    height: 'auto',
+    maxHeight: 100,
     backgroundColor: '#fff',
     borderRadius: 20,
-    paddingHorizontal: 10,
+    paddingLeft: 10,
+    paddingRight: 60,
   },
   sendIcon: {
     position: 'absolute',
     borderRadius: 5,
-    right: 30,
-    top: 10,
+    right: 60,
+    top: 20,
+    alignSelf: 'flex-end',
     fontSize: 20,
-    color: COLORS.DEFAULT_COLOR,
+    color: '#2B3036',
+  },
+  listItemContainer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    width: '90%',
+  },
+  listItemImageContainer: {
+    backgroundColor: '#f2f2f2',
+    height: 45,
+    width: 45,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  listItemImage: {
+    height: 40,
+    width: 40,
+    borderRadius: 30,
   },
 });

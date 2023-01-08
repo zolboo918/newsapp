@@ -77,7 +77,6 @@ const News = (props: any) => {
                     });
                   });
                 } else {
-                  console.log('eeee');
                   setLoading(false);
                 }
               });

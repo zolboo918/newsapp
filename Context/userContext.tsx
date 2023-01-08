@@ -52,7 +52,6 @@ export const UserStore = (props: any) => {
         password,
       })
       .then(res => {
-        console.log('res :>> ', res);
         if (res.data.success) {
           setToken(res.data.token);
           setIsLoggedIn(true);

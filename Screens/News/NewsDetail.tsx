@@ -170,7 +170,7 @@ const NewsDetail = (props: any) => {
             </TouchableOpacity>
           </View>
         </View>
-        <View>
+        <View style={{width: '100%'}}>
           <View style={styles.writeCommentContainer}>
             <TextInput
               value={commentContent}
@@ -185,17 +185,20 @@ const NewsDetail = (props: any) => {
 
           <FlatList
             data={commentData}
+            style={{width: '100%'}}
             renderItem={({item, index}: any) => {
               const date = new Date(item.date);
               return (
                 <View style={styles.listItemContainer}>
-                  <View style={styles.listItemImageContainer}>
-                    <Image
-                      source={require('../../assets/userIcon.jpeg')}
-                      style={styles.listItemImage}
-                    />
+                  <View style={{width: '15%'}}>
+                    <View style={styles.listItemImageContainer}>
+                      <Image
+                        source={require('../../assets/userIcon.jpeg')}
+                        style={styles.listItemImage}
+                      />
+                    </View>
                   </View>
-                  <View>
+                  <View style={{width: '85%'}}>
                     <View style={styles.commentBodyContainer}>
                       <Text style={styles.commentUser}>
                         {item.userId.firstName} {item.userId.lastName}
@@ -289,9 +292,8 @@ const styles = StyleSheet.create({
   commentBodyContainer: {
     backgroundColor: '#f2f2f2',
     padding: 10,
-    marginLeft: 10,
     borderRadius: 20,
-    width: '96.5%',
+    width: '100%',
   },
   commentUser: {
     color: '#282828',
@@ -305,7 +307,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   writeCommentContainer: {
-    width: getWidth(),
+    width: '100%',
     height: setHeight(8),
     // position: 'absolute',
     // bottom: Platform.OS == 'android' ? -20 : 0,
@@ -314,7 +316,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   commentInput: {
-    width: '90%',
+    width: '100%',
     minHeight: 40,
     height: 'auto',
     maxHeight: 100,
@@ -322,12 +324,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingLeft: 10,
     paddingRight: 60,
-    paddingTop: Platform.OS == 'ios' ? 10 : 0,
+    paddingTop: 10,
   },
   sendIcon: {
     position: 'absolute',
     borderRadius: 5,
-    right: 60,
+    right: 20,
     top: 20,
     alignSelf: 'flex-end',
     fontSize: 20,
@@ -336,19 +338,19 @@ const styles = StyleSheet.create({
   listItemContainer: {
     marginTop: 20,
     flexDirection: 'row',
-    width: '90%',
+    width: '100%',
   },
   listItemImageContainer: {
     backgroundColor: '#f2f2f2',
-    height: 45,
-    width: 45,
+    height: 35,
+    width: 35,
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
   },
   listItemImage: {
-    height: 40,
-    width: 40,
+    height: 30,
+    width: 30,
     borderRadius: 30,
   },
 });

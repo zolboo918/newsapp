@@ -1,6 +1,6 @@
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
-import React from 'react';
-import {Platform, StatusBar, StyleSheet} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {Platform, StatusBar, StyleSheet, View} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../constants';
 import AddNameCard from '../Screens/NameCard/AddNameCard';
@@ -10,11 +10,18 @@ import News from '../Screens/News/News';
 import NameCardDetail from '../Screens/NameCard/NameCardDetail';
 import Working from '../Screens/Working';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import UserContext from '../Context/userContext';
 
 const Tab = createMaterialBottomTabNavigator();
 function BottomTabs() {
+  const {newNews, newEvent, getNews, getEvents} = useContext(UserContext);
   const insets = useSafeAreaInsets();
   const statusBarHeight = insets.top;
+
+  useEffect(() => {
+    getNews();
+    getEvents();
+  }, []);
 
   return (
     <Tab.Navigator
@@ -31,11 +38,14 @@ function BottomTabs() {
         component={News}
         options={{
           tabBarIcon: ({color}) => (
-            <MaterialCommunityIcons
-              name="bullhorn-variant-outline"
-              color={color}
-              style={styles.events}
-            />
+            <View>
+              {newNews ? <View style={styles.dot} /> : <></>}
+              <MaterialCommunityIcons
+                name="bullhorn-variant-outline"
+                color={color}
+                style={styles.events}
+              />
+            </View>
           ),
         }}
       />
@@ -44,11 +54,14 @@ function BottomTabs() {
         component={Events}
         options={{
           tabBarIcon: ({color}) => (
-            <MaterialCommunityIcons
-              name="calendar-blank-outline"
-              color={color}
-              style={styles.calendatIcon}
-            />
+            <View>
+              {newEvent ? <View style={styles.dot} /> : <></>}
+              <MaterialCommunityIcons
+                name="calendar-blank-outline"
+                color={color}
+                style={styles.calendatIcon}
+              />
+            </View>
           ),
         }}
       />
@@ -102,6 +115,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.DEFAULT_COLOR,
     height: 80,
     justifyContent: 'center',
+  },
+  dot: {
+    height: 5,
+    width: 5,
+    borderRadius: 5,
+    backgroundColor: '#E88B00',
+    alignSelf: 'center',
+    marginTop: -15,
+    marginBottom: 10,
   },
   events: {
     transform: [{rotateZ: '-45deg'}],

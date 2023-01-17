@@ -1,5 +1,5 @@
 import {Fab} from 'native-base';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {memo, useContext, useEffect, useState} from 'react';
 import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Agenda, AgendaEntry, AgendaSchedule} from 'react-native-calendars';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
@@ -12,16 +12,19 @@ import {useIsFocused} from '@react-navigation/native';
 
 const AgendaScreen = (props: any) => {
   let date = new Date();
-  const [items, setItems] = useState<any>([]);
+  const [items, setItems] = useState<any>({});
   const [today, setToday] = useState(date.toISOString().split('T')[0]);
   const [invited, setinvited] = useState<any>([]);
   const [markedDates, setMarkedDates] = useState<any>([]);
   const [loading, setLoading] = useState(false);
-  const {userInfo, logOut} = useContext<any>(UserContext);
+  const {userInfo, setNewEvent, logOut} = useContext<any>(UserContext);
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    if (isFocused) loadDayData(today);
+    if (isFocused) {
+      loadDayData(today);
+      setNewEvent(false);
+    }
   }, [isFocused]);
 
   const loadDayData = (date: any) => {
@@ -92,30 +95,11 @@ const AgendaScreen = (props: any) => {
   const renderItem = (reservation: any, isFirst: boolean) => {
     const inv = invited.some((el: any) => el._id == reservation._id);
     return (
-      <TouchableOpacity
-        testID={'item'}
-        style={[styles.item, {height: reservation.height}]}
-        onPress={() =>
-          props.navigation.navigate('EventDetail', {id: reservation._id})
-        }>
-        <View style={styles.itemContainerReal}>
-          {inv && (
-            <View style={styles.statusContainer}>
-              <Text style={{color: '#fff', fontSize: 12}}>Уригдсан</Text>
-            </View>
-          )}
-          <View>
-            <Text style={styles.name}>{reservation.name}</Text>
-            <Text style={styles.day}>
-              {reservation.day} {reservation.time}
-            </Text>
-          </View>
-          <AntDesignIcon
-            name="right"
-            style={{fontSize: 20, color: COLORS.textColor}}
-          />
-        </View>
-      </TouchableOpacity>
+      <EventItem
+        reservation={reservation}
+        inv={inv}
+        navigation={props.navigation}
+      />
     );
   };
 
@@ -173,6 +157,34 @@ const AgendaScreen = (props: any) => {
 };
 
 export default AgendaScreen;
+
+const EventItem = memo((props: any) => {
+  const {reservation, inv, navigation} = props;
+  return (
+    <TouchableOpacity
+      testID={'item'}
+      style={[styles.item, {height: reservation.height}]}
+      onPress={() => navigation.navigate('EventDetail', {id: reservation._id})}>
+      <View style={styles.itemContainerReal}>
+        {inv && (
+          <View style={styles.statusContainer}>
+            <Text style={{color: '#fff', fontSize: 12}}>Уригдсан</Text>
+          </View>
+        )}
+        <View>
+          <Text style={styles.name}>{reservation.name}</Text>
+          <Text style={styles.day}>
+            {reservation.day} {reservation.time}
+          </Text>
+        </View>
+        <AntDesignIcon
+          name="right"
+          style={{fontSize: 20, color: COLORS.textColor}}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+});
 
 const styles = StyleSheet.create({
   container: {

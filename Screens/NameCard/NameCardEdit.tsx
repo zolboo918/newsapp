@@ -19,10 +19,16 @@ import Header from '../../Components/Header/Header';
 import Picker from '../../Components/Picker/Picker';
 import {isEmpty} from 'lodash';
 import axios from 'axios';
-import {getRequest, putRequest, sendRequest} from '../../utils/Service';
+import {
+  fileUpload,
+  getRequest,
+  putRequest,
+  sendRequest,
+} from '../../utils/Service';
 import {Toast} from 'native-base';
 import {choosePhoto, showSuccessMessage, takePhoto} from '../../utils/helper';
 import UserContext from '../../Context/userContext';
+import {setWidth} from '../../utils/Dimension';
 
 const NameCardEdit = (props: any) => {
   const {item} = props.route.params;
@@ -33,7 +39,8 @@ const NameCardEdit = (props: any) => {
   const [position, setPosition] = useState(item.position);
   const [sector, setSector] = useState(item.sector);
   const [fileData, setFileData] = useState<any>();
-  const [modalShow, setModalShow] = useState(false);
+  const [fileData2, setFileData2] = useState<any>();
+  const [modalShow, setModalShow] = useState('0');
   const [sectorData, setSectorData] = useState([]);
   const [company, setCompany] = useState('');
   const [companyData, setCompanyData] = useState([]);
@@ -58,12 +65,34 @@ const NameCardEdit = (props: any) => {
       isPublic: item.isPublic,
     };
     setLoading(true);
-    putRequest('/nameCards/' + item._id, body).then(res => {
-      setLoading(false);
-      if (!res?.error) {
-        showSuccessMessage();
-      }
-    });
+    putRequest('/nameCards/' + item._id, body)
+      .then(res => {
+        fileUpload(
+          fileData2,
+          `${baseUrl}/nameCards/${res.nameCard._id}/backImage`,
+        )
+          .then(() => {
+            fileUpload(
+              fileData,
+              `${baseUrl}/nameCards/${res.nameCard._id}/frontImage`,
+            )
+              .then((ros: any) => {
+                setLoading(false);
+                if (!ros?.error) {
+                  showSuccessMessage();
+                }
+              })
+              .catch(() => {
+                setLoading(false);
+              });
+          })
+          .catch(() => {
+            setLoading(false);
+          });
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   };
 
   const onPressSector = () => {
@@ -92,18 +121,27 @@ const NameCardEdit = (props: any) => {
 
   const openCamera = () => {
     takePhoto().then(res => {
-      setModalShow(false);
+      setModalShow('0');
       if (!res?.error) {
-        setFileData(res);
+        if (modalShow == '1') {
+          setFileData(res);
+        } else if (modalShow == '2') {
+          setFileData2(res);
+        }
       }
     });
   };
 
   const openGallery = () => {
     choosePhoto().then(res => {
-      setModalShow(false);
+      console.log('modalShow :>> ', modalShow);
+      setModalShow('0');
       if (!res?.error) {
-        setFileData(res);
+        if (modalShow == '1') {
+          setFileData(res);
+        } else if (modalShow == '2') {
+          setFileData2(res);
+        }
       }
     });
   };
@@ -130,23 +168,43 @@ const NameCardEdit = (props: any) => {
         leftIconPress={() => props.navigation.goBack()}
       />
       <ScrollView style={styles.inputsContainer}>
-        <TouchableOpacity onPress={() => setModalShow(true)}>
-          {!fileData?.path ? (
-            <Image
-              source={{
-                uri: imageUrl + 'uploads/' + item.image,
-              }}
-              resizeMode="cover"
-              style={styles.image}
-            />
-          ) : (
-            <Image
-              source={{uri: fileData?.path}}
-              resizeMode="cover"
-              style={styles.image}
-            />
-          )}
-        </TouchableOpacity>
+        <ScrollView horizontal>
+          <TouchableOpacity onPress={() => setModalShow('1')}>
+            {!fileData?.path ? (
+              <Image
+                source={{
+                  uri: imageUrl + 'uploads/' + item?.frontImage,
+                }}
+                resizeMode="cover"
+                style={[styles.image, {marginRight: 20}]}
+              />
+            ) : (
+              <Image
+                source={{uri: fileData?.path}}
+                resizeMode="cover"
+                style={[styles.image, {marginRight: 20}]}
+              />
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalShow('2')}>
+            {!fileData2?.path ? (
+              <Image
+                source={{
+                  uri: imageUrl + 'uploads/' + item?.backImage,
+                }}
+                resizeMode="cover"
+                style={styles.image}
+              />
+            ) : (
+              <Image
+                source={{uri: fileData2?.path}}
+                resizeMode="cover"
+                style={[styles.image]}
+              />
+            )}
+          </TouchableOpacity>
+        </ScrollView>
+
         <Text style={styles.label}>Овог</Text>
         <TextInput
           placeholder="Овог"
@@ -232,8 +290,11 @@ const NameCardEdit = (props: any) => {
           />
         </View>
       </ScrollView>
-      <Modal visible={modalShow} transparent animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setModalShow(false)}>
+      <Modal
+        visible={modalShow == '1' || modalShow == '2'}
+        transparent
+        animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setModalShow('0')}>
           <View style={styles.modalContainer}>
             <View style={styles.modal}>
               <TouchableOpacity style={styles.modalItem} onPress={openCamera}>
@@ -287,7 +348,7 @@ const styles = StyleSheet.create({
     height: 55,
   },
   image: {
-    width: '100%',
+    width: setWidth(80),
     height: 220,
     marginTop: 20,
     marginBottom: 10,

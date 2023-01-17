@@ -28,12 +28,13 @@ const News = (props: any) => {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const {userInfo, logOut} = useContext<any>(UserContext);
+  const {userInfo, setNewNews, logOut} = useContext<any>(UserContext);
   const isFocused = useIsFocused();
 
   useEffect(() => {
     if (isFocused && userInfo) {
       getNews();
+      setNewNews(false);
     }
   }, [userInfo, isFocused]);
 

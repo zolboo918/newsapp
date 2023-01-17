@@ -10,11 +10,11 @@ const RequestListItem = (props: any) => {
   const navigate = () => {
     navigation.navigate('NameCardDetail', {id: item._id});
   };
-
+  console.log('item :>> ', item);
   return (
     <TouchableOpacity style={styles.itemContainer} onPress={navigate}>
       <Image
-        source={{uri: imageUrl + 'uploads/' + item?.image}}
+        source={{uri: imageUrl + 'uploads/' + item?.frontImage}}
         style={styles.image}
       />
       <View style={{}}>
@@ -97,5 +97,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
+    fontSize: 11,
   },
 });

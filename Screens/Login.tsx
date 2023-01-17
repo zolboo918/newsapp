@@ -48,15 +48,13 @@ export const fetchToken = async (code: any) => {
     },
   })
     .then(response => response.json())
-    .then(responseData => {
-      console.log(JSON.stringify(responseData));
-    });
+    .then(responseData => responseData);
 };
 
 const textColor = '#8a939e';
 
 const Login = (props: any) => {
-  const [userName, setUserName] = useState('zolboo412@gmail.com');
+  const [userName, setUserName] = useState('nahshh@chdh.com');
   const [password, setPassword] = useState('000000');
   const [remember, setRemember] = useState(false);
   const [userNameEdited, setUserNameEdited] = useState(false);
@@ -109,13 +107,14 @@ const Login = (props: any) => {
   const onNavigationStateChange = async (res: any) => {
     const ros = getCodeAndStateFromUrl(res.url);
     const token = await getAccessToken(
-      'AQSUVWWFBfo1m3Hep3NBwIUcd-PAEFNhPoCKZNDPUAhnapb7jWTRjA9jo-UKN5Z4lQLwyxc4xP9ZC9EL3BBQT66gmse9RO5VD2WiW8Drf0FkNLaj7LqXUAT36-Dmq2zsaFYVuFyohZlD8e50Dm-HtXETOtrVdq9HNxupRGy3QN2lears9_pJ9DLGYv2rfWBvThXHQWblJyahNlYl0yQ',
+      'AQVvgXlbuvMH1oIFwbBVdfatQZbvoT5aK-oVDg263FtFaVXgy7Waiw6Ir9L1gTxK06JEgjLgikbhxvNiF4gkvsC7_829ut5tWuPeDbe4Tv8TQl1or1cURxLhXgJ80EcxqvaPiyRkeGPovRL7lr7D5ygBBwq_mHOJHvMRv4Dyhuh_xx9y2C660BjBoHUc0xufzhBgamd28EQ7d3dJqzb5C0Nq3cQITZ8UsIo08zeQqF0tS5uUmOwyyp1lTYY-2P7xDeTDbBaA_MvBbjGZEtWDkQ2BoaEMNO-tjXCOVNJ9h-M71ZVB7_zZWT9DvcMf69debPl7RDdH7sLjCaa4iLFtwCOdiFbcjQ',
     );
+    setShow(false);
+    console.log('token', token);
   };
 
   const getAccessToken = async (code: any) => {
     const token = await fetchToken(code);
-
     return token;
   };
 

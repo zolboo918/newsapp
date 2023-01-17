@@ -36,8 +36,8 @@ export const choosePhoto = () => {
     showCropFrame: true,
     showCropGuidelines: true,
     freeStyleCropEnabled: true,
-    cropperToolbarTitle:
-      Platform.OS == 'android' ? '16:9 хэмжээг сонгоно уу' : '',
+    useFrontCamera: false,
+    cropperToolbarTitle: '',
   })
     .then((res: any): any => res)
     .catch(e => {

@@ -258,7 +258,14 @@ const AddEventUsers = (props: any) => {
                     {item.companyId.name}
                   </Text>
                   <View style={[styles.rowCenter, {marginTop: 5}]}>
-                    <View style={[styles.rowCenter, {width: '30%'}]}>
+                    <View
+                      style={[
+                        styles.rowCenter,
+                        {
+                          minWidth: '30%',
+                          maxWidth: '50%',
+                        },
+                      ]}>
                       <SimpleLineIcon name="bag" style={styles.listItemDesc} />
                       <Text style={[styles.listItemDesc, {marginLeft: 5}]}>
                         {item.position}

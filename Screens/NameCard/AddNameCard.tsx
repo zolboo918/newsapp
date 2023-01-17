@@ -30,12 +30,19 @@ const AddNameCard = (props: any) => {
   const qr = () => {
     props.navigation.navigate('AddNameCardQr');
   };
+
+  const friendRequest = () => {
+    props.navigation.navigate('FriendRequest');
+  };
+
   return (
     <View style={styles.container}>
       <Header
+        leftIcon="adduser"
         title="Нэрийн хуудас"
         rightIcon="logout"
         rightIconPress={logOut}
+        leftIconPress={friendRequest}
       />
       <View style={styles.wrapper}>
         <View style={{alignItems: 'center', width: '30%'}}>

@@ -54,8 +54,8 @@ export const fetchToken = async (code: any) => {
 const textColor = '#8a939e';
 
 const Login = (props: any) => {
-  const [userName, setUserName] = useState('nahshh@chdh.com');
-  const [password, setPassword] = useState('000000');
+  const [userName, setUserName] = useState('88102257');
+  const [password, setPassword] = useState('123');
   const [remember, setRemember] = useState(false);
   const [userNameEdited, setUserNameEdited] = useState(false);
   // const [payload, setPayload] = useState();
@@ -129,7 +129,7 @@ const Login = (props: any) => {
         <Icon name="user-o" style={styles.inputIcon} />
         <TextInput
           value={userName}
-          placeholder="Нэвтрэх нэр"
+          placeholder="Утасны дугаар"
           style={styles.input}
           placeholderTextColor="#8a939e"
           onChangeText={onValueChangeUserName}

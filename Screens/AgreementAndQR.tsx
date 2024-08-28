@@ -35,65 +35,30 @@ const AgreementAndQR = (props: any) => {
 
   const handleButtonPress = () => {
     if (isConfirmed) {
-      setLoading(true);
+      // setLoading(true);
       const data = props.route.params;
-      const body = {
-        firstName: data.firstName,
-        lastName: data.lastName,
+      const userData = {
+        lastname: data.lastName,
+        firstname: data.firstName,
         phone: data.phone,
-        email: data.email.toLowerCase(),
-        companyName: data.companyName,
-        companyId: data.companyId,
-        linkedInId: data.linkedInId,
-        password: data.password,
-        position: data.position.toUpperCase(),
-        sectorId: data.sectorId,
-        backImage: '',
-        frontImage: '',
-        qrText: data.qrText,
+        email: data.email,
+        about: data.intro,
         profession: data.profession,
-        workPhone: data.workPhone,
-        note: data.note,
-        isPublic: isPublic,
-        aboutActivity: data.aboutActivity,
+        password: data.password,
       };
-      sendRequest('/users/register', body).then(result => {
-        if (!result.error) {
-          fileUpload(
-            data.backImage,
-            `${baseUrl}/users/${result.data.nameCardId}/backImage`,
-          )
-            .then(res => {
-              fileUpload(
-                data.frontImage,
-                `${baseUrl}/users/${result.data.nameCardId}/frontImage`,
-              )
-                .then((res: any) => {
-                  setLoading(false);
-                  setQrImage(result.data.qr);
-                })
-                .catch((e: any) => {
-                  showUnSuccessMessage(JSON.stringify(e));
-                  setLoading(false);
-                });
-            })
-            .catch(() => {
-              fileUpload(
-                data.frontImage,
-                `${baseUrl}/users/${result.data.nameCardId}/frontImage`,
-              )
-                .then((res: any) => {
-                  setLoading(false);
-                  setQrImage(result.data.qr);
-                })
-                .catch((e: any) => {
-                  showUnSuccessMessage(JSON.stringify(e));
-                  setLoading(false);
-                });
-            });
-        } else {
-          setLoading(false);
-        }
+      sendRequest('/sign/user_add', userData).then((res: any) => {
+        const nameCardData = {
+          user_id: '',
+          template_id: data.qrText,
+          position: data.position,
+          email: data.email,
+          phone: data.phone,
+          official_phone: data.phone,
+          company_id: data.companyId,
+          front_image: data.frontImage,
+          back_image: data.backImage,
+        };
+        // namecard_add
       });
     } else {
       setError(true);

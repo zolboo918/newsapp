@@ -15,7 +15,7 @@ import Header from '../../Components/Header/Header';
 import {COLORS, imageUrl} from '../../constants';
 import YouTube from 'react-native-youtube';
 import UserContext from '../../Context/userContext';
-import {deleteRequest, getRequest, sendRequest} from '../../utils/Service';
+import {getNewsComments, getRequest, sendRequest} from '../../utils/Service';
 import {showDialogMessage, showSuccessMessage} from '../../utils/helper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ActionSheet, {ActionSheetRef} from 'react-native-actions-sheet';
@@ -25,8 +25,9 @@ import {isEmpty} from 'lodash';
 
 const NewsDetail = (props: any) => {
   const data = props.route.params;
+  const [imageError, setImageError] = useState<any>();
   const [heartPress, setHeartPress] = useState(false);
-  const [likeCount, setLikeCount] = useState(data.likeCount);
+  const [likeCount, setLikeCount] = useState(data.like_count);
   const [commentData, setCommentData] = useState([]);
   const [commentContent, setCommentContent] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,78 +43,36 @@ const NewsDetail = (props: any) => {
   const {userInfo} = useContext<any>(UserContext);
 
   useEffect(() => {
-    getRequest('/newsLike/' + data._id).then((res: any) => {
-      if (res.success) {
-        res.data.forEach((el: any) => {
-          if (el.userId._id == userInfo._id) {
-            setHeartPress(true);
-          }
-        });
-      }
-    });
     getCommentData();
-    sendRequest('/news/' + data._id + '/viewedCount', {
-      viewedCount: data.viewedCount + 1,
-    });
   }, []);
 
-  const deleteNews = () => {
-    showDialogMessage('Та итгэлтэй байна уу?', () => {
-      deleteRequest('/news/' + data._id).then(res => {
-        if (!res?.error) {
-          props.navigation.goBack();
-          showSuccessMessage();
-        }
-      });
-    });
-  };
-
   const onPressLike = () => {
-    const body = {
-      newsId: data._id,
-      userId: userInfo._id,
-    };
-    if (heartPress) {
-      setLikeCount(likeCount - 1);
-      sendRequest(`/newsLike/unlike`, body).then();
-    } else {
-      setLikeCount(likeCount + 1);
-      const body = {
-        newsId: data._id,
-        userId: userInfo._id,
-      };
-      sendRequest(`/newsLike/`, body).then();
+    if (!heartPress) {
+      setLikeCount(Number(likeCount) + 1);
+      const body = {user_id: userInfo.id};
+      sendRequest(`/json/news_like/${data.id}`, body).then();
+      setHeartPress(!heartPress);
     }
-    setHeartPress(!heartPress);
-  };
-
-  const onPressComment = () => {
-    actionSheetRef.current?.show();
-    getCommentData();
   };
 
   const getCommentData = () => {
-    setLoading(true);
-    getRequest('/newsComment/' + data._id + '/comment').then((res: any) => {
-      if (res.success) {
-        setLoading(false);
-        setCommentData(res.data);
-      }
+    getNewsComments(data.id).then(res => {
+      setCommentData(res);
     });
   };
 
   const sendComment = () => {
+    Keyboard.dismiss();
     if (!isEmpty(commentContent)) {
       const body = {
-        userId: userInfo._id,
-        newsId: data._id,
-        content: commentContent,
+        user_id: userInfo.id,
+        title: 'comment title',
+        long_desc: commentContent,
+        image: '',
       };
-      sendRequest(`/newsComment/${data._id}`, body).then((res: any) => {
-        if (res.success) {
-          getCommentData();
-          setCommentContent('');
-        }
+      sendRequest(`/json/comment_add/${data.id}`, body).then((res: any) => {
+        getCommentData();
+        setCommentContent('');
       });
     }
   };
@@ -123,23 +82,20 @@ const NewsDetail = (props: any) => {
       <Header
         title="Дэлгэрэнгүй"
         leftIcon="left"
-        rightIcon={data.nameCardId == userInfo.nameCardId ? 'delete' : ''}
-        rightIconPress={
-          data.nameCardId == userInfo.nameCardId ? deleteNews : () => {}
-        }
         leftIconPress={() => props.navigation.goBack()}
       />
       <Image
-        source={{uri: imageUrl + 'uploads/' + data.photo}}
+        source={{uri: data.image}}
         style={styles.image}
+        onError={e => {
+          if (e) {
+          }
+        }}
       />
       <ScrollView style={styles.wrapper}>
         <Text style={styles.newsTitle}>{data.title}</Text>
-        <Text style={styles.newsDate}>
-          {date.getFullYear()}.{date.getMonth() + 1}.{date.getDate()}{' '}
-          {date.getHours()}:{date.getMinutes()}
-        </Text>
-        <Text style={styles.news}>{data.body}</Text>
+        <Text style={styles.newsDate}>{data.created_at}</Text>
+        <Text style={styles.news}>{data.long_desc}</Text>
         <View style={styles.youtube}>
           {videoId && (
             <YouTube
@@ -161,12 +117,10 @@ const NewsDetail = (props: any) => {
               {likeCount}
             </Text>
 
-            <TouchableOpacity
-              style={styles.commentButtonContainer}
-              onPress={onPressComment}>
+            <TouchableOpacity style={styles.commentButtonContainer}>
               <Icon name="commenting-o" style={{fontSize: 22, color: '#fff'}} />
               {/* <Text style={styles.commentButtonText}>Сэтгэгдэл</Text> */}
-              <Text style={styles.commentButtonText}>{data.commentCount}</Text>
+              <Text style={styles.commentButtonText}>{data.comment_count}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -187,7 +141,6 @@ const NewsDetail = (props: any) => {
             data={commentData}
             style={{width: '100%'}}
             renderItem={({item, index}: any) => {
-              const date = new Date(item.date);
               return (
                 <View style={styles.listItemContainer}>
                   <View style={{width: '15%'}}>
@@ -201,23 +154,13 @@ const NewsDetail = (props: any) => {
                   <View style={{width: '85%'}}>
                     <View style={styles.commentBodyContainer}>
                       <Text style={styles.commentUser}>
-                        {item.userId.firstName} {item.userId.lastName}
+                        {item.userId?.firstName} {item.userId?.lastName}
                       </Text>
                       <Text style={{color: '#282828', fontSize: 14}}>
-                        {item.content}
+                        {item.long_desc}
                       </Text>
                     </View>
-                    <Text style={styles.commentDate}>
-                      {date.getFullYear() +
-                        '.' +
-                        (date.getMonth() + 1) +
-                        '.' +
-                        date.getDate() +
-                        ' ' +
-                        date.getHours() +
-                        ':' +
-                        date.getMinutes()}
-                    </Text>
+                    <Text style={styles.commentDate}>{item.created_at}</Text>
                   </View>
                 </View>
               );
@@ -325,6 +268,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 60,
     paddingTop: 10,
+    color: COLORS.textColor,
   },
   sendIcon: {
     position: 'absolute',

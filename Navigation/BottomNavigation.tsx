@@ -14,14 +14,9 @@ import UserContext from '../Context/userContext';
 
 const Tab = createMaterialBottomTabNavigator();
 function BottomTabs() {
-  const {newNews, newEvent, getNews, getEvents} = useContext(UserContext);
+  const {newNews, newEvent} = useContext(UserContext);
   const insets = useSafeAreaInsets();
   const statusBarHeight = insets.top;
-
-  useEffect(() => {
-    getNews();
-    getEvents();
-  }, []);
 
   return (
     <Tab.Navigator

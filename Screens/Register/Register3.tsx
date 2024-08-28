@@ -106,7 +106,7 @@ const Register3 = (props: any) => {
           <Text style={styles.titlePhoto}>Ар тал</Text>
         </TouchableOpacity>
       )}
-      <Text style={{color: COLORS.textColor, fontSize: 12, marginTop: 20}}>
+      {/* <Text style={{color: COLORS.textColor, fontSize: 12, marginTop: 20}}>
         Зөвхөн таний QR код үүсгэхэд шаардлагатай 4 оронтой тоог оруулна уу
       </Text>
       <TextInput
@@ -117,7 +117,7 @@ const Register3 = (props: any) => {
         placeholderTextColor={COLORS.textColor}
         style={styles.input}
         onChangeText={(text: string) => setQrText(text)}
-      />
+      /> */}
       <View style={styles.bottombuttonContainer}>
         <Button
           icon="chevron-left"

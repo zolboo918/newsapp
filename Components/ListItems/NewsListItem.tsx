@@ -1,12 +1,20 @@
 import {isEmpty} from 'lodash';
-import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useState} from 'react';
+import {
+  Image,
+  ImageErrorEventData,
+  NativeSyntheticEvent,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {baseUrl, imageUrl} from '../../constants';
 
 const NewsListItem = (props: any) => {
   const {item, onPress} = props;
-  const date = new Date(item.createdDate);
+  const [error, setError] = useState<any>('');
 
   return (
     <View style={styles.container}>
@@ -21,16 +29,23 @@ const NewsListItem = (props: any) => {
         />
         <View style={styles.userTexts}>
           <View style={{flexDirection: 'row'}}>
-            <Text style={styles.userName}>{item.userId.firstName}</Text>
-            <Text style={styles.userName}> {item.userId.lastName}</Text>
+            <Text style={styles.userName}>{item?.userId?.firstName}</Text>
+            <Text style={styles.userName}> {item?.userId?.lastName}</Text>
           </View>
-          <Text style={styles.userCompany}>{item.userId.companyName}</Text>
+          <Text style={styles.userCompany}>{item?.userId?.companyName}</Text>
         </View>
       </View>
       <TouchableOpacity onPress={onPress}>
         <Image
-          source={{uri: imageUrl + 'uploads/' + item.photo}}
+          source={
+            error
+              ? require('../../assets/images/newsDefault.jpg')
+              : {uri: item.image}
+          }
           style={styles.newsImage}
+          onError={(e: NativeSyntheticEvent<ImageErrorEventData>) => {
+            if (e) setError(e);
+          }}
         />
         <Text style={styles.newsTitle}>{item.title}</Text>
         <View
@@ -42,19 +57,16 @@ const NewsListItem = (props: any) => {
           }}>
           <Icon name="heart-o" style={{fontSize: 20, color: '#fff'}} />
           <Text style={{fontSize: 12, color: '#fff', marginLeft: 5}}>
-            {item?.likeCount}
+            {item?.like_count}
           </Text>
           <Icon
             name="commenting-o"
             style={{fontSize: 20, color: '#fff', marginLeft: 20}}
           />
           <Text style={{fontSize: 12, color: '#fff', marginLeft: 5}}>
-            {item.commentCount}
+            {item.comment_count}
           </Text>
-          <Text style={styles.newsDate}>
-            {date.getFullYear()}.{date.getMonth() + 1}.{date.getDate()}{' '}
-            {date.getHours()}:{date.getMinutes()}
-          </Text>
+          <Text style={styles.newsDate}>{item.created_at}</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -102,6 +114,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#fff',
     textAlign: 'right',
-    marginLeft: '38%',
+    marginLeft: '30%',
   },
 });

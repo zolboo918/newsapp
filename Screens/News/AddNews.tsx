@@ -19,7 +19,7 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import UserContext from '../../Context/userContext';
-import {fileUpload, sendRequest} from '../../utils/Service';
+import {addNewsRequest, fileUpload, sendRequest} from '../../utils/Service';
 import {CustomAlert} from '../../utils/CustomAlert';
 import {
   choosePhoto,
@@ -43,26 +43,19 @@ const AddNews = (props: any) => {
 
   const handleButtonPress = () => {
     const requestBody = {
-      userId: userInfo._id,
       title,
-      body,
-      photo: '',
-      videoLink,
-      nameCardId: userInfo.nameCardId,
+      userInfo,
+      long_desc: body,
+      fileData,
     };
     setLoading(true);
-    sendRequest('/news', requestBody).then(res => {
-      if (!res.error) {
-        fileUpload(fileData, `${baseUrl}/news/${res.data._id}/photo`)
-          .then((ress: any) => {
-            setLoading(false);
-            showSuccessMessage();
-            props.navigation.goBack();
-          })
-          .catch((e: any) => {
-            showUnSuccessMessage(JSON.stringify(e));
-            setLoading(false);
-          });
+    addNewsRequest(requestBody).then((res: any) => {
+      setLoading(false);
+      if (res.success) {
+        showSuccessMessage();
+        props.navigation.goBack();
+      } else {
+        showUnSuccessMessage(res.success_text);
       }
     });
   };

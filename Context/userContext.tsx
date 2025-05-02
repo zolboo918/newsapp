@@ -7,7 +7,8 @@ import React, {useState} from 'react';
 import {baseUrl} from '../constants';
 import {CustomAlert} from '../utils/CustomAlert';
 import {showDialogMessage, showUnSuccessMessage} from '../utils/helper';
-import {getRequest} from '../utils/Service';
+import {getRequest, request, sendRequest} from '../utils/Service';
+export const glob: any = {};
 
 const defaultValue = {
   isLoggedIn: false,
@@ -16,11 +17,9 @@ const defaultValue = {
   setNewNews: (val: boolean) => {},
   setNewEvent: (val: boolean) => {},
   setIsLoggedIn: (val: any) => {},
-  register: (val: any) => {},
   login: (userName: any, password: any) => {},
   logOut: () => {},
-  getNews: () => {},
-  getEvents: () => {},
+  setUserInfo: (val: any) => {},
   token: null,
   userInfo: null,
   loading: false,
@@ -43,119 +42,27 @@ export const UserStore = (props: any) => {
       setIsLoggedIn(false);
       setToken(null);
       setUserInfo(null);
+      AsyncStorage.removeItem('loginUserInfo');
     });
   };
 
-  const getNews = () => {
-    getRequest(`/news`).then((news: any) => {
-      if (news.success) {
-        AsyncStorage.getItem(`newsCount${userInfo._id}`).then((res: any) => {
-          if (!isEmpty(res)) {
-            const result = JSON.parse(res);
-            if (result < news.data.length) {
-              setNewNews(true);
-              AsyncStorage.setItem(
-                `newsCount${userInfo._id}`,
-                news.data.length.toString(),
-              );
-            }
-          } else {
-            setNewNews(true);
-            AsyncStorage.setItem(
-              `newsCount${userInfo._id}`,
-              news.data.length.toString(),
-            );
-          }
-        });
-      }
-    });
-  };
-
-  const getEvents = () => {
-    let date: any = {};
-    const d = new Date();
-    const month =
-      d.getMonth() + 1 < 10 ? `0${d.getMonth() + 1}` : d.getMonth() + 1;
-    date = {year: d.getFullYear(), month};
-    getRequest(
-      `/event/filter/${date.year}-${date.month}-01/${date.year}-${date.month}-31`,
-    ).then((res: any) => {
-      if (res.success && !isEmpty(res.data)) {
-        AsyncStorage.getItem(`eventCount${userInfo._id}`).then(
-          (oldcount: any) => {
-            if (!isEmpty(oldcount)) {
-              const result = JSON.parse(oldcount);
-              if (result < res.data.length) {
-                setNewEvent(true);
-                AsyncStorage.setItem(
-                  `eventCount${userInfo._id}`,
-                  res.data.length.toString(),
-                );
-              } else {
-                setNewEvent(false);
-              }
-            } else {
-              setNewEvent(true);
-              AsyncStorage.setItem(
-                `eventCount${userInfo._id}`,
-                res.data.length.toString(),
-              );
-            }
-          },
-        );
-      }
-    });
-    // getRequest(`/news`).then((news: any) => {
-    //   console.log('news', news);
-    //   if (news.success) {
-    //     AsyncStorage.getItem('newsCount').then((res: any) => {
-    //       console.log('res :>> ', res);
-    //       if (!isEmpty(res)) {
-    //         const result = JSON.parse(res);
-    //         if (result < news.data.length) {
-    //           setNewNews(true);
-    //           AsyncStorage.setItem('newsCount', news.data.length.toString());
-    //         }
-    //       } else {
-    //         setNewNews(true);
-    //         AsyncStorage.setItem('newsCount', news.data.length.toString());
-    //       }
-    //     });
-    //   }
-    // });
-  };
-
-  // const nameCardInfo = (userId: any) => {
-  //   getRequest('/nameCards/user/' + userId).then(res => {
-  //     if (!res?.error) {
-  //       setNameCardIndo(res.data);
-  //     }
-  //   });
-  // };
-
-  const login = (userName: any, password: any) => {
+  const login = (phone: any, password: any) => {
     setLoading(true);
-    axios
-      .post(
-        `${baseUrl}/users/login`,
-        {
-          userName,
-          password,
-        },
-        {timeout: 20000},
-      )
-      .then(res => {
-        if (res.data.success) {
-          setToken(res.data.token);
+    request('/sign', {phone, password})
+      .then((res: any) => {
+        if (res.success) {
+          setToken(res.token);
+          glob.token = res.token;
+          glob.userInfo = res.user;
           setIsLoggedIn(true);
-          setUserInfo({
-            ...res.data.user,
-            nameCardId: res.data.nameCardId,
-            nameCardImage: res.data.photo,
-          });
+          setUserInfo(res.user);
           setLoading(false);
+          AsyncStorage.setItem(
+            'loginUserInfo',
+            JSON.stringify({...res.user, token: res.token}),
+          );
         } else {
-          const errMsg = res.data.error.message;
+          const errMsg = res.success_text;
           setError(errMsg);
           setIsLoggedIn(false);
           setLoading(false);
@@ -164,13 +71,9 @@ export const UserStore = (props: any) => {
           );
         }
       })
-      .catch(err => {
+      .catch((err: any) => {
         console.log('err', err);
-        setError(
-          err.response.data.error.message
-            ? err.response.data.error.message
-            : err,
-        );
+        setError(err.error.message ? err.error.message : err);
         setIsLoggedIn(false);
         setLoading(false);
         Toast.show({
@@ -180,35 +83,6 @@ export const UserStore = (props: any) => {
             : 'Та интернэт холболтоо шалгана уу',
         });
       });
-  };
-  const register = (userInfo: any) => {
-    setLoading(true);
-    try {
-      axios
-        .post(
-          `https://bookappapi.herokuapp.com/api/v1/users/register`,
-          userInfo,
-        )
-        .then(res => {
-          setToken(res.data.token);
-          setIsLoggedIn(true);
-          setUserInfo(res.data.data);
-          setLoading(false);
-        })
-        .catch(err => {
-          //   Toast.show({
-          //     text1: 'Алдаа',
-          //     text2: err.response.data
-          //       ? err.response.data.error.message
-          //       : 'Та дахин оролдоно уу',
-          //     type: 'error',
-          //   });
-          setIsLoggedIn(false);
-          setLoading(false);
-        });
-    } catch (error: any) {
-      console.log('error->', error.message);
-    }
   };
 
   return (
@@ -220,11 +94,9 @@ export const UserStore = (props: any) => {
         setNewNews,
         setNewEvent,
         setIsLoggedIn,
-        register,
         login,
         logOut,
-        getNews,
-        getEvents,
+        setUserInfo,
         token,
         userInfo,
         loading,

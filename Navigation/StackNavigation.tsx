@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from '../Screens/Login';
 import Register1 from '../Screens/Register/Register1';
@@ -7,7 +7,7 @@ import Register3 from '../Screens/Register/Register3';
 import AgreementAndQR from '../Screens/AgreementAndQR';
 import ForgetPassword from '../Screens/ForgetPassword';
 import {useContext} from 'react';
-import UserContext from '../Context/userContext';
+import UserContext, {glob} from '../Context/userContext';
 import BottomTabs from './BottomNavigation';
 import AddNews from '../Screens/News/AddNews';
 import NewsDetail from '../Screens/News/NewsDetail';
@@ -18,25 +18,32 @@ import AddNameCardQr from '../Screens/NameCard/AddNameCardQr';
 import NameCardEdit from '../Screens/NameCard/NameCardEdit';
 import AddCompany from '../Screens/AddCompany';
 import FriendRequest from '../Screens/FriendRequest';
-import {SafeAreaView, StatusBar, View} from 'react-native';
+import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import {COLORS} from '../constants';
 import Register4 from '../Screens/Register/Register4';
 import AddEvent from '../Screens/Events/AddEvent';
 import EventDetail from '../Screens/Events/EventDetail';
 import AddEventUsers from '../Screens/Events/AddEventUsers';
+import {isEmpty} from 'lodash';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createNativeStackNavigator();
 
 function StackNavigation() {
-  const {isLoggedIn} = useContext(UserContext);
+  const {isLoggedIn, setIsLoggedIn, setUserInfo} = useContext(UserContext);
+  useEffect(() => {
+    AsyncStorage.getItem('loginUserInfo').then((res: any) => {
+      if (!isEmpty(res)) {
+        setIsLoggedIn(true);
+        const userData = JSON.parse(res);
+        setUserInfo(userData);
+        glob.token = userData.token;
+        glob.userInfo = userData;
+      }
+    });
+  }, []);
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: COLORS.DEFAULT_COLOR,
-        paddingBottom: 0,
-        marginBottom: StatusBar.currentHeight ? 0 : -20,
-      }}>
+    <View style={style.container}>
       <SafeAreaView style={{flex: 1}}>
         <Stack.Navigator initialRouteName="Login">
           {!isLoggedIn ? (
@@ -158,3 +165,12 @@ function StackNavigation() {
 }
 
 export default StackNavigation;
+
+const style = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.DEFAULT_COLOR,
+    paddingBottom: 0,
+    marginBottom: StatusBar.currentHeight ? 0 : -20,
+  },
+});

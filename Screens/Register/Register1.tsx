@@ -13,7 +13,7 @@ import {COLORS} from '../../constants';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import Picker from '../../Components/Picker/Picker';
 import {isEmpty} from 'lodash';
-import {getRequest} from '../../utils/Service';
+import {getRequest, request, sendRequest} from '../../utils/Service';
 
 const Register1 = (props: any) => {
   const [firstName, setFirstName] = useState('');
@@ -28,13 +28,16 @@ const Register1 = (props: any) => {
 
   const onPressSector = () => {
     if (isEmpty(sectorData)) {
-      getRequest('/companyCategories').then(res => {
-        let arr: any = [];
-        res.data.forEach((el: any) => {
-          arr.push({label: el.displayName, value: el._id});
-        });
-        setSectorData(arr);
-      });
+      sendRequest('/json/branch_list/10', {user_id: ''}).then(res =>
+        console.log('res', res),
+      );
+      // getRequest('/companyCategories').then(res => {
+      //   let arr: any = [];
+      //   res.data.forEach((el: any) => {
+      //     arr.push({label: el.displayName, value: el._id});
+      //   });
+      //   setSectorData(arr);
+      // });
     }
   };
 
@@ -47,6 +50,7 @@ const Register1 = (props: any) => {
         email,
         sectorId,
         profession,
+        intro,
       }),
     );
     // }
